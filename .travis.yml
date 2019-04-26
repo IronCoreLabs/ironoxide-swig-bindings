@@ -20,7 +20,6 @@ install:
   - "~/bin/sbt --help || curl -Ls https://git.io/sbt > ~/bin/sbt && chmod 0755 ~/bin/sbt"
 before_script:
   - rustup component add rustfmt-preview
-  - cross --version || cargo install cross
 matrix:
   include:
     # Linux
