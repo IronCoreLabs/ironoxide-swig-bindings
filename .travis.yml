@@ -14,8 +14,8 @@ branches:
   only:
     - master
 before_install:
-  - openssl aes-256-cbc -K $encrypted_88ddd083498a_key -iv $encrypted_88ddd083498a_iv
-    -in tests/src/test/resources/service-keys.conf.enc -out java/scala/src/test/resources/service-keys.conf -d
+  - openssl aes-256-cbc -K $encrypted_487cf28eaba8_key -iv $encrypted_487cf28eaba8_iv
+    -in tests/src/test/resources/service-keys.conf.enc -out tests/src/test/resources/service-keys.conf -d
 install:
   - "~/bin/sbt --help || curl -Ls https://git.io/sbt > ~/bin/sbt && chmod 0755 ~/bin/sbt"
 before_script:
