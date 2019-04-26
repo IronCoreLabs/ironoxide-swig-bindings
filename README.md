@@ -1,25 +1,20 @@
-# JNI Bindings
+# IronCore Labs IronOxide Java SDK
 
-Generating the JNI bindings for `ironrust` is done with this project. To do this you'll need `clang` installed and need to have `JAVA_HOME` set.
+SDK for using IronCore Labs from your Java server side applications. This library is a thin Rust shim that wraps the [Rust SDK](https://github.com/IronCoreLabs/ironoxide) and uses the [Rust Swig](https://github.com/Dushistov/rust_swig) toolset to generate JNI bindings to make it callable from the JVM.
 
-## Example
+## Generating the JNI Bindings
 
-```bash
-JAVA_HOME="/usr/lib/jvm/java-8-openjdk/" cargo build
-```
+Prerequisites:
 
-## What's produced
++ [Rust toolchain installed](https://www.rust-lang.org/tools/install)
++ `JAVA_HOME` environment variable set
 
-The `java` directory will have the JNI binding code for the java side and `target/debug` or `target/release` will have the dynamic lib file you're going to need. It will be `libironrust_java.so` or `libironrust_java.dylib` depending on your environment.
+From the root of this repository run `cargo build`. The resulting `java` directory will have the JNI binding code for the Java side and `target/debug` or `target/release` will have the dynamic library file you need to pull into your Java code. It will be `libironoxide_java.so` or `libironoxide_java.dylib` depending on your environment. This library will only work on the architecture from which it was built.
 
-## Testing
+## Integration Testing
 
 To test this we've produced a test harness that uses `sbt`. We used sbt because Scala is more familiar to us than Java, but rest assured that the bindings are bare Java with JNI.
 
-The Scala tests are full integration tests for the SDK. As such, some tests need full, valid JWTs as we're hitting the staging environment for our tests. So the first step necessary to run the tests is to decrypt the JWT private key and associated project/segment/service key IDs. This configuration should be in a `./java/scala/src/test/resources/service-keys.conf` file. We've checked in an IronHide encrypted file which you can decrypted via `ironhide file:decrypt service-keys.conf.iron`.
+The Scala tests are full integration tests for the SDK. As such, some tests need full, valid JWTs to validate against the hosted environment they're testing against. The first step necessary to run the tests is to decrypt the JWT private key and associated project/segment/service key IDs. This configuration should be in a `tests/src/test/resources/service-keys.conf` file. We've checked in an IronHide encrypted file which you can decrypted via `ironhide file:decrypt service-keys.conf.iron`.
 
-Once you have the decrypted JWT config, from the `scala` dir just run `sbt test`. If you get an error about the library missing be sure you've built the Rust binding code using the above instructions.
-
-### NoClassDefFoundError
-
-`java.lang.BootstrapMethodError: java.lang.NoClassDefFoundError:` will happen if you don't have the generated java in your tree. Make sure you do the cargo build.
+Once you have the decrypted JWT config, from the `tests` directory run `sbt test`. If you get an error (either about the missing binary or a `NoClassDefFoundError` error) be sure you've built the Rust binding code using the above instructions.
