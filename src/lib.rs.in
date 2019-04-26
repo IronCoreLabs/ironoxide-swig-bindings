@@ -1,7 +1,10 @@
 use log::error; //This is used as part of Swig expansion as a transitive dependency
 use chrono::{DateTime, Utc};
 use crate::jni_c_header::*;
-use crate::document_grant_access_result::{FailedResult, SucceededResult};
+use crate::{
+    document_grant_access_result::{FailedResult, SucceededResult},
+    group_get_result::GroupUserList
+};
 
 ///
 /// Classes for Common Types
@@ -190,6 +193,12 @@ foreigner_class!(class UserWithKey {
     method UserWithKey::public_key(&self) -> PublicKey; alias publicKey;
 });
 
+foreigner_class!(class GroupUserList {
+    self_type GroupUserList;
+    private constructor = empty;
+    method GroupUserList::list(&self) -> Vec<UserId>;
+});
+
 ///
 /// SDK Initialization Structure
 ///
@@ -276,8 +285,8 @@ foreigner_class!(class GroupGetResult{
     method GroupGetResult::is_member(&self) -> bool; alias isMember;
     method group_get_result::created(&self) -> DateTime<Utc>;
     method group_get_result::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
-    //method group_get_result::admin_list(&self) -> Option<Vec<UserId>>; alias adminList;
-    //method group_get_result::member_list(&self) -> Option<Vec<UserId>>; alias memberList;
+    method group_get_result::admin_list(&self) -> Option<GroupUserList>; alias adminList;
+    method group_get_result::member_list(&self) -> Option<GroupUserList>; alias memberList;
 });
 
 foreigner_class!(class GroupCreateOpts {
