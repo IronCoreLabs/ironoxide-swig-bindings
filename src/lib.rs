@@ -152,6 +152,11 @@ mod document_create_opt {
 
 mod device_context {
     use super::*;
+    pub fn create(private_key: &[i8], signing_keys: &[i8], account_id: &UserId, segment_id:&usize) -> Result<DeviceContext, String>{
+        let private_k = ironrust::api::PrivateKey::new_from_slice(i8_conv(private_key))?;
+        let sign = ironrust::api::DeviceSigningKeyPair::new_from_slice(i8_conv(signing_keys))?;
+        Ok(DeviceContext::new(account_id.clone(), segment_id.clone(), private_k, sign, "https://api-staging.ironcorelabs.com/api/1/"))
+    }
     pub fn account_id(d: &DeviceContext) -> UserId {
         d.account_id().clone()
     }

@@ -206,6 +206,7 @@ foreigner_class!(class GroupUserList {
 foreigner_class!(class DeviceContext {
     self_type DeviceContext;
     private constructor = empty;
+    static_method device_context::create(&[i8],&[i8],&UserId,&usize) -> Result<DeviceContext,String>; 
     method device_context::account_id(&self) -> UserId; alias accountId;
     method device_context::segment_id(&self) -> usize; alias segmentId;
     method device_context::private_device_key_vec_i8(&self) -> Vec<i8>; alias privateDeviceKey;
