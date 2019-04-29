@@ -246,10 +246,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.isMember shouldBe true
       group.created should not be null
       group.lastUpdated shouldBe group.created
-      //groupCreateResult.adminList should have length 1
-      //groupCreateResult.adminList.head shouldBe primaryTestUserID
-      //groupCreateResult.memberList should have length 1
-      //groupCreateResult.memberList.head shouldBe primaryTestUserID
+      group.adminList.isPresent shouldBe true
+      group.memberList.isPresent shouldBe true
+      group.adminList.get.list should have length 1
+      group.adminList.get.list.head shouldBe primaryTestUserID
+      group.memberList.get.list should have length 1
+      group.memberList.get.list.head shouldBe primaryTestUserID
     }
   }
 

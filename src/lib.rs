@@ -446,6 +446,15 @@ mod group_list_result {
 
 mod group_get_result {
     use super::*;
+    /// Wrap the Vec<UserId> type in a newtype because swig can't handle
+    /// passing through an Option<Vec<*>>
+    pub struct GroupUserList(Vec<UserId>);
+    impl GroupUserList {
+        pub fn list(&self) -> Vec<UserId> {
+            self.0.clone()
+        }
+    }
+
     pub fn id(g: &GroupGetResult) -> GroupId {
         g.id().clone()
     }
@@ -455,11 +464,11 @@ mod group_get_result {
     pub fn group_master_public_key(result: &GroupGetResult) -> Option<PublicKey> {
         result.group_master_public_key().cloned()
     }
-    pub fn admin_list(result: &GroupGetResult) -> Option<Vec<UserId>> {
-        result.admin_list().cloned()
+    pub fn admin_list(result: &GroupGetResult) -> Option<GroupUserList> {
+        result.admin_list().cloned().map(GroupUserList)
     }
-    pub fn member_list(result: &GroupGetResult) -> Option<Vec<UserId>> {
-        result.member_list().cloned()
+    pub fn member_list(result: &GroupGetResult) -> Option<GroupUserList> {
+        result.member_list().cloned().map(GroupUserList)
     }
     pub fn created(g: &GroupGetResult) -> DateTime<Utc> {
         g.created().clone()
