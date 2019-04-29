@@ -1,6 +1,9 @@
 mod jni_c_header;
 use ironrust::{
-    api::{DeviceContext, PublicKey, UserCreateKeyPair, UserVerifyResult},
+    api::{
+        DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey, UserCreateKeyPair,
+        UserVerifyResult,
+    },
     document::{
         AccessErr, AssociationType, DocumentAccessResult, DocumentCreateOpts,
         DocumentDecryptResult, DocumentEncryptResult, DocumentListMeta, DocumentListResult,
@@ -134,6 +137,35 @@ mod device_name {
     }
 }
 
+mod public_key {
+    use super::*;
+    pub fn to_bytes(pk: &PublicKey) -> Vec<i8> {
+        u8_conv(&pk.to_bytes()[..]).to_vec()
+    }
+}
+
+mod private_key {
+    use super::*;
+    use std::convert::TryInto;
+    pub fn validate(bytes: &[i8]) -> Result<PrivateKey, String> {
+        Ok(i8_conv(bytes).try_into()?)
+    }
+    pub fn to_bytes(pk: &PrivateKey) -> Vec<i8> {
+        u8_conv(&pk.to_bytes()[..]).to_vec()
+    }
+}
+
+mod device_signing_keys {
+    use super::*;
+    use std::convert::TryInto;
+    pub fn validate(bytes: &[i8]) -> Result<DeviceSigningKeyPair, String> {
+        Ok(i8_conv(bytes).try_into()?)
+    }
+    pub fn to_bytes(pk: &DeviceSigningKeyPair) -> Vec<i8> {
+        u8_conv(&pk.to_bytes()[..]).to_vec()
+    }
+}
+
 mod device_create_opt {
     use super::*;
     use ironrust::user::DeviceCreateOpts;
@@ -152,10 +184,18 @@ mod document_create_opt {
 
 mod device_context {
     use super::*;
-    pub fn create(private_key: &[i8], signing_keys: &[i8], account_id: &UserId, segment_id:&usize) -> Result<DeviceContext, String>{
-        let private_k = ironrust::api::PrivateKey::new_from_slice(i8_conv(private_key))?;
-        let sign = ironrust::api::DeviceSigningKeyPair::new_from_slice(i8_conv(signing_keys))?;
-        Ok(DeviceContext::new(account_id.clone(), segment_id.clone(), private_k, sign, "https://api-staging.ironcorelabs.com/api/1/"))
+    pub fn new(
+        account_id: &UserId,
+        segment_id: i64,
+        private_key: &PrivateKey,
+        signing_keys: &DeviceSigningKeyPair,
+    ) -> DeviceContext {
+        DeviceContext::new(
+            account_id.clone(),
+            segment_id as usize,
+            private_key.clone(),
+            signing_keys.clone(),
+        )
     }
     pub fn account_id(d: &DeviceContext) -> UserId {
         d.account_id().clone()
@@ -165,19 +205,12 @@ mod device_context {
         d.segment_id()
     }
 
-    pub fn private_device_key_vec_i8(d: &DeviceContext) -> Vec<i8> {
-        u8_conv(&d.private_device_key().bytes()[..]).to_vec()
+    pub fn private_device_key(d: &DeviceContext) -> PrivateKey {
+        d.private_device_key().clone()
     }
 
-    pub fn signing_keys_vec_i8(d: &DeviceContext) -> Vec<i8> {
-        u8_conv(&d.signing_keys().bytes()[..]).to_vec()
-    }
-}
-
-mod public_key {
-    use super::*;
-    pub fn to_bytes(pk: &PublicKey) -> Vec<i8> {
-        u8_conv(&pk.to_bytes()[..]).to_vec()
+    pub fn signing_keys(d: &DeviceContext) -> DeviceSigningKeyPair {
+        d.signing_keys().clone()
     }
 }
 
