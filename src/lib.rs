@@ -146,7 +146,7 @@ mod document_create_opt {
     use super::*;
     use ironrust::document::DocumentCreateOpts;
     pub fn create(id: Option<DocumentId>, name: Option<DocumentName>) -> DocumentCreateOpts {
-        DocumentCreateOpts::new(id, name)
+        DocumentCreateOpts::new(id, name, vec![])
     }
 }
 
