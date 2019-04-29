@@ -1,0 +1,32 @@
+language: rust
+cache:
+  directories:
+    - "$HOME/.cargo"
+    - "$HOME/.ivy2/cache"
+    - "$HOME/.sbt/boot/"
+    - "$HOME/bin"
+# hopefully prevent the cache from becoming huge - https://levans.fr/rust_travis_cache.html
+before_cache:
+  - rm -rf /home/travis/.cargo/registry
+rust:
+  - 1.34.1
+branches:
+  only:
+    - master
+before_install:
+  - openssl aes-256-cbc -K $encrypted_487cf28eaba8_key -iv $encrypted_487cf28eaba8_iv
+    -in tests/src/test/resources/service-keys.conf.enc -out tests/src/test/resources/service-keys.conf -d
+install:
+  - "~/bin/sbt --help || curl -Ls https://git.io/sbt > ~/bin/sbt && chmod 0755 ~/bin/sbt"
+before_script:
+  - rustup component add rustfmt-preview
+matrix:
+  include:
+    # Linux
+    - name: Travis Default Environment (Ubuntu Linux)
+      os: linux
+    # OSX
+    - name: OSX x86_64
+      os: osx
+script:
+  - "./.travis_scripts/cross-test.sh"

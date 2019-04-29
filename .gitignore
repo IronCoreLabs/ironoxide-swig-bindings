@@ -1,0 +1,13 @@
+**/target
+**/*.rs.bk
+Cargo.lock
+.idea
+*.iml
+*.code-workspace
+.metals/
+tests/src/test/resources/service-keys.conf
+tests/src/test/resources/service-keys.conf.stage
+tests/src/test/resources/service-keys.conf.local
+.vscode
+.DS_Store
+java/*

@@ -1,0 +1,438 @@
+use log::error; //This is used as part of Swig expansion as a transitive dependency
+use chrono::{DateTime, Utc};
+use crate::jni_c_header::*;
+use crate::{
+    document_grant_access_result::{FailedResult, SucceededResult},
+    group_get_result::GroupUserList
+};
+
+///
+/// Classes for Common Types
+///
+
+foreigner_class!(class PublicKey {
+    self_type PublicKey;
+    private constructor = empty;
+    method public_key::to_bytes(&self) -> Vec<i8>; alias toBytes;
+});
+
+foreigner_class!(class UserId {
+    self_type UserId;
+    private constructor = empty;
+    static_method user_id::validate(s: &str) -> Result<UserId, String>;
+    method user_id::id(&self) -> String;
+    foreigner_code r#"
+    @Override
+    public int hashCode() {
+        return this.id().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof UserId){
+            UserId id = (UserId) obj;
+            return id.id().equals(this.id());
+        }
+        return false;
+    }
+"#;
+});
+
+foreigner_class!(class GroupId {
+    self_type GroupId;
+    private constructor = empty;
+    static_method group_id::validate(s: &str) -> Result<GroupId, String>;
+    method group_id::id(&self) -> String;
+    foreigner_code r#"
+    @Override
+    public int hashCode() {
+        return this.id().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof GroupId){
+            GroupId id = (GroupId) obj;
+            return id.id().equals(this.id());
+        }
+        return false;
+    }
+"#;
+});
+
+foreigner_class!(class GroupName {
+    self_type GroupName;
+    private constructor = empty;
+    static_method group_name::validate(s: &str) -> Result<GroupName, String>;
+    method group_name::name(&self) -> String;
+    method GroupName::clone(&self) -> GroupName;
+    foreigner_code r#"
+    @Override
+    public int hashCode() {
+        return this.name().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof GroupName){
+            GroupName name = (GroupName) obj;
+            return name.name().equals(this.name());
+        }
+        return false;
+    }
+"#;
+});
+
+foreigner_class!(class DocumentId {
+    self_type DocumentId;
+    private constructor = empty;
+    static_method document_id::validate(s: &str) -> Result<DocumentId, String>;
+    method document_id::id(&self) -> String;
+    foreigner_code r#"
+    @Override
+    public int hashCode() {
+        return this.id().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DocumentId){
+            DocumentId id = (DocumentId) obj;
+            return id.id().equals(this.id());
+        }
+        return false;
+    }
+"#;
+});
+
+foreigner_class!(class DocumentName {
+    self_type DocumentName;
+    private constructor = empty;
+    static_method document_name::validate(s: &str) -> Result<DocumentName, String>;
+    method document_name::name(&self) -> String;
+    method DocumentName::clone(&self) -> DocumentName;
+    foreigner_code r#"
+    @Override
+    public int hashCode() {
+        return this.name().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DocumentName){
+            DocumentName name = (DocumentName) obj;
+            return name.name().equals(this.name());
+        }
+        return false;
+    }
+"#;
+});
+
+foreigner_class!(class DeviceId {
+    self_type DeviceId;
+    private constructor = empty;
+    static_method device_id::validate(s: i64) -> Result<DeviceId, String>;
+    method device_id::id(&self) -> i64;
+    method DeviceId::clone(&self) -> DeviceId;
+    foreigner_code r#"
+    @Override
+    public int hashCode() {
+        return Long.hashCode(this.id());
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DeviceId){
+            DeviceId id = (DeviceId) obj;
+            return id.id() == this.id();
+        }
+        return false;
+    }
+"#;
+});
+
+foreigner_class!(class DeviceName {
+    self_type DeviceName;
+    private constructor = empty;
+    static_method device_name::validate(s: &str) -> Result<DeviceName, String>;
+    method device_name::name(&self) -> String;
+    method DeviceName::clone(&self) -> DeviceName;
+    foreigner_code r#"
+    @Override
+    public int hashCode() {
+        return this.name().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DeviceName){
+            DeviceName name = (DeviceName) obj;
+            return name.name().equals(this.name());
+        }
+        return false;
+    }
+"#;
+});
+
+foreigner_class!(class VisibleUser {
+    self_type VisibleUser;
+    private constructor = empty;
+    method visible_user::id(&self) -> UserId;
+});
+
+foreigner_class!(class VisibleGroup {
+    self_type VisibleGroup;
+    private constructor = empty;
+    method visible_group::id(&self) -> GroupId;
+    method visible_group::name(&self) -> Option<GroupName>;
+});
+
+foreigner_class!(class UserAccessErr {
+    self_type UserAccessErr;
+    private constructor = empty;
+    method UserAccessErr::id(&self) -> UserId;
+    method UserAccessErr::err(&self) -> String;
+});
+foreigner_class!(class GroupAccessErr {
+    self_type GroupAccessErr;
+    private constructor = empty;
+    method GroupAccessErr::id(&self) -> GroupId;
+    method GroupAccessErr::err(&self) -> String;
+});
+
+foreigner_class!(class UserWithKey {
+    self_type UserWithKey;
+    private constructor = empty;
+    method UserWithKey::user(&self) -> UserId;
+    method UserWithKey::public_key(&self) -> PublicKey; alias publicKey;
+});
+
+foreigner_class!(class GroupUserList {
+    self_type GroupUserList;
+    private constructor = empty;
+    method GroupUserList::list(&self) -> Vec<UserId>;
+});
+
+///
+/// SDK Initialization Structure
+///
+
+foreigner_class!(class DeviceContext {
+    self_type DeviceContext;
+    private constructor = empty;
+    method device_context::account_id(&self) -> UserId; alias accountId;
+    method device_context::segment_id(&self) -> usize; alias segmentId;
+    method device_context::private_device_key_vec_i8(&self) -> Vec<i8>; alias privateDeviceKey;
+    method device_context::signing_keys_vec_i8(&self) -> Vec<i8>; alias signingKeys;
+});
+
+///
+/// User Operation Classes
+///
+
+foreigner_class!(class UserCreateKeyPair {
+    self_type UserCreateKeyPair;
+    private constructor = empty;
+    method user_create_key_pair::user_encrypted_master_key_bytes(&self) -> Vec<i8>; alias userEncryptedMasterKey;
+    method user_create_key_pair::user_public_key(&self) -> PublicKey; alias userPublicKey;
+});
+
+foreigner_class!(class UserVerifyResult {
+    self_type UserVerifyResult;
+    private constructor = empty;
+    method user_verify_result::account_id(&self) -> UserId; alias accountId;
+    method user_verify_result::segment_id(&self) -> usize; alias segmentId;
+    method user_verify_result::user_public_key(&self) -> PublicKey; alias userPublicKey;
+});
+
+foreigner_class!(class UserDevice {
+    self_type UserDevice;
+    private constructor = empty;
+    method user_device::id(&self) -> DeviceId; alias id;
+    method user_device::name(&self) -> Option<DeviceName>;
+    method user_device::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
+    method user_device::created(&self) -> DateTime<Utc>;
+    method UserDevice::is_current_device(&self) -> bool; alias isCurrentDevice;
+});
+
+foreigner_class!(class DeviceCreateOpts {
+    self_type DeviceCreateOpts;
+    //Construct the DeviceCreateOpts with None for name.
+    constructor DeviceCreateOpts::default() -> DeviceCreateOpts;
+    static_method device_create_opt::create(_:Option<DeviceName>) -> DeviceCreateOpts;
+});
+
+foreigner_class!(class UserDeviceListResult {
+    self_type UserDeviceListResult;
+    private constructor = empty;
+    method user_device_list_result::result(&self) -> Vec<UserDevice>;
+});
+
+///
+/// Group Operation Classes
+///
+
+foreigner_class!(class GroupMetaResult{
+    self_type GroupMetaResult;
+    private constructor = empty;
+    method group_meta_result::id(&self) -> GroupId;
+    method group_meta_result::name(&self) -> Option<GroupName>;
+    method GroupMetaResult::is_admin(&self) -> bool; alias isAdmin;
+    method GroupMetaResult::is_member(&self) -> bool; alias isMember;
+    method group_meta_result::created(&self) -> DateTime<Utc>;
+    method group_meta_result::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
+});
+
+foreigner_class!(class GroupListResult{
+    self_type GroupListResult;
+    private constructor = empty;
+    method group_list_result::result(&self) -> Vec<GroupMetaResult>;
+});
+
+foreigner_class!(class GroupGetResult{
+    self_type GroupGetResult;
+    private constructor = empty;
+    method group_get_result::id(&self) -> GroupId;
+    method group_get_result::name(&self) -> Option<GroupName>;
+    method group_get_result::group_master_public_key(&self) -> Option<PublicKey>; alias groupMasterPublicKey;
+    method GroupGetResult::is_admin(&self) -> bool; alias isAdmin;
+    method GroupGetResult::is_member(&self) -> bool; alias isMember;
+    method group_get_result::created(&self) -> DateTime<Utc>;
+    method group_get_result::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
+    method group_get_result::admin_list(&self) -> Option<GroupUserList>; alias adminList;
+    method group_get_result::member_list(&self) -> Option<GroupUserList>; alias memberList;
+});
+
+foreigner_class!(class GroupCreateOpts {
+    self_type GroupCreateOpts;
+    constructor GroupCreateOpts::default() -> GroupCreateOpts;
+    static_method group_create_opts::create(_:Option<GroupId>, _:Option<GroupName>, _: bool) -> GroupCreateOpts;
+});
+
+foreigner_class!(class AccessEditFailure{
+    self_type AccessEditFailure;
+    private constructor = empty;
+    method access_edit_failure::user(&self) -> UserId;
+    method access_edit_failure::error(&self) -> String;
+});
+
+foreigner_class!(class GroupAccessEditResult{
+    self_type GroupAccessEditResult;
+    private constructor = empty;
+    method group_access_edit_result::succeeded(&self) -> Vec<UserId>;
+    method group_access_edit_result::failed(&self) -> Vec<AccessEditFailure>;
+});
+
+///
+/// Document Operation Classes
+///
+
+foreign_enum!(
+    enum AssociationType {
+        Owner = AssociationType::Owner,
+        FromUser = AssociationType::FromUser,
+        FromGroup = AssociationType::FromGroup,
+    }
+);
+
+foreigner_class!(class DocumentCreateOpts {
+    self_type DocumentCreateOpts;
+    //Construct the DocumentCreateOpts with None for both id and name.
+    constructor DocumentCreateOpts::default() -> DocumentCreateOpts;
+    static_method document_create_opt::create(_:Option<DocumentId>, _:Option<DocumentName>) -> DocumentCreateOpts;
+});
+
+foreigner_class!(class DocumentListMeta{
+    self_type DocumentListMeta;
+    private constructor = empty;
+    method document_list_meta::id(&self) -> DocumentId;
+    method document_list_meta::name(&self) -> Option<DocumentName>;
+    method document_list_meta::association_type(&self) -> AssociationType; alias associationType;
+    method document_list_meta::created(&self) -> DateTime<Utc>;
+    method document_list_meta::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
+});
+
+foreigner_class!(class DocumentListResult{
+    self_type DocumentListResult;
+    private constructor = empty;
+    method document_list_result::result(&self) -> Vec<DocumentListMeta>; alias result;
+});
+
+foreigner_class!(class DocumentMetadataResult{
+    self_type DocumentMetadataResult;
+    private constructor = empty;
+    method document_metadata_result::id(&self) -> DocumentId;
+    method document_metadata_result::name(&self) -> Option<DocumentName>;
+    method document_metadata_result::created(&self) -> DateTime<Utc>;
+    method document_metadata_result::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
+    method document_metadata_result::association_type(&self) -> AssociationType; alias associationType;
+    method document_metadata_result::visible_to_users(&self) -> Vec<VisibleUser>; alias visibleToUsers;
+    method document_metadata_result::visible_to_groups(&self) -> Vec<VisibleGroup>; alias visibleToGroups;
+});
+
+foreigner_class!(class DocumentEncryptResult{
+    self_type DocumentEncryptResult;
+    private constructor = empty;
+    method document_encrypt_result::id(&self) -> DocumentId;
+    method document_encrypt_result::name(&self) -> Option<DocumentName>;
+    method document_encrypt_result::encrypted_data(&self) -> Vec<i8>; alias encryptedData;
+    method document_encrypt_result::created(&self) -> DateTime<Utc>; alias created;
+    method document_encrypt_result::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
+});
+
+foreigner_class!(class DocumentDecryptResult{
+    self_type DocumentDecryptResult;
+    private constructor = empty;
+    method document_decrypt_result::id(&self) -> DocumentId;
+    method document_decrypt_result::name(&self) -> Option<DocumentName>;
+    method document_decrypt_result::decrypted_data(&self) -> Vec<i8>; alias decryptedData;
+    method document_decrypt_result::created(&self) -> DateTime<Utc>; alias created;
+    method document_decrypt_result::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
+});
+
+foreigner_class!(class SucceededResult {
+    self_type SucceededResult;
+    private constructor = empty;
+
+    method document_grant_access_result::SucceededResult::users(&self) -> Vec<UserId>;
+    method document_grant_access_result::SucceededResult::groups(&self) -> Vec<GroupId>;
+});
+foreigner_class!(class FailedResult {
+    self_type FailedResult;
+    private constructor = empty;
+
+    method document_grant_access_result::FailedResult::users(&self) -> Vec<UserAccessErr>;
+    method document_grant_access_result::FailedResult::groups(&self) -> Vec<GroupAccessErr>;
+    method document_grant_access_result::FailedResult::is_empty(&self) -> bool; alias isEmpty;
+
+});
+foreigner_class!(class DocuemntAccessResult {
+    self_type DocumentAccessResult;
+    private constructor = empty;
+
+    method document_grant_access_result::succeeded(&self) -> SucceededResult;
+    method document_grant_access_result::failed(&self) -> FailedResult;
+
+});
+
+///
+/// Full SDK Class Structure
+///
+
+foreigner_class!(class IronSdk {
+    self_type IronSdk;
+    private constructor = empty;
+    static_method user_verify(_:&str) -> Result<Option<UserVerifyResult>, String>; alias userVerify;
+    static_method user_create(_:&str, _:&str) -> Result<UserCreateKeyPair, String>; alias userCreate;
+    static_method initialize(_:&DeviceContext) -> Result<IronSdk, String>;
+    static_method generate_new_device(_:&str, _:&str, _: &DeviceCreateOpts) -> Result<DeviceContext, String>; alias generateNewDevice;
+    method user_list_devices(&self) -> Result<UserDeviceListResult, String>; alias userListDevices;
+    method user_get_public_key(&self, _:Vec<UserId>) -> Result<Vec<UserWithKey>, String>; alias userGetPublicKey;
+    method user_delete_device(&self, device_id: Option<DeviceId>) -> Result<DeviceId, String>; alias userDeleteDevice;
+    method document_list(&self) -> Result<DocumentListResult, String>; alias documentList;
+    method document_get_metadata(&self, _:&DocumentId) -> Result<DocumentMetadataResult, String>; alias documentGetMetadata;
+    method document_get_id_from_bytes(&self, _:&[i8]) -> Result<DocumentId, String>; alias documentGetIdFromBytes;
+    method document_encrypt(&mut self,_: &[i8], _: &DocumentCreateOpts) -> Result<DocumentEncryptResult, String>; alias documentEncrypt;
+    method document_update_bytes(&mut self, _: &DocumentId, _: &[i8]) -> Result<DocumentEncryptResult, String>; alias documentUpdateBytes;
+    method document_decrypt(&mut self,_: &[i8]) -> Result<DocumentDecryptResult, String>; alias documentDecrypt;
+    method document_update_name(&self, _: &DocumentId, _: Option<DocumentName>) -> Result<DocumentMetadataResult, String>; alias documentUpdateName;
+    method document_grant_access(&mut self, _: &DocumentId, user_grants: Vec<UserId>, group_grants: Vec<GroupId>)
+        -> Result<DocumentAccessResult, String>; alias documentGrantAccess;
+    method document_revoke_access(&self, _: &DocumentId, user_revokes: Vec<UserId>, group_revokes: Vec<GroupId>)
+        -> Result<DocumentAccessResult, String>; alias documentRevokeAccess;
+    method group_list(&self) -> Result<GroupListResult, String>; alias groupList;
+    method group_get_metadata(&self, _:&GroupId) -> Result<GroupGetResult, String>; alias groupGetMetadata;
+    method group_create(&mut self, _: &GroupCreateOpts) -> Result<GroupMetaResult, String>; alias groupCreate;
+    method group_update_name(&self, _: &GroupId, _: Option<GroupName>) -> Result<GroupMetaResult, String>; alias groupUpdateName;
+    method group_delete(&self, _: &GroupId) -> Result<GroupId, String>; alias groupDelete;
+    method group_add_members(&mut self, _:&GroupId, _:Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupAddMembers;
+    method group_remove_members(&self, _:&GroupId, _: Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupRemoveMembers;
+    method group_add_admins(&mut self, _:&GroupId, _:Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupAddAdmins;
+    method group_remove_admins(&self, _:&GroupId, _: Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupRemoveAdmins;
+});
