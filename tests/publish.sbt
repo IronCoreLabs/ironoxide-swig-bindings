@@ -1,4 +1,6 @@
-licenses := Seq("Apache-2.0" -> url("http://www.opensource.org/licenses/Apache-2.0"))
+licenses := ("AGPL-3.0", new URL("https://www.gnu.org/licenses/agpl-3.0.txt")),
+// Add the default sonatype repository setting
+publishTo := sonatypePublishTo.value
 
 homepage := Some(url("http://github.com/ironcorelabs/ironoxide-java"))
 
