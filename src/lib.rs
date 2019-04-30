@@ -139,8 +139,8 @@ mod device_name {
 
 mod public_key {
     use super::*;
-    pub fn to_bytes(pk: &PublicKey) -> Vec<i8> {
-        u8_conv(&pk.to_bytes()[..]).to_vec()
+    pub fn as_bytes(pk: &PublicKey) -> Vec<i8> {
+        u8_conv(&pk.as_bytes()[..]).to_vec()
     }
 }
 
@@ -150,8 +150,8 @@ mod private_key {
     pub fn validate(bytes: &[i8]) -> Result<PrivateKey, String> {
         Ok(i8_conv(bytes).try_into()?)
     }
-    pub fn to_bytes(pk: &PrivateKey) -> Vec<i8> {
-        u8_conv(&pk.to_bytes()[..]).to_vec()
+    pub fn as_bytes(pk: &PrivateKey) -> Vec<i8> {
+        u8_conv(&pk.as_bytes()[..]).to_vec()
     }
 }
 
@@ -161,8 +161,8 @@ mod device_signing_keys {
     pub fn validate(bytes: &[i8]) -> Result<DeviceSigningKeyPair, String> {
         Ok(i8_conv(bytes).try_into()?)
     }
-    pub fn to_bytes(pk: &DeviceSigningKeyPair) -> Vec<i8> {
-        u8_conv(&pk.to_bytes()[..]).to_vec()
+    pub fn as_bytes(pk: &DeviceSigningKeyPair) -> Vec<i8> {
+        u8_conv(&pk.as_bytes()[..]).to_vec()
     }
 }
 
@@ -499,8 +499,8 @@ mod group_get_result {
     pub fn name(g: &GroupGetResult) -> Option<GroupName> {
         g.name().cloned()
     }
-    pub fn group_master_public_key(result: &GroupGetResult) -> Option<PublicKey> {
-        result.group_master_public_key().cloned()
+    pub fn group_master_public_key(result: &GroupGetResult) -> PublicKey {
+        result.group_master_public_key().clone()
     }
     pub fn admin_list(result: &GroupGetResult) -> Option<GroupUserList> {
         result.admin_list().cloned().map(GroupUserList)

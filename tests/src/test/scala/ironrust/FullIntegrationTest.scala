@@ -21,6 +21,11 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   var validGroupId: GroupId = null
   var validDocumentId: DocumentId = null
 
+  /**
+   * Convenience function to create a new DeviceContext instance from the stored off components we need. Takes the
+   * users account ID, segment ID, private device key bytes, and signing key bytes and returns a new DeviceContext
+   * instance. This helps us prove that we can create this class instance from scratch.
+   */
   def createDeviceContext = {
     new DeviceContext(
       primaryTestUserId,
@@ -37,7 +42,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val createResult = resp.value
 
       createResult.userEncryptedMasterKey should have length 92
-      createResult.userPublicKey.toBytes should have length 64
+      createResult.userPublicKey.asBytes should have length 64
     }
 
     "successfully create a 2nd new user" in {
@@ -49,7 +54,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       secondaryUserRecord = createResult
 
       createResult.userEncryptedMasterKey should have length 92
-      createResult.userPublicKey.toBytes should have length 64
+      createResult.userPublicKey.asBytes should have length 64
     }
   }
 
@@ -92,11 +97,11 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       //Store off the device component parts as raw values so we can use them to reconstruct
       //an DeviceContext instance to initialize the SDK.
       primaryTestUserSegmentId = newDeviceResult.segmentId
-      primaryTestUserPrivateDeviceKeyBytes = newDeviceResult.privateDeviceKey.toBytes
-      primaryTestUserSigningKeysBytes = newDeviceResult.signingKeys.toBytes
+      primaryTestUserPrivateDeviceKeyBytes = newDeviceResult.privateDeviceKey.asBytes
+      primaryTestUserSigningKeysBytes = newDeviceResult.signingKeys.asBytes
 
-      newDeviceResult.signingKeys.toBytes should have size 64
-      newDeviceResult.privateDeviceKey.toBytes should have size 32
+      newDeviceResult.signingKeys.asBytes should have size 64
+      newDeviceResult.privateDeviceKey.asBytes should have size 32
       newDeviceResult.accountId shouldBe primaryTestUserId
 
       val sdk = IronSdk.initialize(createDeviceContext)
