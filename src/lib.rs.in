@@ -280,7 +280,7 @@ foreigner_class!(class GroupGetResult{
     private constructor = empty;
     method group_get_result::id(&self) -> GroupId;
     method group_get_result::name(&self) -> Option<GroupName>;
-    method group_get_result::group_master_public_key(&self) -> Option<PublicKey>; alias groupMasterPublicKey;
+    method group_get_result::group_master_public_key(&self) -> PublicKey; alias groupMasterPublicKey;
     method GroupGetResult::is_admin(&self) -> bool; alias isAdmin;
     method GroupGetResult::is_member(&self) -> bool; alias isMember;
     method group_get_result::created(&self) -> DateTime<Utc>;

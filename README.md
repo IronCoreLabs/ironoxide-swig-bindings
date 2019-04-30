@@ -8,6 +8,7 @@ Prerequisites:
 
 + [Rust toolchain installed](https://www.rust-lang.org/tools/install)
 + `JAVA_HOME` environment variable set
++ `clang` installed
 
 From the root of this repository run `cargo build`. The resulting `java` directory will have the JNI binding code for the Java side and `target/debug` or `target/release` will have the dynamic library file you need to pull into your Java code. It will be `libironoxide_java.so` or `libironoxide_java.dylib` depending on your environment. This library will only work on the architecture from which it was built.
 

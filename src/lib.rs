@@ -461,8 +461,8 @@ mod group_get_result {
     pub fn name(g: &GroupGetResult) -> Option<GroupName> {
         g.name().cloned()
     }
-    pub fn group_master_public_key(result: &GroupGetResult) -> Option<PublicKey> {
-        result.group_master_public_key().cloned()
+    pub fn group_master_public_key(result: &GroupGetResult) -> PublicKey {
+        result.group_master_public_key().clone()
     }
     pub fn admin_list(result: &GroupGetResult) -> Option<GroupUserList> {
         result.admin_list().cloned().map(GroupUserList)

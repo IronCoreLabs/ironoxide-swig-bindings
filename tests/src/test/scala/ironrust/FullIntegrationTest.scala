@@ -11,6 +11,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   val primaryTestUserPassword = java.util.UUID.randomUUID().toString()
 
   val secondaryTestUserID = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
+  val secondaryTestUserPassword = java.util.UUID.randomUUID().toString()
 
   //Keeps record of created user and device so it can be used for other tests to avoid creating tons of fake users
   var primaryUserRecord: UserCreateKeyPair = null
@@ -36,7 +37,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
     "successfully create a 2nd new user" in {
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserID.id)
-      val resp = Try(IronSdk.userCreate(jwt, primaryTestUserPassword)).toEither
+      val resp = Try(IronSdk.userCreate(jwt, secondaryTestUserPassword)).toEither
       val createResult = resp.value
 
       //Store off the new user we created so it can used for future tests below
@@ -241,7 +242,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.id.id.length shouldBe 32
       group.id shouldBe validGroupId
       group.name.get.name shouldBe "a name"
-      group.groupMasterPublicKey should not be null
+      group.groupMasterPublicKey.toBytes() should have length 64
       group.isAdmin shouldBe true
       group.isMember shouldBe true
       group.created should not be null
@@ -252,6 +253,27 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.adminList.get.list.head shouldBe primaryTestUserID
       group.memberList.get.list should have length 1
       group.memberList.get.list.head shouldBe primaryTestUserID
+    }
+
+    "provide public key to users in and out of the group" in {
+      val jwt = JwtHelper.generateValidJwt(secondaryTestUserID.id)
+      val deviceName = Try(DeviceName.validate("otherDevice")).toEither.value
+      val secondaryUserDevice = Try(IronSdk.generateNewDevice(jwt, secondaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))).toEither.value
+
+      val sdk = IronSdk.initialize(secondaryUserDevice)
+      val resp = Try(sdk.groupGetMetadata(validGroupId)).toEither
+      val group = resp.value
+
+      group.id.id.length shouldBe 32
+      group.id shouldBe validGroupId
+      group.name.get.name shouldBe "a name"
+      group.groupMasterPublicKey.toBytes() should have length 64
+      group.isAdmin shouldBe false
+      group.isMember shouldBe false
+      group.created should not be null
+      group.lastUpdated shouldBe group.created
+      group.adminList.isPresent shouldBe false
+      group.memberList.isPresent shouldBe false
     }
   }
 
@@ -322,7 +344,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   }
 
   "Group add admin" should {
-    "succeed and add secordary user as an admin" in {
+    "succeed and add secondary user as an admin" in {
       val sdk = IronSdk.initialize(primaryUserDevice)
 
       val addAdminResp = Try(sdk.groupAddAdmins(validGroupId, List(secondaryTestUserID).toArray)).toEither
