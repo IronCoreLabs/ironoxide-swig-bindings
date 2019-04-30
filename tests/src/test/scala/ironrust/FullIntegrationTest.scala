@@ -18,10 +18,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   val secondaryTestUserID = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
   val secondaryTestUserPassword = java.util.UUID.randomUUID().toString()
 
-  //Keeps record of created user and device so it can be used for other tests to avoid creating tons of fake users
-  var primaryUserRecord: UserCreateKeyPair = null
-  var primaryUserDevice: DeviceContext = null
-
   var secondaryUserRecord: UserCreateKeyPair = null
 
   var validGroupId: GroupId = null
@@ -276,8 +272,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
     "provide public key to users out of the group" in {
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserID.id)
-      val deviceName = Try(DeviceName.validate("otherDevice")).toEither.value
-      val secondaryUserDevice = Try(IronSdk.generateNewDevice(jwt, secondaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))).toEither.value
+      val secondaryUserDevice = Try(IronSdk.generateNewDevice(jwt, secondaryTestUserPassword, new DeviceCreateOpts())).toEither.value
 
       val sdk = IronSdk.initialize(secondaryUserDevice)
       val resp = Try(sdk.groupGetMetadata(validGroupId)).toEither
