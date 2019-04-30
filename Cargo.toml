@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.8"
-ironrust = {git = "ssh://git@github.com/ironcorelabs/ironrust.git", rev="883a4bd" }
+ironrust = {git = "ssh://git@github.com/ironcorelabs/ironrust.git", rev="691219a" }
 chrono = { version = "0.4", features = ["serde"] }
 
 [build-dependencies]

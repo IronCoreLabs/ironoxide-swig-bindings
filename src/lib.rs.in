@@ -13,7 +13,21 @@ use crate::{
 foreigner_class!(class PublicKey {
     self_type PublicKey;
     private constructor = empty;
-    method public_key::to_bytes(&self) -> Vec<i8>; alias toBytes;
+    method public_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
+});
+
+foreigner_class!(class PrivateKey {
+    self_type PrivateKey;
+    private constructor = empty;
+    static_method private_key::validate(&[i8]) -> Result<PrivateKey, String>;
+    method private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
+});
+
+foreigner_class!(class DeviceSigningKeyPair {
+    self_type DeviceSigningKeyPair;
+    private constructor = empty;
+    static_method device_signing_keys::validate(&[i8]) -> Result<DeviceSigningKeyPair, String>;
+    method device_signing_keys::as_bytes(&self) -> Vec<i8>; alias asBytes;
 });
 
 foreigner_class!(class UserId {
@@ -205,11 +219,11 @@ foreigner_class!(class GroupUserList {
 
 foreigner_class!(class DeviceContext {
     self_type DeviceContext;
-    private constructor = empty;
+    constructor device_context::new(account_id: &UserId, segment_id: i64, private_device_key: &PrivateKey, signing_keys: &DeviceSigningKeyPair) -> DeviceContext;
     method device_context::account_id(&self) -> UserId; alias accountId;
     method device_context::segment_id(&self) -> usize; alias segmentId;
-    method device_context::private_device_key_vec_i8(&self) -> Vec<i8>; alias privateDeviceKey;
-    method device_context::signing_keys_vec_i8(&self) -> Vec<i8>; alias signingKeys;
+    method device_context::private_device_key(&self) -> PrivateKey; alias privateDeviceKey;
+    method device_context::signing_keys(&self) -> DeviceSigningKeyPair; alias signingKeys;
 });
 
 ///
