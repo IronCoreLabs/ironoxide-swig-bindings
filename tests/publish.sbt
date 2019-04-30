@@ -1,4 +1,4 @@
-licenses := ("AGPL-3.0", new URL("https://www.gnu.org/licenses/agpl-3.0.txt"))
+licenses := Seq("AGPL-3.0" -> url("https://www.gnu.org/licenses/agpl-3.0.txt"))
 // Add the default sonatype repository setting
 publishTo := sonatypePublishTo.value
 
