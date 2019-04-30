@@ -1,6 +1,11 @@
 organization := "com.ironcorelabs"
-name := "ironrust-java-test"
+name := "ironoxide-java"
 scalaVersion := "2.12.8"
+
+//We're using sbt to test, but this is a pure java library for now so we don't want scala version
+//in the paths and we don't want the scala lib in the dependencies.
+crossPaths := false
+autoScalaLibrary := false
 
 scalacOptions := Seq(
   "-deprecation",
@@ -19,7 +24,7 @@ scalacOptions := Seq(
 libraryDependencies ++= Seq(
   "com.pauldijou" %% "jwt-core" % "2.1.0",
   "org.scalatest" %% "scalatest" % "3.0.5",
-  "org.scodec" %% "scodec-bits" % "1.1.6",
+  "org.scodec" %% "scodec-bits" % "1.1.10",
   "com.github.melrief" %% "pureconfig" %  "0.5.1",
   "com.ironcorelabs" %% "cats-scalatest" % "2.4.0"
 ).map(_ % "test")
