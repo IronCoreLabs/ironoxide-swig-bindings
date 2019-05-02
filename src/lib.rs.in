@@ -11,7 +11,8 @@ use crate::{
 ///
 
 foreigner_class!(
-/// Newtype wrapper around Recrypt PublicKey type.
+/// Represents an asymmetric public key that wraps the underlying bytes
+/// of the key.
 class PublicKey {
     self_type PublicKey;
     private constructor = empty;
@@ -19,7 +20,8 @@ class PublicKey {
 });
 
 foreigner_class!(
-/// Private key. Needed to create a `DeviceContext`.
+/// Represents an asymmetric private key that wraps the underlying bytes
+/// of the key.
 class PrivateKey {
     self_type PrivateKey;
     private constructor = empty;
@@ -28,7 +30,8 @@ class PrivateKey {
 });
 
 foreigner_class!(
-/// Signing keypair specific to a device. Needed to create a `DeviceContext`.
+/// Signing keypair specific to a device. Used to sign all requests to the IronCore API
+/// endpoints. Needed to create a `DeviceContext`.
 class DeviceSigningKeyPair {
     self_type DeviceSigningKeyPair;
     private constructor = empty;
@@ -37,7 +40,7 @@ class DeviceSigningKeyPair {
 });
 
 foreigner_class!(
-/// Id of a user. Unique with in a segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`.
+/// ID of a user. Unique with in a segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`.
 class UserId {
     self_type UserId;
     private constructor = empty;
@@ -59,7 +62,7 @@ class UserId {
 });
 
 foreigner_class!(
-/// Group ID. Unique within a segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`
+/// ID of a group. Unique within a segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`
 class GroupId {
     self_type GroupId;
     private constructor = empty;
@@ -104,7 +107,7 @@ class GroupName {
 });
 
 foreigner_class!(
-/// Document ID. Unique within the segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`.
+/// ID of a document. Unique within the segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`.
 class DocumentId {
     self_type DocumentId;
     private constructor = empty;
@@ -149,7 +152,7 @@ class DocumentName {
 });
 
 foreigner_class!(
-/// Device ID type. Validates that the provided ID is greater than 0
+/// ID of a device. Device IDs are numeric and will always be greater than 0.
 class DeviceId {
     self_type DeviceId;
     private constructor = empty;
@@ -195,7 +198,7 @@ class DeviceName {
 });
 
 foreigner_class!(
-/// Represents a User struct which is returned from doc get to show the IDs of users the document is visible to
+/// Represents a User struct which is returned from document get to show the IDs of users the document is visible to
 class VisibleUser {
     self_type VisibleUser;
     private constructor = empty;
@@ -203,7 +206,7 @@ class VisibleUser {
 });
 
 foreigner_class!(
-/// Represents a Group struct which is returned from doc get to show the IDs and names of groups the document is visible to
+/// Represents a Group struct which is returned from document get to show the IDs and names of groups the document is visible to
 class VisibleGroup {
     self_type VisibleGroup;
     private constructor = empty;
@@ -247,13 +250,12 @@ foreigner_class!(class GroupUserList {
 ///
 
 foreigner_class!(
-/// User's Device. Needed to initialize the SDK. See `IronSdk.initialize`.
+/// Accounts device context. Needed to initialize the Sdk with a set of device keys. See `Sdk.initialize()`
 class DeviceContext {
     self_type DeviceContext;
     constructor device_context::new(account_id: &UserId, segment_id: i64, private_device_key: &PrivateKey, signing_keys: &DeviceSigningKeyPair) -> DeviceContext;
     method device_context::account_id(&self) -> UserId; alias accountId;
     method device_context::segment_id(&self) -> usize; alias segmentId;
-    /// the private key which was generated for a particular device for the user. Not the user's master private key.
     method device_context::private_device_key(&self) -> PrivateKey; alias privateDeviceKey;
     method device_context::signing_keys(&self) -> DeviceSigningKeyPair; alias signingKeys;
 });
@@ -287,15 +289,16 @@ foreigner_class!(
 class UserDevice {
     self_type UserDevice;
     private constructor = empty;
-    /// unique id for the device
+    /// Get the unique id for the device
     method user_device::id(&self) -> DeviceId; alias id;
-    /// non-unique device name
+    /// Get the devices optional non-unique readable name
     method user_device::name(&self) -> Option<DeviceName>;
-    /// time the device was last updated
+    /// Get the time the device was created
     method user_device::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
-    /// time the device was created 
+    /// Get the time the device was last updated
     method user_device::created(&self) -> DateTime<Utc>;
-    /// true if this UserDevice is the device making the query
+    /// True if this device instance is the one that was used to make
+    /// the API request
     method UserDevice::is_current_device(&self) -> bool; alias isCurrentDevice;
 });
 
@@ -319,7 +322,7 @@ class UserDeviceListResult {
 ///
 
 foreigner_class!(
-/// Group metadata
+/// Abbreviated group meta information.
 class GroupMetaResult{
     self_type GroupMetaResult;
     private constructor = empty;
@@ -368,9 +371,9 @@ foreigner_class!(
 class AccessEditFailure{
     self_type AccessEditFailure;
     private constructor = empty;
-    /// user whose access was to be granted/revoked
+    /// Get user whose access was to be granted/revoked
     method access_edit_failure::user(&self) -> UserId;
-    /// reason for failure
+    /// Get the reason for grant/revoke failure
     method access_edit_failure::error(&self) -> String;
 });
 
@@ -379,9 +382,9 @@ foreigner_class!(
 class GroupAccessEditResult{
     self_type GroupAccessEditResult;
     private constructor = empty;
-    /// users whose access was modified
+    /// Get the list of users whose access was modified
     method group_access_edit_result::succeeded(&self) -> Vec<UserId>;
-    /// users whose access could not be modified
+    /// Get the users whose access could not be modified
     method group_access_edit_result::failed(&self) -> Vec<AccessEditFailure>;
 });
 
@@ -392,11 +395,11 @@ class GroupAccessEditResult{
 foreign_enum!(
     /// Represents the reason a document can be viewed by the requesting user.
     enum AssociationType {
-        /// user created the document
+        /// User created the document
         Owner = AssociationType::Owner,
-        /// user directly granted access to the document
+        /// User directly granted access to the document
         FromUser = AssociationType::FromUser,
-        /// user granted access to the document via a group they are a member of
+        /// User granted access to the document via a group they are a member of
         FromGroup = AssociationType::FromGroup,
     }
 );
@@ -422,7 +425,7 @@ class DocumentListMeta{
 });
 
 foreigner_class!(
-/// List of document metadatas.
+/// Metadata for each of the documents that the current user has access to decrypt.
 class DocumentListResult{
     self_type DocumentListResult;
     private constructor = empty;
@@ -481,9 +484,9 @@ class SucceededResult {
     self_type SucceededResult;
     private constructor = empty;
 
-    /// users whose access was granted/revoked
+    /// Get list of users whose access was granted/revoked
     method document_grant_access_result::SucceededResult::users(&self) -> Vec<UserId>;
-    /// groups whose access was granted/revoked
+    /// Get list of groups whose access was granted/revoked
     method document_grant_access_result::SucceededResult::groups(&self) -> Vec<GroupId>;
 });
 
@@ -493,11 +496,11 @@ class FailedResult {
     self_type FailedResult;
     private constructor = empty;
 
-    /// users whose access was to be granted/revoked
+    /// Get list of users whose access was to be granted/revoked
     method document_grant_access_result::FailedResult::users(&self) -> Vec<UserAccessErr>;
-    /// groups whose access was to be granted/revoked
+    /// Get list of groups whose access was to be granted/revoked
     method document_grant_access_result::FailedResult::groups(&self) -> Vec<GroupAccessErr>;
-    /// reason for failure
+    /// Utility method to check if the list of failures is empty
     method document_grant_access_result::FailedResult::is_empty(&self) -> bool; alias isEmpty;
 
 });
@@ -509,9 +512,9 @@ class DocumentAccessResult {
     self_type DocumentAccessResult;
     private constructor = empty;
 
-    /// users whose access was successfully changed
+    /// Get the users whose access was successfully changed
     method document_grant_access_result::succeeded(&self) -> SucceededResult;
-    /// users whose accesss was not changed
+    /// Get the users whose access failed to be modified
     method document_grant_access_result::failed(&self) -> FailedResult;
 
 });
@@ -521,9 +524,9 @@ class DocumentAccessResult {
 ///
 
 foreigner_class!(
-/// IronCore SDK.
-/// Includes initialization, user, group,
-/// and document operations.
+/// Struct that is used to make authenticated requests to the IronCore API. Instantiated with the details
+/// of an accounts various ids, device, and signing keys. Once instantiated all operations will be
+/// performed in the context of the account provided.
 class IronSdk {
     self_type IronSdk;
     private constructor = empty;
