@@ -16,6 +16,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   var primaryTestUserSigningKeysBytes: Array[Byte] = null
 
   val secondaryTestUserID = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
+  val secondaryTestUserPassword = java.util.UUID.randomUUID().toString()
+
   var secondaryUserRecord: UserCreateKeyPair = null
 
   var validGroupId: GroupId = null
@@ -47,7 +49,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
     "successfully create a 2nd new user" in {
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserID.id)
-      val resp = Try(IronSdk.userCreate(jwt, primaryTestUserPassword)).toEither
+      val resp = Try(IronSdk.userCreate(jwt, secondaryTestUserPassword)).toEither
       val createResult = resp.value
 
       //Store off the new user we created so it can used for future tests below
@@ -255,7 +257,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.id.id.length shouldBe 32
       group.id shouldBe validGroupId
       group.name.get.name shouldBe "a name"
-      group.groupMasterPublicKey should not be null
+      group.groupMasterPublicKey.asBytes should have length 64
       group.isAdmin shouldBe true
       group.isMember shouldBe true
       group.created should not be null
@@ -266,6 +268,26 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.adminList.get.list.head shouldBe primaryTestUserId
       group.memberList.get.list should have length 1
       group.memberList.get.list.head shouldBe primaryTestUserId
+    }
+
+    "provide public key to users out of the group" in {
+      val jwt = JwtHelper.generateValidJwt(secondaryTestUserID.id)
+      val secondaryUserDevice = Try(IronSdk.generateNewDevice(jwt, secondaryTestUserPassword, new DeviceCreateOpts())).toEither.value
+
+      val sdk = IronSdk.initialize(secondaryUserDevice)
+      val resp = Try(sdk.groupGetMetadata(validGroupId)).toEither
+      val group = resp.value
+
+      group.id.id.length shouldBe 32
+      group.id shouldBe validGroupId
+      group.name.get.name shouldBe "a name"
+      group.groupMasterPublicKey.asBytes should have length 64
+      group.isAdmin shouldBe false
+      group.isMember shouldBe false
+      group.created should not be null
+      group.lastUpdated shouldBe group.created
+      group.adminList.isPresent shouldBe false
+      group.memberList.isPresent shouldBe false
     }
   }
 

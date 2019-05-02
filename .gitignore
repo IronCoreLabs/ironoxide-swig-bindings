@@ -5,6 +5,7 @@ Cargo.lock
 *.iml
 *.code-workspace
 .metals/
+**/.bloop
 tests/src/test/resources/service-keys.conf
 tests/src/test/resources/service-keys.conf.stage
 tests/src/test/resources/service-keys.conf.local
