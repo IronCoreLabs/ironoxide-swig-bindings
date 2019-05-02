@@ -18,5 +18,5 @@ chrono = { version = "0.4", features = ["serde"] }
 [build-dependencies]
 env_logger = "0.6"
 log = "0.4"
-rust_swig = "0.3.0"
+rust_swig = {git = "https://github.com/Dushistov/rust_swig.git", rev="a0ae74a" }
 bindgen = "0.46"
