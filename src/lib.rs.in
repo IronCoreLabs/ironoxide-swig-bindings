@@ -34,16 +34,16 @@ foreigner_class!(class UserId {
     self_type UserId;
     private constructor = empty;
     static_method user_id::validate(s: &str) -> Result<UserId, String>;
-    method user_id::id(&self) -> String;
+    method user_id::id(&self) -> String; alias getId;
     foreigner_code r#"
     @Override
     public int hashCode() {
-        return this.id().hashCode();
+        return this.getId().hashCode();
     }
     public boolean equals(Object obj) {
         if(obj instanceof UserId){
             UserId id = (UserId) obj;
-            return id.id().equals(this.id());
+            return id.getId().equals(this.getId());
         }
         return false;
     }
@@ -54,16 +54,16 @@ foreigner_class!(class GroupId {
     self_type GroupId;
     private constructor = empty;
     static_method group_id::validate(s: &str) -> Result<GroupId, String>;
-    method group_id::id(&self) -> String;
+    method group_id::id(&self) -> String; alias getId;
     foreigner_code r#"
     @Override
     public int hashCode() {
-        return this.id().hashCode();
+        return this.getId().hashCode();
     }
     public boolean equals(Object obj) {
         if(obj instanceof GroupId){
             GroupId id = (GroupId) obj;
-            return id.id().equals(this.id());
+            return id.getId().equals(this.getId());
         }
         return false;
     }
@@ -74,17 +74,17 @@ foreigner_class!(class GroupName {
     self_type GroupName;
     private constructor = empty;
     static_method group_name::validate(s: &str) -> Result<GroupName, String>;
-    method group_name::name(&self) -> String;
+    method group_name::name(&self) -> String; alias getName;
     method GroupName::clone(&self) -> GroupName;
     foreigner_code r#"
     @Override
     public int hashCode() {
-        return this.name().hashCode();
+        return this.getName().hashCode();
     }
     public boolean equals(Object obj) {
         if(obj instanceof GroupName){
             GroupName name = (GroupName) obj;
-            return name.name().equals(this.name());
+            return name.getName().equals(this.getName());
         }
         return false;
     }
@@ -95,16 +95,16 @@ foreigner_class!(class DocumentId {
     self_type DocumentId;
     private constructor = empty;
     static_method document_id::validate(s: &str) -> Result<DocumentId, String>;
-    method document_id::id(&self) -> String;
+    method document_id::id(&self) -> String; alias getId;
     foreigner_code r#"
     @Override
     public int hashCode() {
-        return this.id().hashCode();
+        return this.getId().hashCode();
     }
     public boolean equals(Object obj) {
         if(obj instanceof DocumentId){
             DocumentId id = (DocumentId) obj;
-            return id.id().equals(this.id());
+            return id.getId().equals(this.getId());
         }
         return false;
     }
@@ -115,17 +115,17 @@ foreigner_class!(class DocumentName {
     self_type DocumentName;
     private constructor = empty;
     static_method document_name::validate(s: &str) -> Result<DocumentName, String>;
-    method document_name::name(&self) -> String;
+    method document_name::name(&self) -> String; alias getName;
     method DocumentName::clone(&self) -> DocumentName;
     foreigner_code r#"
     @Override
     public int hashCode() {
-        return this.name().hashCode();
+        return this.getName().hashCode();
     }
     public boolean equals(Object obj) {
         if(obj instanceof DocumentName){
             DocumentName name = (DocumentName) obj;
-            return name.name().equals(this.name());
+            return name.getName().equals(this.getName());
         }
         return false;
     }
@@ -136,17 +136,17 @@ foreigner_class!(class DeviceId {
     self_type DeviceId;
     private constructor = empty;
     static_method device_id::validate(s: i64) -> Result<DeviceId, String>;
-    method device_id::id(&self) -> i64;
+    method device_id::id(&self) -> i64; alias getId;
     method DeviceId::clone(&self) -> DeviceId;
     foreigner_code r#"
     @Override
     public int hashCode() {
-        return Long.hashCode(this.id());
+        return Long.hashCode(this.getId());
     }
     public boolean equals(Object obj) {
         if(obj instanceof DeviceId){
             DeviceId id = (DeviceId) obj;
-            return id.id() == this.id();
+            return id.getId() == this.getId();
         }
         return false;
     }
@@ -157,17 +157,17 @@ foreigner_class!(class DeviceName {
     self_type DeviceName;
     private constructor = empty;
     static_method device_name::validate(s: &str) -> Result<DeviceName, String>;
-    method device_name::name(&self) -> String;
+    method device_name::name(&self) -> String; alias getName;
     method DeviceName::clone(&self) -> DeviceName;
     foreigner_code r#"
     @Override
     public int hashCode() {
-        return this.name().hashCode();
+        return this.getName().hashCode();
     }
     public boolean equals(Object obj) {
         if(obj instanceof DeviceName){
             DeviceName name = (DeviceName) obj;
-            return name.name().equals(this.name());
+            return name.getName().equals(this.getName());
         }
         return false;
     }
@@ -177,40 +177,40 @@ foreigner_class!(class DeviceName {
 foreigner_class!(class VisibleUser {
     self_type VisibleUser;
     private constructor = empty;
-    method visible_user::id(&self) -> UserId;
+    method visible_user::id(&self) -> UserId; alias getId;
 });
 
 foreigner_class!(class VisibleGroup {
     self_type VisibleGroup;
     private constructor = empty;
-    method visible_group::id(&self) -> GroupId;
-    method visible_group::name(&self) -> Option<GroupName>;
+    method visible_group::id(&self) -> GroupId; alias getId;
+    method visible_group::name(&self) -> Option<GroupName>; alias getName;
 });
 
 foreigner_class!(class UserAccessErr {
     self_type UserAccessErr;
     private constructor = empty;
-    method UserAccessErr::id(&self) -> UserId;
-    method UserAccessErr::err(&self) -> String;
+    method UserAccessErr::id(&self) -> UserId; alias getId;
+    method UserAccessErr::err(&self) -> String; alias getErr;
 });
 foreigner_class!(class GroupAccessErr {
     self_type GroupAccessErr;
     private constructor = empty;
-    method GroupAccessErr::id(&self) -> GroupId;
-    method GroupAccessErr::err(&self) -> String;
+    method GroupAccessErr::id(&self) -> GroupId; alias getId;
+    method GroupAccessErr::err(&self) -> String; alias getErr;
 });
 
 foreigner_class!(class UserWithKey {
     self_type UserWithKey;
     private constructor = empty;
-    method UserWithKey::user(&self) -> UserId;
-    method UserWithKey::public_key(&self) -> PublicKey; alias publicKey;
+    method UserWithKey::user(&self) -> UserId; alias getUser;
+    method UserWithKey::public_key(&self) -> PublicKey; alias getPublicKey;
 });
 
 foreigner_class!(class GroupUserList {
     self_type GroupUserList;
     private constructor = empty;
-    method GroupUserList::list(&self) -> Vec<UserId>;
+    method GroupUserList::list(&self) -> Vec<UserId>; alias getList;
 });
 
 ///
@@ -220,10 +220,10 @@ foreigner_class!(class GroupUserList {
 foreigner_class!(class DeviceContext {
     self_type DeviceContext;
     constructor device_context::new(account_id: &UserId, segment_id: i64, private_device_key: &PrivateKey, signing_keys: &DeviceSigningKeyPair) -> DeviceContext;
-    method device_context::account_id(&self) -> UserId; alias accountId;
-    method device_context::segment_id(&self) -> usize; alias segmentId;
-    method device_context::private_device_key(&self) -> PrivateKey; alias privateDeviceKey;
-    method device_context::signing_keys(&self) -> DeviceSigningKeyPair; alias signingKeys;
+    method device_context::account_id(&self) -> UserId; alias getAccountId;
+    method device_context::segment_id(&self) -> usize; alias getSegmentId;
+    method device_context::private_device_key(&self) -> PrivateKey; alias getPrivateDeviceKey;
+    method device_context::signing_keys(&self) -> DeviceSigningKeyPair; alias getSigningKeys;
 });
 
 ///
@@ -233,25 +233,25 @@ foreigner_class!(class DeviceContext {
 foreigner_class!(class UserCreateKeyPair {
     self_type UserCreateKeyPair;
     private constructor = empty;
-    method user_create_key_pair::user_encrypted_master_key_bytes(&self) -> Vec<i8>; alias userEncryptedMasterKey;
-    method user_create_key_pair::user_public_key(&self) -> PublicKey; alias userPublicKey;
+    method user_create_key_pair::user_encrypted_master_key_bytes(&self) -> Vec<i8>; alias getUserEncryptedMasterKey;
+    method user_create_key_pair::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
 });
 
 foreigner_class!(class UserVerifyResult {
     self_type UserVerifyResult;
     private constructor = empty;
-    method user_verify_result::account_id(&self) -> UserId; alias accountId;
-    method user_verify_result::segment_id(&self) -> usize; alias segmentId;
-    method user_verify_result::user_public_key(&self) -> PublicKey; alias userPublicKey;
+    method user_verify_result::account_id(&self) -> UserId; alias getAccountId;
+    method user_verify_result::segment_id(&self) -> usize; alias getSegmentId;
+    method user_verify_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
 });
 
 foreigner_class!(class UserDevice {
     self_type UserDevice;
     private constructor = empty;
-    method user_device::id(&self) -> DeviceId; alias id;
-    method user_device::name(&self) -> Option<DeviceName>;
-    method user_device::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
-    method user_device::created(&self) -> DateTime<Utc>;
+    method user_device::id(&self) -> DeviceId; alias getId;
+    method user_device::name(&self) -> Option<DeviceName>; alias getName;
+    method user_device::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    method user_device::created(&self) -> DateTime<Utc>; alias getCreated;
     method UserDevice::is_current_device(&self) -> bool; alias isCurrentDevice;
 });
 
@@ -265,7 +265,7 @@ foreigner_class!(class DeviceCreateOpts {
 foreigner_class!(class UserDeviceListResult {
     self_type UserDeviceListResult;
     private constructor = empty;
-    method user_device_list_result::result(&self) -> Vec<UserDevice>;
+    method user_device_list_result::result(&self) -> Vec<UserDevice>; alias getResult;
 });
 
 ///
@@ -275,32 +275,32 @@ foreigner_class!(class UserDeviceListResult {
 foreigner_class!(class GroupMetaResult{
     self_type GroupMetaResult;
     private constructor = empty;
-    method group_meta_result::id(&self) -> GroupId;
-    method group_meta_result::name(&self) -> Option<GroupName>;
+    method group_meta_result::id(&self) -> GroupId; alias getId;
+    method group_meta_result::name(&self) -> Option<GroupName>; alias getName;
     method GroupMetaResult::is_admin(&self) -> bool; alias isAdmin;
     method GroupMetaResult::is_member(&self) -> bool; alias isMember;
-    method group_meta_result::created(&self) -> DateTime<Utc>;
-    method group_meta_result::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
+    method group_meta_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    method group_meta_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
 });
 
 foreigner_class!(class GroupListResult{
     self_type GroupListResult;
     private constructor = empty;
-    method group_list_result::result(&self) -> Vec<GroupMetaResult>;
+    method group_list_result::result(&self) -> Vec<GroupMetaResult>; alias getResult;
 });
 
 foreigner_class!(class GroupGetResult{
     self_type GroupGetResult;
     private constructor = empty;
-    method group_get_result::id(&self) -> GroupId;
-    method group_get_result::name(&self) -> Option<GroupName>;
-    method group_get_result::group_master_public_key(&self) -> PublicKey; alias groupMasterPublicKey;
+    method group_get_result::id(&self) -> GroupId; alias getId;
+    method group_get_result::name(&self) -> Option<GroupName>; alias getName;
+    method group_get_result::group_master_public_key(&self) -> PublicKey; alias getGroupMasterPublicKey;
     method GroupGetResult::is_admin(&self) -> bool; alias isAdmin;
     method GroupGetResult::is_member(&self) -> bool; alias isMember;
-    method group_get_result::created(&self) -> DateTime<Utc>;
-    method group_get_result::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
-    method group_get_result::admin_list(&self) -> Option<GroupUserList>; alias adminList;
-    method group_get_result::member_list(&self) -> Option<GroupUserList>; alias memberList;
+    method group_get_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    method group_get_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    method group_get_result::admin_list(&self) -> Option<GroupUserList>; alias getAdminList;
+    method group_get_result::member_list(&self) -> Option<GroupUserList>; alias getMemberList;
 });
 
 foreigner_class!(class GroupCreateOpts {
@@ -312,15 +312,15 @@ foreigner_class!(class GroupCreateOpts {
 foreigner_class!(class AccessEditFailure{
     self_type AccessEditFailure;
     private constructor = empty;
-    method access_edit_failure::user(&self) -> UserId;
-    method access_edit_failure::error(&self) -> String;
+    method access_edit_failure::user(&self) -> UserId; alias getUser;
+    method access_edit_failure::error(&self) -> String; alias getError;
 });
 
 foreigner_class!(class GroupAccessEditResult{
     self_type GroupAccessEditResult;
     private constructor = empty;
-    method group_access_edit_result::succeeded(&self) -> Vec<UserId>;
-    method group_access_edit_result::failed(&self) -> Vec<AccessEditFailure>;
+    method group_access_edit_result::succeeded(&self) -> Vec<UserId>; alias getSucceeded;
+    method group_access_edit_result::failed(&self) -> Vec<AccessEditFailure>; alias getFailed;
 });
 
 ///
@@ -345,64 +345,64 @@ foreigner_class!(class DocumentCreateOpts {
 foreigner_class!(class DocumentListMeta{
     self_type DocumentListMeta;
     private constructor = empty;
-    method document_list_meta::id(&self) -> DocumentId;
-    method document_list_meta::name(&self) -> Option<DocumentName>;
-    method document_list_meta::association_type(&self) -> AssociationType; alias associationType;
-    method document_list_meta::created(&self) -> DateTime<Utc>;
-    method document_list_meta::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
+    method document_list_meta::id(&self) -> DocumentId; alias getId;
+    method document_list_meta::name(&self) -> Option<DocumentName>; alias getName;
+    method document_list_meta::association_type(&self) -> AssociationType; alias getAssociationType;
+    method document_list_meta::created(&self) -> DateTime<Utc>; alias getCreated;
+    method document_list_meta::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
 });
 
 foreigner_class!(class DocumentListResult{
     self_type DocumentListResult;
     private constructor = empty;
-    method document_list_result::result(&self) -> Vec<DocumentListMeta>; alias result;
+    method document_list_result::result(&self) -> Vec<DocumentListMeta>; alias getResult;
 });
 
 foreigner_class!(class DocumentMetadataResult{
     self_type DocumentMetadataResult;
     private constructor = empty;
-    method document_metadata_result::id(&self) -> DocumentId;
-    method document_metadata_result::name(&self) -> Option<DocumentName>;
-    method document_metadata_result::created(&self) -> DateTime<Utc>;
-    method document_metadata_result::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
-    method document_metadata_result::association_type(&self) -> AssociationType; alias associationType;
-    method document_metadata_result::visible_to_users(&self) -> Vec<VisibleUser>; alias visibleToUsers;
-    method document_metadata_result::visible_to_groups(&self) -> Vec<VisibleGroup>; alias visibleToGroups;
+    method document_metadata_result::id(&self) -> DocumentId; alias getId;
+    method document_metadata_result::name(&self) -> Option<DocumentName>; alias getName;
+    method document_metadata_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    method document_metadata_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    method document_metadata_result::association_type(&self) -> AssociationType; alias getAssociationType;
+    method document_metadata_result::visible_to_users(&self) -> Vec<VisibleUser>; alias getVisibleToUsers;
+    method document_metadata_result::visible_to_groups(&self) -> Vec<VisibleGroup>; alias getVisibleToGroups;
 });
 
 foreigner_class!(class DocumentEncryptResult{
     self_type DocumentEncryptResult;
     private constructor = empty;
-    method document_encrypt_result::id(&self) -> DocumentId;
-    method document_encrypt_result::name(&self) -> Option<DocumentName>;
-    method document_encrypt_result::encrypted_data(&self) -> Vec<i8>; alias encryptedData;
-    method document_encrypt_result::created(&self) -> DateTime<Utc>; alias created;
-    method document_encrypt_result::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
+    method document_encrypt_result::id(&self) -> DocumentId; alias getId;
+    method document_encrypt_result::name(&self) -> Option<DocumentName>; alias getName;
+    method document_encrypt_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
+    method document_encrypt_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    method document_encrypt_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
 });
 
 foreigner_class!(class DocumentDecryptResult{
     self_type DocumentDecryptResult;
     private constructor = empty;
-    method document_decrypt_result::id(&self) -> DocumentId;
-    method document_decrypt_result::name(&self) -> Option<DocumentName>;
-    method document_decrypt_result::decrypted_data(&self) -> Vec<i8>; alias decryptedData;
-    method document_decrypt_result::created(&self) -> DateTime<Utc>; alias created;
-    method document_decrypt_result::last_updated(&self) -> DateTime<Utc>; alias lastUpdated;
+    method document_decrypt_result::id(&self) -> DocumentId; alias getId;
+    method document_decrypt_result::name(&self) -> Option<DocumentName>; alias getName;
+    method document_decrypt_result::decrypted_data(&self) -> Vec<i8>; alias getDecryptedData;
+    method document_decrypt_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    method document_decrypt_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
 });
 
 foreigner_class!(class SucceededResult {
     self_type SucceededResult;
     private constructor = empty;
 
-    method document_grant_access_result::SucceededResult::users(&self) -> Vec<UserId>;
-    method document_grant_access_result::SucceededResult::groups(&self) -> Vec<GroupId>;
+    method document_grant_access_result::SucceededResult::users(&self) -> Vec<UserId>; alias getUsers;
+    method document_grant_access_result::SucceededResult::groups(&self) -> Vec<GroupId>; alias getGroups;
 });
 foreigner_class!(class FailedResult {
     self_type FailedResult;
     private constructor = empty;
 
-    method document_grant_access_result::FailedResult::users(&self) -> Vec<UserAccessErr>;
-    method document_grant_access_result::FailedResult::groups(&self) -> Vec<GroupAccessErr>;
+    method document_grant_access_result::FailedResult::users(&self) -> Vec<UserAccessErr>; alias getUsers;
+    method document_grant_access_result::FailedResult::groups(&self) -> Vec<GroupAccessErr>; alias getGroups;
     method document_grant_access_result::FailedResult::is_empty(&self) -> bool; alias isEmpty;
 
 });
@@ -410,8 +410,8 @@ foreigner_class!(class DocuemntAccessResult {
     self_type DocumentAccessResult;
     private constructor = empty;
 
-    method document_grant_access_result::succeeded(&self) -> SucceededResult;
-    method document_grant_access_result::failed(&self) -> FailedResult;
+    method document_grant_access_result::succeeded(&self) -> SucceededResult; alias getSucceeded;
+    method document_grant_access_result::failed(&self) -> FailedResult; alias getFailed;
 
 });
 
