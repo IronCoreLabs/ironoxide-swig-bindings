@@ -453,7 +453,7 @@ foreigner_class!(
 /// @param a1 `name`        - non-unique docuemnt name
 /// @param a2 `updated`     - when the document was last updated
 /// @param a3 `created`     - when the document was created
-/// @param a4 `encryptedData`
+/// @param a4 `encryptedData` - bytes of encrypted document content
 /// @param a5 `grants`      - users and groups that have access to decrypt the `encryptedData`
 /// @param a6 `accessErrs`  - users and groups that could not be granted access
 class DocumentEncryptResult{
