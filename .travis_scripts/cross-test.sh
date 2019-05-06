@@ -9,5 +9,5 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 
 cargo fmt -- --check
-cargo build
+cargo b
 pushd tests && ~/bin/sbt test && popd
