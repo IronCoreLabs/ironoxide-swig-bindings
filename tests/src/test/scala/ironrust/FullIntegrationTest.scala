@@ -398,7 +398,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1,2,3).map(_.toByte).toArray
       val docName = Try(DocumentName.validate("name")).toEither.value
-      val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, docName.clone))).toEither
+      val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, docName.clone, Array(), Array()))).toEither
       val result = maybeResult.value
       result.getName.get shouldBe docName
       result.getId.getId.length shouldBe 32
@@ -424,6 +424,27 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       decryptedResult.getDecryptedData shouldBe data
       decryptedResult.getCreated shouldBe result.getCreated
       decryptedResult.getLastUpdated shouldBe result.getLastUpdated
+    }
+
+    "grant to specified users" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val data: Array[Byte] = List(1,2,3).map(_.toByte).toArray
+      val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, null, Array(secondaryTestUserID), Array()))).toEither
+      val result = maybeResult.value
+      result.getUserGrants should have length 2
+      result.getUserGrants.head.getId shouldEqual primaryTestUserId.getId
+      result.getUserGrants()(1).getId shouldEqual secondaryTestUserID.getId
+      result.getGroupGrants should have length 0
+    }
+    "grant to specified groups" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val data: Array[Byte] = List(1,2,3).map(_.toByte).toArray
+      val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, null, Array(), Array(validGroupId)))).toEither
+      val result = maybeResult.value
+      result.getUserGrants should have length 1
+      result.getUserGrants.head.getId shouldEqual primaryTestUserId.getId
+      result.getGroupGrants should have length 1
+      result.getGroupGrants.head.getId shouldEqual validGroupId.getId
     }
   }
 
@@ -454,7 +475,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   "Document List" should {
     "Return previously created documents" in {
       val sdk = IronSdk.initialize(createDeviceContext)
-      sdk.documentList.getResult should have length 2
+      sdk.documentList.getResult should have length 4
     }
   }
 

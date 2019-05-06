@@ -177,8 +177,18 @@ mod device_create_opt {
 mod document_create_opt {
     use super::*;
     use ironrust::document::DocumentCreateOpts;
-    pub fn create(id: Option<DocumentId>, name: Option<DocumentName>) -> DocumentCreateOpts {
-        DocumentCreateOpts::new(id, name, vec![])
+    pub fn create(id: Option<DocumentId>, name: Option<DocumentName>, user_grants: Vec<UserId>, group_grants: Vec<GroupId>) -> DocumentCreateOpts {
+        let users_and_groups = user_grants
+        .into_iter()
+        .map(|u| UserOrGroup::User { id: u })
+        .chain(
+            group_grants
+                .into_iter()
+                .map(|g| UserOrGroup::Group { id: g }),
+        )
+        .collect();
+
+        DocumentCreateOpts::new(id, name, users_and_groups)
     }
 }
 
@@ -319,6 +329,7 @@ mod document_metadata_result {
 
 mod document_encrypt_result {
     use super::*;
+    use itertools::{Either, Itertools};
 
     pub fn id(d: &DocumentEncryptResult) -> DocumentId {
         d.id().clone()
@@ -328,6 +339,20 @@ mod document_encrypt_result {
     }
     pub fn created(d: &DocumentEncryptResult) -> DateTime<Utc> {
         d.created().clone()
+    }
+    pub fn user_grants(d: &DocumentEncryptResult) -> Vec<UserId> {
+        let (users, _): (Vec<UserId>, Vec<GroupId>) = d.grants().iter().cloned().partition_map(|uog| match uog {
+            UserOrGroup::User { id } => Either::Left(id),
+            UserOrGroup::Group { id } => Either::Right(id)
+        });
+        users
+    }
+    pub fn group_grants(d: &DocumentEncryptResult) -> Vec<GroupId> {
+        let (_, groups): (Vec<UserId>, Vec<GroupId>) = d.grants().iter().cloned().partition_map(|uog| match uog {
+            UserOrGroup::User { id } => Either::Left(id),
+            UserOrGroup::Group { id } => Either::Right(id)
+        });
+        groups
     }
     pub fn last_updated(d: &DocumentEncryptResult) -> DateTime<Utc> {
         d.last_updated().clone()
