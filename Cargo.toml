@@ -12,7 +12,8 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.8"
-ironrust = {git = "ssh://git@github.com/ironcorelabs/ironrust.git", rev="691219a" }
+# TODO bump to 0.6.1 when released; figure out how we are going to handle senv
+ironoxide = {git = "ssh://git@github.com/ironcorelabs/ironoxide.git", rev="f07e52a", features = ["senv"] }
 chrono = { version = "0.4", features = ["serde"] }
 
 [build-dependencies]

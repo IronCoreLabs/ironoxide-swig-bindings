@@ -398,7 +398,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1,2,3).map(_.toByte).toArray
       val docName = Try(DocumentName.validate("name")).toEither.value
-      val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, docName.clone))).toEither
+      val maybeResult = Try(sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, docName.clone))).toEither
       val result = maybeResult.value
       result.getName.get shouldBe docName
       result.getId.getId.length shouldBe 32
@@ -407,7 +407,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "roundtrip for single level transform for no name and good data" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(10,2,3).map(_.toByte).toArray
-      val maybeResult = Try(sdk.documentEncrypt(data, new DocumentCreateOpts())).toEither
+      val maybeResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither
       val result = maybeResult.value
       result.getId.getId.length shouldBe 32
       result.getName.isPresent shouldBe false

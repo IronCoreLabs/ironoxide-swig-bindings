@@ -1,10 +1,10 @@
-use log::error; //This is used as part of Swig expansion as a transitive dependency
-use chrono::{DateTime, Utc};
 use crate::jni_c_header::*;
 use crate::{
     document_grant_access_result::{FailedResult, SucceededResult},
-    group_get_result::GroupUserList
+    group_get_result::GroupUserList,
 };
+use chrono::{DateTime, Utc};
+use log::error; //This is used as part of Swig expansion as a transitive dependency
 
 ///
 /// Classes for Common Types
@@ -367,9 +367,9 @@ class GroupCreateOpts {
 });
 
 foreigner_class!(
-/// A failure to edit the access list of a document.
+/// A failure to edit a group's administrator or membership lists
 class AccessEditFailure{
-    self_type AccessEditFailure;
+    self_type GroupAccessEditErr;
     private constructor = empty;
     /// Get user whose access was to be granted/revoked
     method access_edit_failure::user(&self) -> UserId; alias getUser;
@@ -385,7 +385,7 @@ class GroupAccessEditResult{
     /// Get the list of users whose access was modified
     method group_access_edit_result::succeeded(&self) -> Vec<UserId>; alias getSucceeded;
     /// Get the users whose access could not be modified
-    method group_access_edit_result::failed(&self) -> Vec<AccessEditFailure>; alias getFailed;
+    method group_access_edit_result::failed(&self) -> Vec<GroupAccessEditErr>; alias getFailed;
 });
 
 ///
@@ -404,10 +404,10 @@ foreign_enum!(
     }
 );
 
-foreigner_class!(class DocumentCreateOpts {
-    self_type DocumentCreateOpts;
-    constructor DocumentCreateOpts::default() -> DocumentCreateOpts;
-    static_method document_create_opt::create(_:Option<DocumentId>, _:Option<DocumentName>) -> DocumentCreateOpts;
+foreigner_class!(class DocumentEncryptOpts {
+    self_type DocumentEncryptOpts;
+    constructor DocumentEncryptOpts::default() -> DocumentEncryptOpts;
+    static_method document_create_opt::create(_:Option<DocumentId>, _:Option<DocumentName>) -> DocumentEncryptOpts;
 });
 
 foreigner_class!(
@@ -528,7 +528,7 @@ foreigner_class!(
 /// of an accounts various ids, device, and signing keys. Once instantiated all operations will be
 /// performed in the context of the account provided.
 class IronSdk {
-    self_type IronSdk;
+    self_type IronOxide;
     private constructor = empty;
     static_method user_verify(_:&str) -> Result<Option<UserVerifyResult>, String>; alias userVerify;
     static_method user_create(_:&str, _:&str) -> Result<UserCreateKeyPair, String>; alias userCreate;
@@ -537,7 +537,7 @@ class IronSdk {
     /// 
     /// @throws if the provided `DeviceContext` is invalid
     /// @return an instance of the IronSdk
-    static_method initialize(_:&DeviceContext) -> Result<IronSdk, String>;
+    static_method initialize(_:&DeviceContext) -> Result<IronOxide, String>;
     /// Generates a new device for the user specified in the signed JWT.
     ///
     /// This will result in a new transform key (from the user's master private key to the new device's public key)
@@ -591,7 +591,7 @@ class IronSdk {
     /// @param a0 `documentData`   - bytes of the document to encrypt
     /// @param a1 `encryptOpts`    - optional document encrypt parameters
     /// @param a2 `id`             - unique id to use for the document. Document id will be stored unencrypted and must be unique per segment
-    method document_encrypt(&mut self,_: &[i8], _: &DocumentCreateOpts) -> Result<DocumentEncryptResult, String>; alias documentEncrypt;
+    method document_encrypt(&mut self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptResult, String>; alias documentEncrypt;
     /// Update the encrypted content of an existing document. Persists any existing access to other users and groups.
     ///
     /// @param a0 `id`                - id of document to update
