@@ -12,8 +12,8 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.8"
-# TODO bump to 0.6.1 when released; figure out how we are going to handle senv
-ironoxide = {git = "ssh://git@github.com/ironcorelabs/ironoxide.git", rev="f07e52a", features = ["senv"] }
+# TODO bump to 0.6.1 when released
+ironoxide = {git = "ssh://git@github.com/ironcorelabs/ironoxide.git", rev="f07e52a" }
 chrono = { version = "0.4", features = ["serde"] }
 
 [build-dependencies]
@@ -21,3 +21,7 @@ env_logger = "0.6"
 log = "0.4"
 rust_swig = {git = "https://github.com/Dushistov/rust_swig.git", rev="a0ae74a" }
 bindgen = "0.46"
+
+[features]
+# rexport ironoxide's senv test feature
+senv = ["ironoxide/senv"]
