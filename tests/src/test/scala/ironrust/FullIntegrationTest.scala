@@ -431,20 +431,21 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val data: Array[Byte] = List(1,2,3).map(_.toByte).toArray
       val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, null, Array(secondaryTestUserID), Array()))).toEither
       val result = maybeResult.value
-      result.getUserGrants should have length 2
-      result.getUserGrants.head.getId shouldEqual primaryTestUserId.getId
-      result.getUserGrants()(1).getId shouldEqual secondaryTestUserID.getId
-      result.getGroupGrants should have length 0
+      result.getChanged.getUsers should have length 2
+      result.getChanged.getUsers.head.getId shouldEqual primaryTestUserId.getId
+      result.getChanged.getUsers()(1).getId shouldEqual secondaryTestUserID.getId
+      result.getChanged.getGroups should have length 0
     }
+
     "grant to specified groups" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1,2,3).map(_.toByte).toArray
       val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, null, Array(), Array(validGroupId)))).toEither
       val result = maybeResult.value
-      result.getUserGrants should have length 1
-      result.getUserGrants.head.getId shouldEqual primaryTestUserId.getId
-      result.getGroupGrants should have length 1
-      result.getGroupGrants.head.getId shouldEqual validGroupId.getId
+      result.getChanged.getUsers should have length 1
+      result.getChanged.getUsers.head.getId shouldEqual primaryTestUserId.getId
+      result.getChanged.getGroups should have length 1
+      result.getChanged.getGroups.head.getId shouldEqual validGroupId.getId
     }
   }
 
@@ -537,12 +538,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         List(secondaryTestUserID, badUserId).toArray,
         List(validGroupId, badGroupId).toArray)).toEither
       val grantResult = maybeResult.value
-      val success = grantResult.getSucceeded
+      val success = grantResult.getChanged
       success.getUsers should have length 1
       success.getGroups should have length 1
-      grantResult.getFailed.isEmpty shouldBe false
-      grantResult.getFailed.getUsers should have length 1
-      grantResult.getFailed.getGroups should have length 1
+      grantResult.getErrors.isEmpty shouldBe false
+      grantResult.getErrors.getUsers should have length 1
+      grantResult.getErrors.getGroups should have length 1
     }
   }
 
@@ -556,12 +557,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         List(secondaryTestUserID, badUserId).toArray,
         List(validGroupId, badGroupId).toArray)).toEither
       val revokeResult = maybeResult.value
-      val success = revokeResult.getSucceeded
+      val success = revokeResult.getChanged
       success.getUsers should have length 1
       success.getGroups should have length 1
-      revokeResult.getFailed.isEmpty shouldBe false
-      revokeResult.getFailed.getUsers should have length 1
-      revokeResult.getFailed.getGroups should have length 1
+      revokeResult.getErrors.isEmpty shouldBe false
+      revokeResult.getErrors.getUsers should have length 1
+      revokeResult.getErrors.getGroups should have length 1
     }
   }
 

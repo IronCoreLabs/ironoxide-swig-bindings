@@ -334,7 +334,6 @@ mod document_metadata_result {
 
 mod document_encrypt_result {
     use super::*;
-    use itertools::{Either, Itertools};
 
     pub fn id(d: &DocumentEncryptResult) -> DocumentId {
         d.id().clone()
@@ -344,22 +343,6 @@ mod document_encrypt_result {
     }
     pub fn created(d: &DocumentEncryptResult) -> DateTime<Utc> {
         d.created().clone()
-    }
-    pub fn user_grants(d: &DocumentEncryptResult) -> Vec<UserId> {
-        let (users, _): (Vec<UserId>, Vec<GroupId>) =
-            d.grants().iter().cloned().partition_map(|uog| match uog {
-                UserOrGroup::User { id } => Either::Left(id),
-                UserOrGroup::Group { id } => Either::Right(id),
-            });
-        users
-    }
-    pub fn group_grants(d: &DocumentEncryptResult) -> Vec<GroupId> {
-        let (_, groups): (Vec<UserId>, Vec<GroupId>) =
-            d.grants().iter().cloned().partition_map(|uog| match uog {
-                UserOrGroup::User { id } => Either::Left(id),
-                UserOrGroup::Group { id } => Either::Right(id),
-            });
-        groups
     }
     pub fn last_updated(d: &DocumentEncryptResult) -> DateTime<Utc> {
         d.last_updated().clone()
@@ -421,7 +404,7 @@ impl GroupAccessErr {
     }
 }
 
-mod document_grant_access_result {
+mod document_access_change_result {
     use super::*;
     use itertools::{Either, Itertools};
 
@@ -458,33 +441,54 @@ mod document_grant_access_result {
         }
     }
 
-    pub fn succeeded(d: &DocumentAccessResult) -> SucceededResult {
-        let (groups, users) = d
-            .succeeded()
-            .iter()
-            .cloned()
-            .partition_map(|uog| match uog {
-                UserOrGroup::User { id } => Either::Right(id),
-                UserOrGroup::Group { id } => Either::Left(id),
-            });
+    pub trait DocumentAccessChange {
+        fn changed(&self) -> SucceededResult;
+        fn errors(&self) -> FailedResult;
+    }
+
+    impl DocumentAccessChange for DocumentAccessResult {
+        fn changed(&self) -> SucceededResult {
+            to_succeeded_result(self.succeeded())
+        }
+
+        fn errors(&self) -> FailedResult {
+            to_failed_result(self.failed())
+        }
+    }
+
+    impl DocumentAccessChange for DocumentEncryptResult {
+        fn changed(&self) -> SucceededResult {
+            to_succeeded_result(self.grants())
+        }
+
+        fn errors(&self) -> FailedResult {
+            to_failed_result(self.access_errs())
+        }
+    }
+
+    fn to_succeeded_result(successes: &[UserOrGroup]) -> SucceededResult {
+        let (users, groups) = successes.iter().cloned().partition_map(|uog| match uog {
+            UserOrGroup::User { id } => Either::Left(id),
+            UserOrGroup::Group { id } => Either::Right(id),
+        });
 
         SucceededResult { users, groups }
     }
 
-    pub fn failed(d: &DocumentAccessResult) -> FailedResult {
-        let (groups, users) =
-            d.failed()
+    fn to_failed_result(access_errs: &[AccessErr]) -> FailedResult {
+        let (users, groups) =
+            access_errs
                 .iter()
                 .cloned()
                 .partition_map(|access_err| match access_err {
                     AccessErr {
                         user_or_group: UserOrGroup::User { id },
                         err,
-                    } => Either::Right(UserAccessErr { id: id, err: err }),
+                    } => Either::Left(UserAccessErr { id: id, err: err }),
                     AccessErr {
                         user_or_group: UserOrGroup::Group { id },
                         err,
-                    } => Either::Left(GroupAccessErr { id: id, err: err }),
+                    } => Either::Right(GroupAccessErr { id: id, err: err }),
                 });
 
         FailedResult { users, groups }
