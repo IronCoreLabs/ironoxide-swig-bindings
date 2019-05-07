@@ -1,21 +1,20 @@
 mod jni_c_header;
-use ironrust::{
-    api::{
-        DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey, UserCreateKeyPair,
-        UserVerifyResult,
-    },
+use ironoxide::{
     document::{
-        AccessErr, AssociationType, DocumentAccessResult, DocumentCreateOpts,
-        DocumentDecryptResult, DocumentEncryptResult, DocumentListMeta, DocumentListResult,
+        AssociationType, DocAccessEditErr, DocumentAccessResult, DocumentDecryptResult,
+        DocumentEncryptOpts, DocumentEncryptResult, DocumentListMeta, DocumentListResult,
         DocumentMetadataResult, UserOrGroup, VisibleGroup, VisibleUser,
     },
     group::{
-        AccessEditFailure, GroupAccessEditResult, GroupCreateOpts, GroupGetResult, GroupListResult,
-        GroupMetaResult,
+        GroupAccessEditErr, GroupAccessEditResult, GroupCreateOpts, GroupGetResult,
+        GroupListResult, GroupMetaResult,
     },
     prelude::*,
-    user::{DeviceCreateOpts, UserDevice, UserDeviceListResult},
+    user::{
+        DeviceCreateOpts, UserCreateKeyPair, UserDevice, UserDeviceListResult, UserVerifyResult,
+    },
 };
+use ironoxide::{DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey};
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
 
@@ -168,7 +167,6 @@ mod device_signing_keys {
 
 mod device_create_opt {
     use super::*;
-    use ironrust::user::DeviceCreateOpts;
     pub fn create(name: Option<DeviceName>) -> DeviceCreateOpts {
         DeviceCreateOpts::new(name)
     }
@@ -176,13 +174,13 @@ mod device_create_opt {
 
 mod document_create_opt {
     use super::*;
-    use ironrust::document::DocumentCreateOpts;
+    use ironoxide::document::DocumentEncryptOpts;
     pub fn create(
         id: Option<DocumentId>,
         name: Option<DocumentName>,
         user_grants: Vec<UserId>,
         group_grants: Vec<GroupId>,
-    ) -> DocumentCreateOpts {
+    ) -> DocumentEncryptOpts {
         let users_and_groups = user_grants
             .into_iter()
             .map(|u| UserOrGroup::User { id: u })
@@ -193,7 +191,7 @@ mod document_create_opt {
             )
             .collect();
 
-        DocumentCreateOpts::new(id, name, users_and_groups)
+        DocumentEncryptOpts::new(id, name, users_and_groups)
     }
 }
 
@@ -372,6 +370,9 @@ mod document_decrypt_result {
     }
 }
 
+// UserAccessErr and GroupAccessErr are a Java-compatible representation of IronOxide's
+// DocAccessEditErr. They are encoded this this because this seemed like the most
+// straightforward way to represent a error for both a user or group (like UserOrGroup)
 #[derive(Debug, Clone, PartialEq)]
 pub struct UserAccessErr {
     id: UserId,
@@ -475,17 +476,17 @@ mod document_access_change_result {
         SucceededResult { users, groups }
     }
 
-    fn to_failed_result(access_errs: &[AccessErr]) -> FailedResult {
+    fn to_failed_result(access_errs: &[DocAccessEditErr]) -> FailedResult {
         let (users, groups) =
             access_errs
                 .iter()
                 .cloned()
                 .partition_map(|access_err| match access_err {
-                    AccessErr {
+                    DocAccessEditErr {
                         user_or_group: UserOrGroup::User { id },
                         err,
                     } => Either::Left(UserAccessErr { id: id, err: err }),
-                    AccessErr {
+                    DocAccessEditErr {
                         user_or_group: UserOrGroup::Group { id },
                         err,
                     } => Either::Right(GroupAccessErr { id: id, err: err }),
@@ -565,60 +566,63 @@ mod group_create_opts {
 
 //Java SDK wrapper functions for doing unnatural things with the JNI.
 fn user_verify(jwt: &str) -> Result<Option<UserVerifyResult>, String> {
-    Ok(IronSdk::user_verify(jwt)?)
+    Ok(IronOxide::user_verify(jwt)?)
 }
 fn user_create(jwt: &str, password: &str) -> Result<UserCreateKeyPair, String> {
-    Ok(IronSdk::user_create(jwt, password)?)
+    Ok(IronOxide::user_create(jwt, password)?)
 }
-fn initialize(init: &DeviceContext) -> Result<IronSdk, String> {
-    Ok(IronSdk::initialize(init)?)
+fn initialize(init: &DeviceContext) -> Result<IronOxide, String> {
+    Ok(ironoxide::initialize(init)?)
 }
 fn generate_new_device(
     jwt: &str,
     password: &str,
     opts: &DeviceCreateOpts,
 ) -> Result<DeviceContext, String> {
-    Ok(IronSdk::generate_new_device(jwt, password, opts)?)
+    Ok(IronOxide::generate_new_device(jwt, password, opts)?)
 }
-fn user_list_devices(sdk: &IronSdk) -> Result<UserDeviceListResult, String> {
+fn user_list_devices(sdk: &IronOxide) -> Result<UserDeviceListResult, String> {
     Ok(sdk.user_list_devices()?)
 }
-fn user_get_public_key(sdk: &IronSdk, users: Vec<UserId>) -> Result<Vec<UserWithKey>, String> {
+fn user_get_public_key(sdk: &IronOxide, users: Vec<UserId>) -> Result<Vec<UserWithKey>, String> {
     let users = &users.into_iter().map(|s| s.into()).collect::<Vec<_>>();
     let mut result = sdk.user_get_public_key(users)?;
     Ok(result.drain().into_iter().map(UserWithKey).collect())
 }
-fn user_delete_device(sdk: &IronSdk, device_id: Option<DeviceId>) -> Result<DeviceId, String> {
+fn user_delete_device(sdk: &IronOxide, device_id: Option<DeviceId>) -> Result<DeviceId, String> {
     Ok(sdk.user_delete_device(device_id.as_ref())?)
 }
-fn document_list(sdk: &IronSdk) -> Result<DocumentListResult, String> {
+fn document_list(sdk: &IronOxide) -> Result<DocumentListResult, String> {
     Ok(sdk.document_list()?)
 }
-fn document_get_metadata(sdk: &IronSdk, id: &DocumentId) -> Result<DocumentMetadataResult, String> {
+fn document_get_metadata(
+    sdk: &IronOxide,
+    id: &DocumentId,
+) -> Result<DocumentMetadataResult, String> {
     Ok(sdk.document_get_metadata(id)?)
 }
-fn document_get_id_from_bytes(sdk: &IronSdk, bytes: &[i8]) -> Result<DocumentId, String> {
+fn document_get_id_from_bytes(sdk: &IronOxide, bytes: &[i8]) -> Result<DocumentId, String> {
     Ok(sdk.document_get_id_from_bytes(i8_conv(bytes))?)
 }
 fn document_encrypt(
-    sdk: &mut IronSdk,
+    sdk: &mut IronOxide,
     data: &[i8],
-    opts: &DocumentCreateOpts,
+    opts: &DocumentEncryptOpts,
 ) -> Result<DocumentEncryptResult, String> {
     Ok(sdk.document_encrypt(i8_conv(data), opts)?)
 }
 fn document_update_bytes(
-    sdk: &mut IronSdk,
+    sdk: &mut IronOxide,
     document_id: &DocumentId,
     data: &[i8],
 ) -> Result<DocumentEncryptResult, String> {
     Ok(sdk.document_update_bytes(document_id, i8_conv(data))?)
 }
-fn document_decrypt(sdk: &mut IronSdk, data: &[i8]) -> Result<DocumentDecryptResult, String> {
+fn document_decrypt(sdk: &mut IronOxide, data: &[i8]) -> Result<DocumentDecryptResult, String> {
     Ok(sdk.document_decrypt(i8_conv(data))?)
 }
 fn document_update_name(
-    sdk: &IronSdk,
+    sdk: &IronOxide,
     document_id: &DocumentId,
     name: Option<DocumentName>,
 ) -> Result<DocumentMetadataResult, String> {
@@ -626,7 +630,7 @@ fn document_update_name(
 }
 
 fn document_grant_access(
-    sdk: &mut IronSdk,
+    sdk: &mut IronOxide,
     document_id: &DocumentId,
     grant_users: Vec<UserId>,
     grant_groups: Vec<GroupId>,
@@ -645,7 +649,7 @@ fn document_grant_access(
 }
 
 fn document_revoke_access(
-    sdk: &IronSdk,
+    sdk: &IronOxide,
     document_id: &DocumentId,
     revoke_users: Vec<UserId>,
     revoke_groups: Vec<GroupId>,
@@ -662,48 +666,48 @@ fn document_revoke_access(
 
     Ok(sdk.document_revoke_access(document_id, &users_and_groups)?)
 }
-fn group_list(sdk: &IronSdk) -> Result<GroupListResult, String> {
+fn group_list(sdk: &IronOxide) -> Result<GroupListResult, String> {
     Ok(sdk.group_list()?)
 }
-fn group_get_metadata(sdk: &IronSdk, id: &GroupId) -> Result<GroupGetResult, String> {
+fn group_get_metadata(sdk: &IronOxide, id: &GroupId) -> Result<GroupGetResult, String> {
     Ok(sdk.group_get_metadata(id)?)
 }
-fn group_create(sdk: &mut IronSdk, opts: &GroupCreateOpts) -> Result<GroupMetaResult, String> {
+fn group_create(sdk: &mut IronOxide, opts: &GroupCreateOpts) -> Result<GroupMetaResult, String> {
     Ok(sdk.group_create(opts)?)
 }
 fn group_update_name(
-    sdk: &IronSdk,
+    sdk: &IronOxide,
     id: &GroupId,
     name: Option<GroupName>,
 ) -> Result<GroupMetaResult, String> {
     Ok(sdk.group_update_name(id, name.as_ref())?)
 }
-fn group_delete(sdk: &IronSdk, id: &GroupId) -> Result<GroupId, String> {
+fn group_delete(sdk: &IronOxide, id: &GroupId) -> Result<GroupId, String> {
     Ok(sdk.group_delete(id)?)
 }
 fn group_add_members(
-    sdk: &mut IronSdk,
+    sdk: &mut IronOxide,
     group_id: &GroupId,
     users: Vec<UserId>,
 ) -> Result<GroupAccessEditResult, String> {
     Ok(sdk.group_add_members(group_id, &users)?)
 }
 fn group_remove_members(
-    sdk: &IronSdk,
+    sdk: &IronOxide,
     group_id: &GroupId,
     users: Vec<UserId>,
 ) -> Result<GroupAccessEditResult, String> {
     Ok(sdk.group_remove_members(group_id, &users)?)
 }
 fn group_add_admins(
-    sdk: &mut IronSdk,
+    sdk: &mut IronOxide,
     group_id: &GroupId,
     users: Vec<UserId>,
 ) -> Result<GroupAccessEditResult, String> {
     Ok(sdk.group_add_admins(group_id, &users)?)
 }
 fn group_remove_admins(
-    sdk: &IronSdk,
+    sdk: &IronOxide,
     group_id: &GroupId,
     users: Vec<UserId>,
 ) -> Result<GroupAccessEditResult, String> {
@@ -716,18 +720,18 @@ mod group_access_edit_result {
         result.succeeded().clone()
     }
 
-    pub fn failed(result: &GroupAccessEditResult) -> Vec<AccessEditFailure> {
+    pub fn failed(result: &GroupAccessEditResult) -> Vec<GroupAccessEditErr> {
         result.failed().to_vec()
     }
 }
 
 mod access_edit_failure {
     use super::*;
-    pub fn user(result: &AccessEditFailure) -> UserId {
+    pub fn user(result: &GroupAccessEditErr) -> UserId {
         result.user().clone()
     }
 
-    pub fn error(result: &AccessEditFailure) -> String {
+    pub fn error(result: &GroupAccessEditErr) -> String {
         result.error().clone()
     }
 }

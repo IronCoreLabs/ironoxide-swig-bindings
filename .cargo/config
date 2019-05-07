@@ -1,0 +1,3 @@
+# Alias build command to use a different environment
+[alias]
+b = "build --features ironoxide/senv"

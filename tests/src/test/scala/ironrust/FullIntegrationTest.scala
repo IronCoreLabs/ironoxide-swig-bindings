@@ -398,7 +398,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1,2,3).map(_.toByte).toArray
       val docName = Try(DocumentName.validate("name")).toEither.value
-      val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, docName.clone, Array(), Array()))).toEither
+      val maybeResult = Try(sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, docName.clone, Array(), Array()))).toEither
       val result = maybeResult.value
       result.getName.get shouldBe docName
       result.getId.getId.length shouldBe 32
@@ -407,7 +407,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "roundtrip for single level transform for no name and good data" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(10,2,3).map(_.toByte).toArray
-      val maybeResult = Try(sdk.documentEncrypt(data, new DocumentCreateOpts())).toEither
+      val maybeResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither
       val result = maybeResult.value
       result.getId.getId.length shouldBe 32
       result.getName.isPresent shouldBe false
@@ -429,7 +429,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "grant to specified users" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1,2,3).map(_.toByte).toArray
-      val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, null, Array(secondaryTestUserID), Array()))).toEither
+      val maybeResult = Try(sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, Array(secondaryTestUserID), Array()))).toEither
       val result = maybeResult.value
       result.getChanged.getUsers should have length 2
       result.getChanged.getUsers.head.getId shouldEqual primaryTestUserId.getId
@@ -440,7 +440,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "grant to specified groups" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1,2,3).map(_.toByte).toArray
-      val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, null, Array(), Array(validGroupId)))).toEither
+      val maybeResult = Try(sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, Array(), Array(validGroupId)))).toEither
       val result = maybeResult.value
       result.getChanged.getUsers should have length 1
       result.getChanged.getUsers.head.getId shouldEqual primaryTestUserId.getId
@@ -453,7 +453,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val data: Array[Byte] = List(1,2,3).map(_.toByte).toArray
       val notAUser = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID().toString())).toEither.value
-      val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, null, Array(notAUser), Array(notAGroup)))).toEither
+      val maybeResult = Try(sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, Array(notAUser), Array(notAGroup)))).toEither
       val result = maybeResult.value
 
       // what was valid should go through
