@@ -15,7 +15,6 @@ use ironoxide::{
     },
 };
 use ironoxide::{DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey};
-use std::convert::TryInto;
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
 
@@ -82,6 +81,7 @@ mod group_id {
 
 mod group_name {
     use super::*;
+    use std::convert::TryInto;
     pub fn name(g: &GroupName) -> String {
         g.name().clone()
     }
@@ -92,6 +92,7 @@ mod group_name {
 
 mod document_id {
     use super::*;
+    use std::convert::TryInto;
     pub fn id(d: &DocumentId) -> String {
         d.id().clone()
     }
@@ -102,6 +103,7 @@ mod document_id {
 
 mod document_name {
     use super::*;
+    use std::convert::TryInto;
     pub fn name(d: &DocumentName) -> String {
         d.name().clone()
     }
@@ -112,6 +114,7 @@ mod document_name {
 
 mod device_id {
     use super::*;
+    use std::convert::TryInto;
     pub fn id(d: &DeviceId) -> i64 {
         //By constructon, DeviceIds are validated to be at most i64 max so this value won't
         //wrap over to be negative
@@ -124,6 +127,7 @@ mod device_id {
 
 mod device_name {
     use super::*;
+    use std::convert::TryInto;
     pub fn name(d: &DeviceName) -> String {
         d.name().clone()
     }
@@ -141,6 +145,7 @@ mod public_key {
 
 mod private_key {
     use super::*;
+    use std::convert::TryInto;
     pub fn validate(bytes: &[i8]) -> Result<PrivateKey, String> {
         Ok(i8_conv(bytes).try_into()?)
     }
@@ -151,6 +156,7 @@ mod private_key {
 
 mod device_signing_keys {
     use super::*;
+    use std::convert::TryInto;
     pub fn validate(bytes: &[i8]) -> Result<DeviceSigningKeyPair, String> {
         Ok(i8_conv(bytes).try_into()?)
     }
@@ -168,8 +174,24 @@ mod device_create_opt {
 
 mod document_create_opt {
     use super::*;
-    pub fn create(id: Option<DocumentId>, name: Option<DocumentName>) -> DocumentEncryptOpts {
-        DocumentEncryptOpts::new(id, name, vec![])
+    use ironoxide::document::DocumentEncryptOpts;
+    pub fn create(
+        id: Option<DocumentId>,
+        name: Option<DocumentName>,
+        user_grants: Vec<UserId>,
+        group_grants: Vec<GroupId>,
+    ) -> DocumentEncryptOpts {
+        let users_and_groups = user_grants
+            .into_iter()
+            .map(|u| UserOrGroup::User { id: u })
+            .chain(
+                group_grants
+                    .into_iter()
+                    .map(|g| UserOrGroup::Group { id: g }),
+            )
+            .collect();
+
+        DocumentEncryptOpts::new(id, name, users_and_groups)
     }
 }
 
@@ -351,7 +373,6 @@ mod document_decrypt_result {
 // UserAccessErr and GroupAccessErr are a Java-compatible representation of IronOxide's
 // DocAccessEditErr. They are encoded this this because this seemed like the most
 // straightforward way to represent a error for both a user or group (like UserOrGroup)
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct UserAccessErr {
     id: UserId,
@@ -384,7 +405,7 @@ impl GroupAccessErr {
     }
 }
 
-mod document_grant_access_result {
+mod document_access_change_result {
     use super::*;
     use itertools::{Either, Itertools};
 
@@ -421,33 +442,54 @@ mod document_grant_access_result {
         }
     }
 
-    pub fn succeeded(d: &DocumentAccessResult) -> SucceededResult {
-        let (groups, users) = d
-            .succeeded()
-            .iter()
-            .cloned()
-            .partition_map(|uog| match uog {
-                UserOrGroup::User { id } => Either::Right(id),
-                UserOrGroup::Group { id } => Either::Left(id),
-            });
+    pub trait DocumentAccessChange {
+        fn changed(&self) -> SucceededResult;
+        fn errors(&self) -> FailedResult;
+    }
+
+    impl DocumentAccessChange for DocumentAccessResult {
+        fn changed(&self) -> SucceededResult {
+            to_succeeded_result(self.succeeded())
+        }
+
+        fn errors(&self) -> FailedResult {
+            to_failed_result(self.failed())
+        }
+    }
+
+    impl DocumentAccessChange for DocumentEncryptResult {
+        fn changed(&self) -> SucceededResult {
+            to_succeeded_result(self.grants())
+        }
+
+        fn errors(&self) -> FailedResult {
+            to_failed_result(self.access_errs())
+        }
+    }
+
+    fn to_succeeded_result(successes: &[UserOrGroup]) -> SucceededResult {
+        let (users, groups) = successes.iter().cloned().partition_map(|uog| match uog {
+            UserOrGroup::User { id } => Either::Left(id),
+            UserOrGroup::Group { id } => Either::Right(id),
+        });
 
         SucceededResult { users, groups }
     }
 
-    pub fn failed(d: &DocumentAccessResult) -> FailedResult {
-        let (groups, users) =
-            d.failed()
+    fn to_failed_result(access_errs: &[DocAccessEditErr]) -> FailedResult {
+        let (users, groups) =
+            access_errs
                 .iter()
                 .cloned()
                 .partition_map(|access_err| match access_err {
                     DocAccessEditErr {
                         user_or_group: UserOrGroup::User { id },
                         err,
-                    } => Either::Right(UserAccessErr { id: id, err: err }),
+                    } => Either::Left(UserAccessErr { id: id, err: err }),
                     DocAccessEditErr {
                         user_or_group: UserOrGroup::Group { id },
                         err,
-                    } => Either::Left(GroupAccessErr { id: id, err: err }),
+                    } => Either::Right(GroupAccessErr { id: id, err: err }),
                 });
 
         FailedResult { users, groups }

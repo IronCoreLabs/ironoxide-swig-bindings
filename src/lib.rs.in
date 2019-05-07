@@ -1,7 +1,7 @@
 use crate::jni_c_header::*;
 use crate::{
-    document_grant_access_result::{FailedResult, SucceededResult},
-    group_get_result::GroupUserList,
+    document_access_change_result::{DocumentAccessChange, FailedResult, SucceededResult},
+    group_get_result::GroupUserList
 };
 use chrono::{DateTime, Utc};
 use log::error; //This is used as part of Swig expansion as a transitive dependency
@@ -359,7 +359,6 @@ foreigner_class!(
 class GroupCreateOpts {
     self_type GroupCreateOpts;
     constructor GroupCreateOpts::default() -> GroupCreateOpts;
-    /// Text description.
     /// @param a0 id - unique id of a group within a segment. If none, the server will assign an id.
     /// @param a1 name - human readable name of the group. Does not need to be unique.
     /// @param a2 addAsMember - creating user will (default, true) or will not (false) be added to the group's membership (in addition to being a group admin)
@@ -404,10 +403,16 @@ foreign_enum!(
     }
 );
 
-foreigner_class!(class DocumentEncryptOpts {
+foreigner_class!(
+/// Options for document creation.
+class DocumentEncryptOpts {
     self_type DocumentEncryptOpts;
     constructor DocumentEncryptOpts::default() -> DocumentEncryptOpts;
-    static_method document_create_opt::create(_:Option<DocumentId>, _:Option<DocumentName>) -> DocumentEncryptOpts;
+    /// @param a0 id            - unique id of a document. If none, the server will assign an id
+    /// @param a1 name          - human readable name of the document. Does not need to be unique
+    /// @param a2 userGrants    - list of user ids that will be granted access to the document
+    /// @param a3 groupGrants   - list of group ids that will be granted access to the document
+    static_method document_create_opt::create(_:Option<DocumentId>, _:Option<DocumentName>, _: Vec<UserId>, _: Vec<GroupId>) -> DocumentEncryptOpts;
 });
 
 foreigner_class!(
@@ -448,22 +453,23 @@ class DocumentMetadataResult{
 
 foreigner_class!(
 /// Result for encrypt operations.
-///
-/// @param a0 `id`          - unique (within the segment) id of the document
-/// @param a1 `name`        - non-unique docuemnt name
-/// @param a2 `updated`     - when the document was last updated
-/// @param a3 `created`     - when the document was created
-/// @param a4 `encryptedData` - bytes of encrypted document content
-/// @param a5 `grants`      - users and groups that have access to decrypt the `encryptedData`
-/// @param a6 `accessErrs`  - users and groups that could not be granted access
 class DocumentEncryptResult{
     self_type DocumentEncryptResult;
     private constructor = empty;
+    /// Unique (within the segment) id of the document
     method document_encrypt_result::id(&self) -> DocumentId; alias getId;
+    /// Non-unique document name
     method document_encrypt_result::name(&self) -> Option<DocumentName>; alias getName;
+    /// Bytes of encrypted document content
     method document_encrypt_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
+    /// When the document was created
     method document_encrypt_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    /// When the document was last updated
     method document_encrypt_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    /// Get the users and groups whose access was successfully changed
+    method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
+    /// Get the users and groups whose access failed to be modified
+    method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
 });
 
 foreigner_class!(
@@ -485,9 +491,9 @@ class SucceededResult {
     private constructor = empty;
 
     /// Get list of users whose access was granted/revoked
-    method document_grant_access_result::SucceededResult::users(&self) -> Vec<UserId>; alias getUsers;
+    method document_access_change_result::SucceededResult::users(&self) -> Vec<UserId>; alias getUsers;
     /// Get list of groups whose access was granted/revoked
-    method document_grant_access_result::SucceededResult::groups(&self) -> Vec<GroupId>; alias getGroups;
+    method document_access_change_result::SucceededResult::groups(&self) -> Vec<GroupId>; alias getGroups;
 });
 
 foreigner_class!(
@@ -497,11 +503,11 @@ class FailedResult {
     private constructor = empty;
 
     /// Get list of users whose access was to be granted/revoked
-    method document_grant_access_result::FailedResult::users(&self) -> Vec<UserAccessErr>; alias getUsers;
+    method document_access_change_result::FailedResult::users(&self) -> Vec<UserAccessErr>; alias getUsers;
     /// Get list of groups whose access was to be granted/revoked
-    method document_grant_access_result::FailedResult::groups(&self) -> Vec<GroupAccessErr>; alias getGroups;
+    method document_access_change_result::FailedResult::groups(&self) -> Vec<GroupAccessErr>; alias getGroups;
     /// Utility method to check if the list of failures is empty
-    method document_grant_access_result::FailedResult::is_empty(&self) -> bool; alias isEmpty;
+    method document_access_change_result::FailedResult::is_empty(&self) -> bool; alias isEmpty;
 
 });
 
@@ -512,10 +518,10 @@ class DocumentAccessResult {
     self_type DocumentAccessResult;
     private constructor = empty;
 
-    /// Get the users whose access was successfully changed
-    method document_grant_access_result::succeeded(&self) -> SucceededResult; alias getSucceeded;
-    /// Get the users whose access failed to be modified
-    method document_grant_access_result::failed(&self) -> FailedResult; alias getFailed;
+    /// Get the users and groups whose access was successfully changed
+    method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
+    /// Get the users and groups whose access failed to be modified
+    method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
 
 });
 
