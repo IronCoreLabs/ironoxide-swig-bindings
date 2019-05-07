@@ -447,6 +447,28 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       result.getChanged.getGroups should have length 1
       result.getChanged.getGroups.head.getId shouldEqual validGroupId.getId
     }
+
+    "return failures for bad users and groups" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val data: Array[Byte] = List(1,2,3).map(_.toByte).toArray
+      val notAUser = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
+      val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID().toString())).toEither.value
+      val maybeResult = Try(sdk.documentEncrypt(data, DocumentCreateOpts.create(null, null, Array(notAUser), Array(notAGroup)))).toEither
+      val result = maybeResult.value
+
+      // what was valid should go through
+      result.getChanged.getUsers should have length 1
+      result.getChanged.getUsers.head.getId shouldBe primaryTestUserId.getId
+      result.getChanged.getGroups should have length 0
+
+      // the invalid stuff should have errored
+      result.getErrors.getUsers should have length 1
+      result.getErrors.getUsers.head.getId.getId shouldBe notAUser.getId
+      result.getErrors.getUsers.head.getErr shouldBe "User could not be found"
+      result.getErrors.getGroups should have length 1
+      result.getErrors.getGroups.head.getId.getId shouldBe notAGroup.getId
+      result.getErrors.getGroups.head.getErr shouldBe "Group could not be found"
+    }
   }
 
   "Document update name" should {
@@ -476,7 +498,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   "Document List" should {
     "Return previously created documents" in {
       val sdk = IronSdk.initialize(createDeviceContext)
-      sdk.documentList.getResult should have length 4
+      sdk.documentList.getResult should have length 5
     }
   }
 
