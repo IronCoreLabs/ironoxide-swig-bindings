@@ -177,8 +177,23 @@ mod device_create_opt {
 mod document_create_opt {
     use super::*;
     use ironrust::document::DocumentCreateOpts;
-    pub fn create(id: Option<DocumentId>, name: Option<DocumentName>) -> DocumentCreateOpts {
-        DocumentCreateOpts::new(id, name, vec![])
+    pub fn create(
+        id: Option<DocumentId>,
+        name: Option<DocumentName>,
+        user_grants: Vec<UserId>,
+        group_grants: Vec<GroupId>,
+    ) -> DocumentCreateOpts {
+        let users_and_groups = user_grants
+            .into_iter()
+            .map(|u| UserOrGroup::User { id: u })
+            .chain(
+                group_grants
+                    .into_iter()
+                    .map(|g| UserOrGroup::Group { id: g }),
+            )
+            .collect();
+
+        DocumentCreateOpts::new(id, name, users_and_groups)
     }
 }
 
@@ -389,7 +404,7 @@ impl GroupAccessErr {
     }
 }
 
-mod document_grant_access_result {
+mod document_access_change_result {
     use super::*;
     use itertools::{Either, Itertools};
 
@@ -426,33 +441,54 @@ mod document_grant_access_result {
         }
     }
 
-    pub fn succeeded(d: &DocumentAccessResult) -> SucceededResult {
-        let (groups, users) = d
-            .succeeded()
-            .iter()
-            .cloned()
-            .partition_map(|uog| match uog {
-                UserOrGroup::User { id } => Either::Right(id),
-                UserOrGroup::Group { id } => Either::Left(id),
-            });
+    pub trait DocumentAccessChange {
+        fn changed(&self) -> SucceededResult;
+        fn errors(&self) -> FailedResult;
+    }
+
+    impl DocumentAccessChange for DocumentAccessResult {
+        fn changed(&self) -> SucceededResult {
+            to_succeeded_result(self.succeeded())
+        }
+
+        fn errors(&self) -> FailedResult {
+            to_failed_result(self.failed())
+        }
+    }
+
+    impl DocumentAccessChange for DocumentEncryptResult {
+        fn changed(&self) -> SucceededResult {
+            to_succeeded_result(self.grants())
+        }
+
+        fn errors(&self) -> FailedResult {
+            to_failed_result(self.access_errs())
+        }
+    }
+
+    fn to_succeeded_result(successes: &[UserOrGroup]) -> SucceededResult {
+        let (users, groups) = successes.iter().cloned().partition_map(|uog| match uog {
+            UserOrGroup::User { id } => Either::Left(id),
+            UserOrGroup::Group { id } => Either::Right(id),
+        });
 
         SucceededResult { users, groups }
     }
 
-    pub fn failed(d: &DocumentAccessResult) -> FailedResult {
-        let (groups, users) =
-            d.failed()
+    fn to_failed_result(access_errs: &[AccessErr]) -> FailedResult {
+        let (users, groups) =
+            access_errs
                 .iter()
                 .cloned()
                 .partition_map(|access_err| match access_err {
                     AccessErr {
                         user_or_group: UserOrGroup::User { id },
                         err,
-                    } => Either::Right(UserAccessErr { id: id, err: err }),
+                    } => Either::Left(UserAccessErr { id: id, err: err }),
                     AccessErr {
                         user_or_group: UserOrGroup::Group { id },
                         err,
-                    } => Either::Left(GroupAccessErr { id: id, err: err }),
+                    } => Either::Right(GroupAccessErr { id: id, err: err }),
                 });
 
         FailedResult { users, groups }
