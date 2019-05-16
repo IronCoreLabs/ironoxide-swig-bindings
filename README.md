@@ -19,3 +19,6 @@ java.lang.System.loadLibrary("ironoxide_java")
 ```
 
 Then all of the SDK classes can be imported from the `com.ironcorelabs.sdk` namespace.
+
+Copyright (c)  2017-present  IronCore Labs, Inc.
+All rights reserved.
