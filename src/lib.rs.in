@@ -47,10 +47,10 @@ class UserId {
     static_method user_id::validate(s: &str) -> Result<UserId, String>;
     method user_id::id(&self) -> String; alias getId;
     foreigner_code r#"
-    @Override
     /**
      * This implementation calls native code, which means it's relatively slow.
      */
+    @Override
     public int hashCode() {
         return this.getId().hashCode();
     }
@@ -72,10 +72,10 @@ class GroupId {
     static_method group_id::validate(s: &str) -> Result<GroupId, String>;
     method group_id::id(&self) -> String; alias getId;
     foreigner_code r#"
-    @Override
     /**
      * This implementation calls native code, which means it's relatively slow.
      */
+    @Override
     public int hashCode() {
         return this.getId().hashCode();
     }
@@ -98,10 +98,10 @@ class GroupName {
     method group_name::name(&self) -> String; alias getName;
     method GroupName::clone(&self) -> GroupName;
     foreigner_code r#"
-    @Override
     /**
      * This implementation calls native code, which means it's relatively slow.
      */
+    @Override
     public int hashCode() {
         return this.getName().hashCode();
     }
@@ -123,10 +123,10 @@ class DocumentId {
     static_method document_id::validate(s: &str) -> Result<DocumentId, String>;
     method document_id::id(&self) -> String; alias getId;
     foreigner_code r#"
-    @Override
     /**
      * This implementation calls native code, which means it's relatively slow.
      */
+    @Override
     public int hashCode() {
         return this.getId().hashCode();
     }
@@ -149,10 +149,10 @@ class DocumentName {
     method document_name::name(&self) -> String; alias getName;
     method DocumentName::clone(&self) -> DocumentName;
     foreigner_code r#"
-    @Override
     /**
      * This implementation calls native code, which means it's relatively slow.
      */
+    @Override
     public int hashCode() {
         return this.getName().hashCode();
     }
@@ -175,10 +175,10 @@ class DeviceId {
     method device_id::id(&self) -> i64; alias getId;
     method DeviceId::clone(&self) -> DeviceId;
     foreigner_code r#"
-    @Override
     /**
      * This implementation calls native code, which means it's relatively slow.
      */
+    @Override
     public int hashCode() {
         return Long.hashCode(this.getId());
     }
@@ -201,10 +201,10 @@ class DeviceName {
     method device_name::name(&self) -> String; alias getName;
     method DeviceName::clone(&self) -> DeviceName;
     foreigner_code r#"
-    @Override
     /**
      * This implementation calls native code, which means it's relatively slow.
      */
+    @Override
     public int hashCode() {
         return this.getName().hashCode();
     }
