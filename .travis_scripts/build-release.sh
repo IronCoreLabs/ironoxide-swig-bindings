@@ -10,7 +10,8 @@ fi
 
 cargo build --release
 
-# copy out just the library to upload
+# Copy out just the library to upload. In order to just grab the .dylib or .so we just use extglob, allowing use of |.
+# We did this instead of 2 cp lines so we could leave -e enabled and it would succeed as long as we have at least one of them.
 mkdir release_artifacts
 shopt -s extglob
 cp target/release/libironoxide_java.*(so|dylib) release_artifacts/
