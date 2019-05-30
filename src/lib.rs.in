@@ -48,6 +48,9 @@ class UserId {
     method user_id::id(&self) -> String; alias getId;
     foreigner_code r#"
     @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
     public int hashCode() {
         return this.getId().hashCode();
     }
@@ -70,6 +73,9 @@ class GroupId {
     method group_id::id(&self) -> String; alias getId;
     foreigner_code r#"
     @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
     public int hashCode() {
         return this.getId().hashCode();
     }
@@ -93,6 +99,9 @@ class GroupName {
     method GroupName::clone(&self) -> GroupName;
     foreigner_code r#"
     @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
     public int hashCode() {
         return this.getName().hashCode();
     }
@@ -115,6 +124,9 @@ class DocumentId {
     method document_id::id(&self) -> String; alias getId;
     foreigner_code r#"
     @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
     public int hashCode() {
         return this.getId().hashCode();
     }
@@ -138,6 +150,9 @@ class DocumentName {
     method DocumentName::clone(&self) -> DocumentName;
     foreigner_code r#"
     @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
     public int hashCode() {
         return this.getName().hashCode();
     }
@@ -161,6 +176,9 @@ class DeviceId {
     method DeviceId::clone(&self) -> DeviceId;
     foreigner_code r#"
     @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
     public int hashCode() {
         return Long.hashCode(this.getId());
     }
@@ -184,6 +202,9 @@ class DeviceName {
     method DeviceName::clone(&self) -> DeviceName;
     foreigner_code r#"
     @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
     public int hashCode() {
         return this.getName().hashCode();
     }
