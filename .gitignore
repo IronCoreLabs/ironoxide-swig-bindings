@@ -12,3 +12,4 @@ tests/src/test/resources/service-keys.conf.local
 .vscode
 .DS_Store
 java/*
+release_artifacts
