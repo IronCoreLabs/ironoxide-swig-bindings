@@ -29,7 +29,7 @@ before_install:
 install:
   - "~/bin/sbt --help || curl -Ls https://git.io/sbt > ~/bin/sbt && chmod 0755 ~/bin/sbt"
 
-# run tests
+# tests
 before_script:
   - rustup component add rustfmt-preview
 script:
