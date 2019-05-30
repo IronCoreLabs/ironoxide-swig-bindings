@@ -1,32 +1,48 @@
 language: rust
+
+# hopefully prevent the cache from becoming huge - https://levans.fr/rust_travis_cache.html
+before_cache:
+  - rm -rf /home/travis/.cargo/registry
 cache:
   directories:
     - "$HOME/.cargo"
     - "$HOME/.ivy2/cache"
     - "$HOME/.sbt/boot/"
     - "$HOME/bin"
-# hopefully prevent the cache from becoming huge - https://levans.fr/rust_travis_cache.html
-before_cache:
-  - rm -rf /home/travis/.cargo/registry
+
+# build matrix
 rust:
   - 1.34.1
+os:
+  - linux
+  - osx
+
 branches:
   only:
     - master
+
 before_install:
   - openssl aes-256-cbc -K $encrypted_487cf28eaba8_key -iv $encrypted_487cf28eaba8_iv
     -in tests/src/test/resources/service-keys.conf.enc -out tests/src/test/resources/service-keys.conf -d
 install:
   - "~/bin/sbt --help || curl -Ls https://git.io/sbt > ~/bin/sbt && chmod 0755 ~/bin/sbt"
+
+# run tests
 before_script:
   - rustup component add rustfmt-preview
-matrix:
-  include:
-    # Linux
-    - name: Travis Default Environment (Ubuntu Linux)
-      os: linux
-    # OSX
-    - name: OSX x86_64
-      os: osx
 script:
   - "./.travis_scripts/cross-test.sh"
+
+# upload libs to github release. runs a release build first
+deploy:
+  skip_cleanup: true
+  before_deploy: ./.travis_scripts/build_release.sh
+  provider: releases
+  api-key:
+    secure: "byBjVIn1BA2Thk2ksKsj87b1WvLsF4Td+DfAZVH+N4cFRowdm8f9boBgLp24DcvIzWjaBHSKzhrqe0ACaInEhMEC6K8xfkZrwd4k8/2yDNkrTnzQcjrEF0FKxvAakoQwnYPQGpnbpzDhfKf5PhtpAVHmrJAnxx6E7HzaS+/EX98F1rAd4zcq84ih8tksp2G97aQcniEEozNJHrKfjo03dt48m8seRx3LNOO0TMogPz59y+9FB8YJeEGlfTb0hD2jC7VMZ0ULbLM3BzijOaKa3OitRkST9w06VdMxdgLrVDlf1Eeej5kaZL32G+cyaRUSaPNqjoSZezI+AWqBuJaAT+o+TzrwmJMU2RSkP/3zZXBN3dwkWF3ilDTwxygsfDhkhppC/En+4PtqFzO6odWCS8ttywUAMQvBWwgByzW8GM+vV4MoBvGGZYxZogu9sURxZiW5JvrfFsNJ2BuhbA/3gDpbfB5BmNXQ78KApirwqLXAcVXc1S3QfP3TUhWe2tAeHsRT3bOpVAKRAWBrbg4xmMNoTlEg6Op6kScqS86VVnKxHKDoU7dC68bdzm/+tXUiFxWA9LmYHqt5jxiGuZF8UZLEBaj9Xx7MByXwJkyEy/WmcxPMuP4Thwpz36yMuXC7Uf9GcHTkwR5DOAPolATLF4p5fnI8xuQn/gTIxC5TOoQ="
+  file_glob: true
+  file: release_artifacts/*
+  # only publish on tag
+  on:
+    tags: true
+  name: Version $TRAVIS_TAG
