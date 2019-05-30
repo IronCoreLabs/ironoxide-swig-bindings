@@ -8,7 +8,7 @@ if [ -z "$JAVA_HOME" ]; then
     export JAVA_HOME=$(/usr/libexec/java_home)
 fi
 
-cargo b --release
+cargo build --release
 
 # copy out just the library to upload
 mkdir release_artifacts
