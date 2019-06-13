@@ -17,12 +17,13 @@ and can then be loaded by calling:
 java.lang.System.loadLibrary("ironoxide_java")
 ```
 
-Then all of the SDK classes can be imported from the `com.ironcorelabs.sdk` namespace.
-
-
 ### Java SDK
 
 The SDK is [published to Maven](https://search.maven.org/artifact/com.ironcorelabs/ironoxide-java).	
+
+## Usage
+
+All the SDK classes can be imported from the `com.ironcorelabs.sdk` namespace.
 
 ## Documentation
 
