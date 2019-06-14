@@ -178,6 +178,7 @@ mod document_create_opt {
     pub fn create(
         id: Option<DocumentId>,
         name: Option<DocumentName>,
+        grant_to_author: bool,
         user_grants: Vec<UserId>,
         group_grants: Vec<GroupId>,
     ) -> DocumentEncryptOpts {
@@ -191,7 +192,7 @@ mod document_create_opt {
             )
             .collect();
 
-        DocumentEncryptOpts::new(id, name, users_and_groups)
+        DocumentEncryptOpts::new(id, name, grant_to_author, users_and_groups)
     }
 }
 
