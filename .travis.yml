@@ -1,4 +1,5 @@
 language: rust
+dist: xenial
 
 # hopefully prevent the cache from becoming huge - https://levans.fr/rust_travis_cache.html
 before_cache:
