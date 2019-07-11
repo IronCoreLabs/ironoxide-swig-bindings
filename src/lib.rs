@@ -13,6 +13,7 @@ use ironoxide::{
     user::{
         DeviceCreateOpts, UserCreateKeyPair, UserDevice, UserDeviceListResult, UserVerifyResult,
     },
+    policy::{PolicyGrant, Category, Sensitivity, DataSubject}
 };
 use ironoxide::{DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey};
 
@@ -172,15 +173,47 @@ mod device_create_opt {
     }
 }
 
+mod policy_grant{
+    use super::*;
+    pub fn create(cat:Option<Category>, sens:Option<Sensitivity>, sub: Option<DataSubject>, sub_id: Option<UserId>) -> PolicyGrant {unimplemented!()}
+    pub fn category(p: &PolicyGrant) -> Option<Category> {unimplemented!()}
+    pub fn sensitivity(p: &PolicyGrant) -> Option<Sensitivity> {unimplemented!()}
+    pub fn data_subject(p: &PolicyGrant) -> Option<DataSubject> {unimplemented!()}
+    pub fn substitute_id(p: &PolicyGrant) -> Option<UserId> {unimplemented!()}
+}
+
+mod category{
+        use super::*;
+
+    pub fn validate(s: &str) -> Result<Category, String> {unimplemented!()}
+    pub fn value(c: &Category) -> String{unimplemented!()}
+}
+
+mod sensitivity{
+        use super::*;
+
+    pub fn validate(s: &str) -> Result<Sensitivity, String> {unimplemented!()}
+    pub fn value(c: &Sensitivity) -> String{unimplemented!()}
+}
+
+mod data_subject{
+        use super::*;
+
+    pub fn validate(s: &str) -> Result<DataSubject, String> {unimplemented!()}
+    pub fn value(c: &DataSubject) -> String{unimplemented!()}
+}
+
 mod document_create_opt {
     use super::*;
-    use ironoxide::document::DocumentEncryptOpts;
+    use itertools::EitherOrBoth;
+    use ironoxide::document::{ExplicitGrant,DocumentEncryptOpts};
     pub fn create(
         id: Option<DocumentId>,
         name: Option<DocumentName>,
         grant_to_author: bool,
         user_grants: Vec<UserId>,
         group_grants: Vec<GroupId>,
+        policy_grant: Option<PolicyGrant>
     ) -> DocumentEncryptOpts {
         let users_and_groups = user_grants
             .into_iter()
@@ -189,10 +222,14 @@ mod document_create_opt {
                 group_grants
                     .into_iter()
                     .map(|g| UserOrGroup::Group { id: g }),
-            )
-            .collect();
+            );
 
-        DocumentEncryptOpts::new(id, name, grant_to_author, users_and_groups)
+        let explicit = ExplicitGrant::new(grant_to_author, &users_and_groups[..]);
+        let grants = match policy_grant {
+            Some(grant) => EitherOrBoth::Both(explicit, grant),
+            None => EitherOrBoth::Left(explicit)
+        };
+        DocumentEncryptOpts::new(id, name, grants)
     }
 }
 
