@@ -405,7 +405,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val docName = Try(DocumentName.validate("name")).toEither.value
       val maybeResult =
-        Try(sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, docName.clone, true, Array(), Array()))).toEither
+        Try(sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, docName.clone, true, Array(), Array(),null))).toEither
       val result = maybeResult.value
       result.getName.get shouldBe docName
       result.getId.getId.length shouldBe 32
@@ -437,7 +437,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
-        sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, true, Array(secondaryTestUserID), Array()))
+        sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, true, Array(secondaryTestUserID), Array(),null))
       ).toEither
       val result = maybeResult.value
       result.getChanged.getUsers should have length 2
@@ -446,17 +446,23 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       result.getChanged.getGroups should have length 0
     }
 
-    "grant to specified groups" in {
+    "grant to specified groups with empty policy" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
-        sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, true, Array(), Array(validGroupId)))
+        sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, true, Array(), Array(validGroupId), PolicyGrant.create(Category.validate("PII"), Sensitivity.validate("INTERNAL"), null, null)))
       ).toEither
       val result = maybeResult.value
       result.getChanged.getUsers should have length 1
       result.getChanged.getUsers.head.getId shouldEqual primaryTestUserId.getId
       result.getChanged.getGroups should have length 1
       result.getChanged.getGroups.head.getId shouldEqual validGroupId.getId
+      result.getErrors.getUsers should have length 1
+      result.getErrors.getUsers.head.getId.getId shouldBe "baduserid_frompolicy"
+      result.getErrors.getGroups should have length 2
+      result.getErrors.getGroups.head.getId.getId shouldBe "badgroupid_frompolicy"
+      result.getErrors.getGroups.tail.head.getId.getId shouldBe s"data_recovery_${primaryTestUserId.getId}"
+
     }
 
     "return failures for bad users and groups" in {
@@ -465,7 +471,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val notAUser = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val maybeResult = Try(
-        sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, true, Array(notAUser), Array(notAGroup)))
+        sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, true, Array(notAUser), Array(notAGroup),null))
       ).toEither
       val result = maybeResult.value
 

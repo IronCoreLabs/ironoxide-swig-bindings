@@ -16,6 +16,7 @@ use ironoxide::{
     policy::{PolicyGrant, Category, Sensitivity, DataSubject}
 };
 use ironoxide::{DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey};
+use std::convert::TryInto;
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
 
@@ -58,9 +59,8 @@ mod visible_group {
 
 mod user_id {
     use super::*;
-    use std::convert::TryInto;
     pub fn id(u: &UserId) -> String {
-        u.id().clone()
+        u.id().to_string()
     }
 
     pub fn validate(s: &str) -> Result<UserId, String> {
@@ -175,32 +175,34 @@ mod device_create_opt {
 
 mod policy_grant{
     use super::*;
-    pub fn create(cat:Option<Category>, sens:Option<Sensitivity>, sub: Option<DataSubject>, sub_id: Option<UserId>) -> PolicyGrant {unimplemented!()}
-    pub fn category(p: &PolicyGrant) -> Option<Category> {unimplemented!()}
-    pub fn sensitivity(p: &PolicyGrant) -> Option<Sensitivity> {unimplemented!()}
-    pub fn data_subject(p: &PolicyGrant) -> Option<DataSubject> {unimplemented!()}
-    pub fn substitute_id(p: &PolicyGrant) -> Option<UserId> {unimplemented!()}
+    pub fn create(cat:Option<Category>, sens:Option<Sensitivity>, sub: Option<DataSubject>, sub_id: Option<UserId>) -> PolicyGrant {
+        PolicyGrant::new(cat, sens, sub, sub_id)
+    }
+    pub fn category(p: &PolicyGrant) -> Option<Category> {p.category().cloned()}
+    pub fn sensitivity(p: &PolicyGrant) -> Option<Sensitivity> {p.sensitivity().cloned()}
+    pub fn data_subject(p: &PolicyGrant) -> Option<DataSubject> {p.data_subject().cloned()}
+    pub fn substitute_id(p: &PolicyGrant) -> Option<UserId> {p.substitute_user().cloned()}
 }
 
 mod category{
         use super::*;
 
-    pub fn validate(s: &str) -> Result<Category, String> {unimplemented!()}
-    pub fn value(c: &Category) -> String{unimplemented!()}
+    pub fn validate(s: &str) -> Result<Category, String> {Ok(s.try_into()?)}
+    pub fn value(c: &Category) -> String{c.inner().to_string()}
 }
 
 mod sensitivity{
         use super::*;
 
-    pub fn validate(s: &str) -> Result<Sensitivity, String> {unimplemented!()}
-    pub fn value(c: &Sensitivity) -> String{unimplemented!()}
+    pub fn validate(s: &str) -> Result<Sensitivity, String> {Ok(s.try_into()?)}
+    pub fn value(s: &Sensitivity) -> String{s.inner().to_string()}
 }
 
 mod data_subject{
         use super::*;
 
-    pub fn validate(s: &str) -> Result<DataSubject, String> {unimplemented!()}
-    pub fn value(c: &DataSubject) -> String{unimplemented!()}
+    pub fn validate(s: &str) -> Result<DataSubject, String> { Ok(s.try_into()?)}
+    pub fn value(d: &DataSubject) -> String{d.inner().to_string()}
 }
 
 mod document_create_opt {
@@ -215,14 +217,14 @@ mod document_create_opt {
         group_grants: Vec<GroupId>,
         policy_grant: Option<PolicyGrant>
     ) -> DocumentEncryptOpts {
-        let users_and_groups = user_grants
+        let users_and_groups: Vec<UserOrGroup> = user_grants
             .into_iter()
             .map(|u| UserOrGroup::User { id: u })
             .chain(
                 group_grants
                     .into_iter()
                     .map(|g| UserOrGroup::Group { id: g }),
-            );
+            ).collect();
 
         let explicit = ExplicitGrant::new(grant_to_author, &users_and_groups[..]);
         let grants = match policy_grant {
