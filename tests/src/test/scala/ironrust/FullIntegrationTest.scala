@@ -446,7 +446,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       result.getChanged.getGroups should have length 0
     }
 
-    "grant to specified groups with empty policy" in {
+    "grant to specified groups and INTERNAL/PII policy" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
