@@ -450,7 +450,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
-        sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, true, Array(), Array(validGroupId), PolicyGrant.create(Category.validate("PII"), Sensitivity.validate("INTERNAL"), null, null)))
+        sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, true, Array(), Array(validGroupId), new PolicyGrant(Category.validate("PII"), Sensitivity.validate("INTERNAL"), null, null)))
       ).toEither
       val result = maybeResult.value
       result.getChanged.getUsers should have length 1

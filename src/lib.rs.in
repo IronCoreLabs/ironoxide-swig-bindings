@@ -452,7 +452,7 @@ foreigner_class!(
 class PolicyGrant {
     self_type PolicyGrant;
     constructor PolicyGrant::default() -> PolicyGrant;
-    static_method policy_grant::create(_:Option<Category>, _:Option<Sensitivity>, _: Option<DataSubject>, _: Option<UserId>) -> PolicyGrant;
+    constructor policy_grant::create(_:Option<Category>, _:Option<Sensitivity>, _: Option<DataSubject>, _: Option<UserId>) -> PolicyGrant;
     method policy_grant::category(&self) -> Option<Category>;
     method policy_grant::sensitivity(&self) -> Option<Sensitivity>;
     method policy_grant::data_subject(&self) -> Option<DataSubject>; alias dataSubject;
