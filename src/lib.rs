@@ -176,12 +176,12 @@ mod device_create_opt {
 mod policy_grant {
     use super::*;
     pub fn create(
-        cat: Option<Category>,
-        sens: Option<Sensitivity>,
-        sub: Option<DataSubject>,
+        category: Option<Category>,
+        sensitivity: Option<Sensitivity>,
+        data_subject: Option<DataSubject>,
         sub_id: Option<UserId>,
     ) -> PolicyGrant {
-        PolicyGrant::new(cat, sens, sub, sub_id)
+        PolicyGrant::new(category, sensitivity, data_subject, sub_id)
     }
     pub fn category(p: &PolicyGrant) -> Option<Category> {
         p.category().cloned()
@@ -252,9 +252,9 @@ mod document_create_opt {
             )
             .collect();
 
-        let explicit = ExplicitGrant::new(grant_to_author, &users_and_groups[..]);
+        let explicit = ExplicitGrant::new(grant_to_author, &users_and_groups);
         let grants = match policy_grant {
-            Some(grant) => EitherOrBoth::Both(explicit, grant),
+            Some(policy) => EitherOrBoth::Both(explicit, policy),
             None => EitherOrBoth::Left(explicit),
         };
         DocumentEncryptOpts::new(id, name, grants)

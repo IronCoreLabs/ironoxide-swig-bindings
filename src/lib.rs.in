@@ -469,6 +469,7 @@ class DocumentEncryptOpts {
     /// @param a2 grantToAuthor - Flag determining whether to encrypt to the calling user or not. If set to false at least one value must be present in the `grant` lists.
     /// @param a3 userGrants    - list of user ids that will be granted access to the document
     /// @param a4 groupGrants   - list of group ids that will be granted access to the document
+    /// @param a5 policyGrant   - The policy labels which will be evaluated to determine grants. 
     static_method document_create_opt::create(_:Option<DocumentId>, _:Option<DocumentName>, _: bool, _: Vec<UserId>, _: Vec<GroupId>, _:Option<PolicyGrant>) -> DocumentEncryptOpts;
 });
 
