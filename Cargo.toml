@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.8"
-ironoxide = {path="../ironoxide"}
+ironoxide = "0.8"
 chrono = { version = "0.4", features = ["serde"] }
 
 [build-dependencies]
