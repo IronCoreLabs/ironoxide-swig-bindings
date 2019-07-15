@@ -425,6 +425,41 @@ foreign_enum!(
 );
 
 foreigner_class!(
+class Category {
+    self_type Category;
+    private constructor = empty;
+    static_method category::validate(s: &str) -> Result<Category, String>;
+    method category::value(&self) -> String;
+});
+
+foreigner_class!(
+class Sensitivity {
+    self_type Sensitivity;
+    private constructor = empty;
+    static_method sensitivity::validate(s: &str) -> Result<Sensitivity, String>;
+    method sensitivity::value(&self) -> String;
+});
+
+foreigner_class!(
+class DataSubject {
+    self_type DataSubject;
+    private constructor = empty;
+    static_method data_subject::validate(s: &str) -> Result<DataSubject, String>;
+    method data_subject::value(&self) -> String;
+});
+
+foreigner_class!(
+class PolicyGrant {
+    self_type PolicyGrant;
+    constructor PolicyGrant::default() -> PolicyGrant;
+    constructor policy_grant::create(_:Option<Category>, _:Option<Sensitivity>, _: Option<DataSubject>, _: Option<UserId>) -> PolicyGrant;
+    method policy_grant::category(&self) -> Option<Category>;
+    method policy_grant::sensitivity(&self) -> Option<Sensitivity>;
+    method policy_grant::data_subject(&self) -> Option<DataSubject>; alias dataSubject;
+    method policy_grant::substitute_id(&self) -> Option<UserId>; alias substituteId;
+});
+
+foreigner_class!(
 /// Options for document creation.
 class DocumentEncryptOpts {
     self_type DocumentEncryptOpts;
@@ -434,7 +469,8 @@ class DocumentEncryptOpts {
     /// @param a2 grantToAuthor - Flag determining whether to encrypt to the calling user or not. If set to false at least one value must be present in the `grant` lists.
     /// @param a3 userGrants    - list of user ids that will be granted access to the document
     /// @param a4 groupGrants   - list of group ids that will be granted access to the document
-    static_method document_create_opt::create(_:Option<DocumentId>, _:Option<DocumentName>, _: bool, _: Vec<UserId>, _: Vec<GroupId>) -> DocumentEncryptOpts;
+    /// @param a5 policyGrant   - The policy labels which will be evaluated to determine grants. 
+    static_method document_create_opt::create(_:Option<DocumentId>, _:Option<DocumentName>, _: bool, _: Vec<UserId>, _: Vec<GroupId>, _:Option<PolicyGrant>) -> DocumentEncryptOpts;
 });
 
 foreigner_class!(
