@@ -12,3 +12,6 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 # This hack lets us run rustc from .travis.yml when the build is inside Docker.
 ln -s ${HOME}/.cargo/bin/* /usr/local/bin
+
+echo $PATH
+ls -l /usr/local/bin/rust*
