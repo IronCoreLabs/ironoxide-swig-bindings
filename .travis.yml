@@ -1,5 +1,6 @@
 language: rust
 
+# Disabled cache because it causes conflicts with the CentOS container build.
 # hopefully prevent the cache from becoming huge - https://levans.fr/rust_travis_cache.html
 # before_cache:
 #   - rm -rf /home/travis/.cargo/registry
@@ -45,6 +46,7 @@ script:
   - "${INDOCKER} ./.travis_scripts/cross-test.sh"
 after_script:
   - ./.travis_scripts/maybe-stop-docker.sh
+  - ls -l release_artifacts
 
 # upload libs to github release. runs a release build first
 before_deploy: ${INDOCKER} ./.travis_scripts/build-release.sh
