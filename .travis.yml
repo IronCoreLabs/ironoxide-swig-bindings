@@ -1,14 +1,14 @@
 language: rust
 
 # hopefully prevent the cache from becoming huge - https://levans.fr/rust_travis_cache.html
-before_cache:
-  - rm -rf /home/travis/.cargo/registry
-cache:
-  directories:
-    - "$HOME/.cargo"
-    - "$HOME/.ivy2/cache"
-    - "$HOME/.sbt/boot/"
-    - "$HOME/bin"
+# before_cache:
+#   - rm -rf /home/travis/.cargo/registry
+# cache:
+#   directories:
+#     - "$HOME/.cargo"
+#     - "$HOME/.ivy2/cache"
+#     - "$HOME/.sbt/boot/"
+#     - "$HOME/bin"
 
 # build matrix
 rust: 1.35.0
