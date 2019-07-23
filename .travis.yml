@@ -46,7 +46,6 @@ script:
   - "${INDOCKER} ./.travis_scripts/cross-test.sh"
 after_script:
   - ./.travis_scripts/maybe-stop-docker.sh
-  - ls -l target/release/libironoxide_java.*
 
 # upload libs to github release. runs a release build first
 before_deploy: ${INDOCKER} ./.travis_scripts/build-release.sh
