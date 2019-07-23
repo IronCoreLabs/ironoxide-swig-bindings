@@ -32,7 +32,7 @@ branches:
 
 before_install:
   - ./.travis_scripts/maybe-start-docker.sh
-  - ./.travis_scripts/maybe-install-rust.sh
+  - ${INDOCKER} ./.travis_scripts/maybe-install-rust.sh
   - openssl aes-256-cbc -K $encrypted_487cf28eaba8_key -iv $encrypted_487cf28eaba8_iv
     -in tests/src/test/resources/service-keys.conf.enc -out tests/src/test/resources/service-keys.conf -d
 install:

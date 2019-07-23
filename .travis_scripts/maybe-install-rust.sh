@@ -10,4 +10,4 @@ fi
 
 
 # This hack lets us run rustc from .travis.yml when the build is inside Docker.
-ln -s ${HOME}/.cargo/bin/* /usr/local/bin
+ln -s ${HOME}/.cargo/bin/* /usr/local/bin || true
