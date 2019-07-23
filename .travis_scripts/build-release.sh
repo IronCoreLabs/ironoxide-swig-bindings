@@ -21,3 +21,11 @@ mkdir release_artifacts
 shopt -s extglob
 cp target/release/libironoxide_java.*(so|dylib) release_artifacts/
 shopt -u extglob
+
+# If this build is for RedHat, package up the .so as an archive so we don't have a name collision.
+if [ -n "${IMAGE}" ] ; then
+    pushd release_artifacts
+    tar czf libironoxide_java-${IMAGE}.tar.gz libironoxide_java.so
+    rm libironoxide_java.so
+    popd
+fi

@@ -19,9 +19,9 @@ matrix:
       os: linux
     - name: "OSX"
       os: osx
-    - name: CentOS
+    - name: CentOS 7
       os: linux
-      env: IMAGE=centos:7.6.1810 INDOCKER="docker exec target"
+      env: IMAGE=centos7 INDOCKER="docker exec target"
 
 services:
 - docker
@@ -44,8 +44,6 @@ before_script:
   - ${INDOCKER} rustup component add rustfmt-preview
 script:
   - "${INDOCKER} ./.travis_scripts/cross-test.sh"
-after_script:
-  - ./.travis_scripts/maybe-stop-docker.sh
 
 # upload libs to github release. runs a release build first
 before_deploy: ${INDOCKER} ./.travis_scripts/build-release.sh
