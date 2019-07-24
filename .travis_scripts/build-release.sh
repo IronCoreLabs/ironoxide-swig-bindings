@@ -4,14 +4,15 @@ set -e
 set -x
 
 # Set JAVA_HOME inside our CentOS Docker container.
-if [ -z "${JAVA_HOME}" -a -e /usr/lib/jvm/java-openjdk ] ; then
-    export JAVA_HOME=/usr/lib/jvm/java-openjdk
+if [ -z "${JAVA_HOME}" ] && [ -e /usr/lib/jvm/java-openjdk ] ; then
+    JAVA_HOME=/usr/lib/jvm/java-openjdk
 fi
 
 # JAVA_HOME isn't set on OSX for some reason, so manually set it
 if [ -z "$JAVA_HOME" ]; then
-    export JAVA_HOME=$(/usr/libexec/java_home)
+    JAVA_HOME=$(/usr/libexec/java_home)
 fi
+export JAVA_HOME
 
 cargo build --release
 
@@ -25,7 +26,7 @@ shopt -u extglob
 # If this build is for RedHat, package up the .so as an archive so we don't have a name collision.
 if [ -n "${IMAGE}" ] ; then
     pushd release_artifacts
-    tar czf libironoxide_java-${IMAGE}.tar.gz libironoxide_java.so
+    tar czf "libironoxide_java-${IMAGE}.tar.gz" libironoxide_java.so
     rm libironoxide_java.so
     popd
 fi
