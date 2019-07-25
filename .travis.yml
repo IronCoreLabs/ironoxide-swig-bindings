@@ -1,11 +1,7 @@
 language: rust
 
-# hopefully prevent the cache from becoming huge - https://levans.fr/rust_travis_cache.html
-before_cache:
-  - rm -rf /home/travis/.cargo/registry
 cache:
   directories:
-    - "$HOME/.cargo"
     - "$HOME/.ivy2/cache"
     - "$HOME/.sbt/boot/"
     - "$HOME/bin"
@@ -18,6 +14,12 @@ matrix:
       os: linux
     - name: "OSX"
       os: osx
+    - name: CentOS 7
+      os: linux
+      env: IMAGE=centos7 INDOCKER="docker exec target"
+
+services:
+- docker
 
 branches:
   only:
@@ -25,19 +27,21 @@ branches:
     - /^v\d+\.\d+\.\d+/
 
 before_install:
+  - ./.travis_scripts/maybe-start-docker.sh
+  - ${INDOCKER} ./.travis_scripts/maybe-install-rust.sh
   - openssl aes-256-cbc -K $encrypted_487cf28eaba8_key -iv $encrypted_487cf28eaba8_iv
     -in tests/src/test/resources/service-keys.conf.enc -out tests/src/test/resources/service-keys.conf -d
 install:
-  - "~/bin/sbt --help || curl -Ls https://git.io/sbt > ~/bin/sbt && chmod 0755 ~/bin/sbt"
+  - ${INDOCKER} ./.travis_scripts/maybe-install-sbt.sh
 
 before_script:
   # needed for tests to run
-  - rustup component add rustfmt-preview
+  - ${INDOCKER} rustup component add rustfmt-preview
 script:
-  - "./.travis_scripts/cross-test.sh"
+  - "${INDOCKER} ./.travis_scripts/cross-test.sh"
 
 # upload libs to github release. runs a release build first
-before_deploy: ./.travis_scripts/build-release.sh
+before_deploy: ${INDOCKER} ./.travis_scripts/build-release.sh
 deploy:
   skip_cleanup: true
   provider: releases
