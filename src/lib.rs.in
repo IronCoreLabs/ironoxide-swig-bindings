@@ -655,18 +655,18 @@ class IronSdk {
     /// @param a0 `documentData`   - bytes of the document to encrypt
     /// @param a1 `encryptOpts`    - optional document encrypt parameters
     /// @param a2 `id`             - unique id to use for the document. Document id will be stored unencrypted and must be unique per segment
-    method document_encrypt(&mut self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptResult, String>; alias documentEncrypt;
+    method document_encrypt(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptResult, String>; alias documentEncrypt;
     /// Update the encrypted content of an existing document. Persists any existing access to other users and groups.
     ///
     /// @param a0 `id`                - id of document to update
     /// @param a1 `newDocumentData`   - updated document content to encrypt
-    method document_update_bytes(&mut self, _: &DocumentId, _: &[i8]) -> Result<DocumentEncryptResult, String>; alias documentUpdateBytes;
+    method document_update_bytes(&self, _: &DocumentId, _: &[i8]) -> Result<DocumentEncryptResult, String>; alias documentUpdateBytes;
     /// Decrypts the provided encrypted document and returns details about the document as well as its decrypted bytes.
     ///
     /// @param a0 `encryptedDocument` - bytes of encrypted document. Should be the same bytes returned from {@link com.ironcorelabs.sdk.IronSdk.documentEncrypt}
     ///
     /// @return {@link com.ironcorelabs.sdk.DocumentDecryptResult} includes metadata about the provided document as well as the decrypted document bytes
-    method document_decrypt(&mut self,_: &[i8]) -> Result<DocumentDecryptResult, String>; alias documentDecrypt;
+    method document_decrypt(&self,_: &[i8]) -> Result<DocumentDecryptResult, String>; alias documentDecrypt;
     /// Update a document name to a new value or clear its value.
     ///
     /// @param a0 `id`      - id of the document to update
@@ -681,7 +681,7 @@ class IronSdk {
     ///
     /// @throws the request failed either on the client or the server rejected the whole request
     /// @return each individual grant to a user/group succeeded or failed
-    method document_grant_access(&mut self, _: &DocumentId, user_grants: Vec<UserId>, group_grants: Vec<GroupId>)
+    method document_grant_access(&self, _: &DocumentId, user_grants: Vec<UserId>, group_grants: Vec<GroupId>)
         -> Result<DocumentAccessResult, String>; alias documentGrantAccess;
     /// Revoke access from a document. Revocation of document access can be either users or groups.
     ///
@@ -705,7 +705,7 @@ class IronSdk {
     /// Create a group. The creating user will become a group admin.
     ///
     /// @param a0 `groupCreateOpts` - see {@link com.ironcorelabs.sdk.GroupCreateOpts}. Use `new GroupGreateOpts()` for defaults
-    method group_create(&mut self, _: &GroupCreateOpts) -> Result<GroupMetaResult, String>; alias groupCreate;
+    method group_create(&self, _: &GroupCreateOpts) -> Result<GroupMetaResult, String>; alias groupCreate;
     /// Update a group name to a new value or clear its value.
     ///
     /// @param a0 `id`      - id of the group to update
@@ -726,7 +726,7 @@ class IronSdk {
     /// @param a1 `users`   - the list of users thet will be added to the group as members
     /// 
     /// @return all the users that were added and all the users that were not added with the reason they were not
-    method group_add_members(&mut self, _:&GroupId, _:Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupAddMembers;
+    method group_add_members(&self, _:&GroupId, _:Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupAddMembers;
     /// Remove a list of users as members from the group.
     ///
     /// @param a0 `id`          - id of the group to remove members from
@@ -740,7 +740,7 @@ class IronSdk {
     /// @param a1 `users`   - the list of users that will be added to the group as admins
     /// 
     /// @return all the users that were added and the users that were not added with the reason they were not
-    method group_add_admins(&mut self, _:&GroupId, _:Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupAddAdmins;
+    method group_add_admins(&self, _:&GroupId, _:Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupAddAdmins;
     /// Remove a list of users as admins from the group.
     ///
     /// @param a0 `id`          - id of the group
