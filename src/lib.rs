@@ -671,20 +671,20 @@ fn document_get_id_from_bytes(sdk: &IronOxide, bytes: &[i8]) -> Result<DocumentI
     Ok(sdk.document_get_id_from_bytes(i8_conv(bytes))?)
 }
 fn document_encrypt(
-    sdk: &mut IronOxide,
+    sdk: &IronOxide,
     data: &[i8],
     opts: &DocumentEncryptOpts,
 ) -> Result<DocumentEncryptResult, String> {
     Ok(sdk.document_encrypt(i8_conv(data), opts)?)
 }
 fn document_update_bytes(
-    sdk: &mut IronOxide,
+    sdk: &IronOxide,
     document_id: &DocumentId,
     data: &[i8],
 ) -> Result<DocumentEncryptResult, String> {
     Ok(sdk.document_update_bytes(document_id, i8_conv(data))?)
 }
-fn document_decrypt(sdk: &mut IronOxide, data: &[i8]) -> Result<DocumentDecryptResult, String> {
+fn document_decrypt(sdk: &IronOxide, data: &[i8]) -> Result<DocumentDecryptResult, String> {
     Ok(sdk.document_decrypt(i8_conv(data))?)
 }
 fn document_update_name(
@@ -696,7 +696,7 @@ fn document_update_name(
 }
 
 fn document_grant_access(
-    sdk: &mut IronOxide,
+    sdk: &IronOxide,
     document_id: &DocumentId,
     grant_users: Vec<UserId>,
     grant_groups: Vec<GroupId>,
@@ -738,7 +738,7 @@ fn group_list(sdk: &IronOxide) -> Result<GroupListResult, String> {
 fn group_get_metadata(sdk: &IronOxide, id: &GroupId) -> Result<GroupGetResult, String> {
     Ok(sdk.group_get_metadata(id)?)
 }
-fn group_create(sdk: &mut IronOxide, opts: &GroupCreateOpts) -> Result<GroupMetaResult, String> {
+fn group_create(sdk: &IronOxide, opts: &GroupCreateOpts) -> Result<GroupMetaResult, String> {
     Ok(sdk.group_create(opts)?)
 }
 fn group_update_name(
@@ -752,7 +752,7 @@ fn group_delete(sdk: &IronOxide, id: &GroupId) -> Result<GroupId, String> {
     Ok(sdk.group_delete(id)?)
 }
 fn group_add_members(
-    sdk: &mut IronOxide,
+    sdk: &IronOxide,
     group_id: &GroupId,
     users: Vec<UserId>,
 ) -> Result<GroupAccessEditResult, String> {
@@ -766,7 +766,7 @@ fn group_remove_members(
     Ok(sdk.group_remove_members(group_id, &users)?)
 }
 fn group_add_admins(
-    sdk: &mut IronOxide,
+    sdk: &IronOxide,
     group_id: &GroupId,
     users: Vec<UserId>,
 ) -> Result<GroupAccessEditResult, String> {
