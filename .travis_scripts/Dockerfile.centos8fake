@@ -1,0 +1,22 @@
+# This is a fake centos8 build environment, because the real centos8 is not available yet.
+# "Fake" means we install the newer OpenSSL that CentOS 8 will contain.
+
+FROM centos:centos7
+
+ARG OPENSSL_VERSION=1.1.0i
+
+RUN yum group install -y "Development Tools"
+RUN yum install -y wget
+
+RUN wget -q https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz && \
+    tar -zxf openssl-1.1.0i.tar.gz && \
+    cd openssl-1.1.0i && \
+    ./config && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf openssl-1.1.0i.tar.gz openssl-1.1.0i
+
+ENV OPENSSL_INCLUDE_DIR=/usr/local/include \
+    OPENSSL_LIB_DIR=/usr/local/lib64 \
+    LD_LIBRARY_PATH=/usr/local/lib64
