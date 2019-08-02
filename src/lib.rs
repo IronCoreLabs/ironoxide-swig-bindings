@@ -420,6 +420,12 @@ mod document_encrypt_result {
 mod document_edek_encrypt_result {
     use super::*;
 
+    pub fn id(d: &DocumentDetachedEncryptResult) -> DocumentId {
+        d.id().clone()
+    }
+    pub fn encrypted_data(d: &DocumentDetachedEncryptResult) -> Vec<i8> {
+        u8_conv(d.encrypted_data()).to_vec()
+    }
     pub fn encrypted_deks(d: &DocumentDetachedEncryptResult) -> Vec<i8> {
         u8_conv(d.encrypted_deks()).to_vec()
     }
@@ -535,6 +541,16 @@ mod document_access_change_result {
     impl DocumentAccessChange for DocumentEncryptResult {
         fn changed(&self) -> SucceededResult {
             to_succeeded_result(self.grants())
+        }
+
+        fn errors(&self) -> FailedResult {
+            to_failed_result(self.access_errs())
+        }
+    }
+
+    impl DocumentAccessChange for DocumentDetachedEncryptResult {
+        fn changed(&self) -> SucceededResult {
+            to_succeeded_result(&self.grants())
         }
 
         fn errors(&self) -> FailedResult {
@@ -685,6 +701,13 @@ fn document_encrypt(
     opts: &DocumentEncryptOpts,
 ) -> Result<DocumentEncryptResult, String> {
     Ok(sdk.document_encrypt(i8_conv(data), opts)?)
+}
+fn document_edek_encrypt(
+    sdk: &IronOxide,
+    data: &[i8],
+    opts: &DocumentEncryptOpts,
+) -> Result<DocumentDetachedEncryptResult, String> {
+    Ok(sdk.document_edek_encrypt(i8_conv(data), opts)?)
 }
 fn document_update_bytes(
     sdk: &IronOxide,
