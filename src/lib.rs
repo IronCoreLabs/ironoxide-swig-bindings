@@ -2,8 +2,9 @@ mod jni_c_header;
 use ironoxide::{
     document::{
         AssociationType, DocAccessEditErr, DocumentAccessResult, DocumentDecryptResult,
-        DocumentEncryptOpts, DocumentEncryptResult, DocumentListMeta, DocumentListResult,
-        DocumentMetadataResult, UserOrGroup, VisibleGroup, VisibleUser,
+        DocumentDetachedEncryptResult, DocumentEncryptOpts, DocumentEncryptResult,
+        DocumentListMeta, DocumentListResult, DocumentMetadataResult, UserOrGroup, VisibleGroup,
+        VisibleUser,
     },
     group::{
         GroupAccessEditErr, GroupAccessEditResult, GroupCreateOpts, GroupGetResult,
@@ -413,6 +414,14 @@ mod document_encrypt_result {
     }
     pub fn encrypted_data(d: &DocumentEncryptResult) -> Vec<i8> {
         u8_conv(d.encrypted_data()).to_vec()
+    }
+}
+
+mod document_edek_encrypt_result {
+    use super::*;
+
+    pub fn encrypted_deks(d: &DocumentDetachedEncryptResult) -> Vec<i8> {
+        u8_conv(d.encrypted_deks()).to_vec()
     }
 }
 

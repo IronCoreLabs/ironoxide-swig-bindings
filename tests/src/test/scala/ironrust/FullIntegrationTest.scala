@@ -490,6 +490,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
   }
 
+  "Document EDEK Encrypt" should {
+    "TODO" in {
+
+    }
+  }
+
   "Document update name" should {
     "successfully update to new name" in {
       val sdk = IronSdk.initialize(createDeviceContext)

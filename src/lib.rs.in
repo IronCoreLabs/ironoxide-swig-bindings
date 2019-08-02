@@ -1,7 +1,7 @@
 use crate::jni_c_header::*;
 use crate::{
     document_access_change_result::{DocumentAccessChange, FailedResult, SucceededResult},
-    group_get_result::GroupUserList
+    group_get_result::GroupUserList,
 };
 use chrono::{DateTime, Utc};
 use log::error; //This is used as part of Swig expansion as a transitive dependency
@@ -515,20 +515,29 @@ class DocumentEncryptResult{
     self_type DocumentEncryptResult;
     private constructor = empty;
     /// Unique (within the segment) id of the document
-    method document_encrypt_result::id(&self) -> DocumentId; alias getId;
+    method document_encrypt_result::id(&self) -> DocumentId; alias getId; //TODO
     /// Non-unique document name
     method document_encrypt_result::name(&self) -> Option<DocumentName>; alias getName;
     /// Bytes of encrypted document content
-    method document_encrypt_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
+    method document_encrypt_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData; //TODO
     /// When the document was created
     method document_encrypt_result::created(&self) -> DateTime<Utc>; alias getCreated;
     /// When the document was last updated
     method document_encrypt_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
     /// Get the users and groups whose access was successfully changed
-    method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
+    method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged; //TODO
     /// Get the users and groups whose access failed to be modified
-    method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
+    method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors; //TODO
 });
+
+foreigner_class!(
+class DocumentDetachedEncryptResult {
+// TODO
+    self_type DocumentDetachedEncryptResult;
+    private constructor = empty;
+    method document_edek_encrypt_result::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks; //TODO
+}
+);
 
 foreigner_class!(
 /// Result of decrypting a document. Includes minimal metadata as well as the decrypted bytes.
@@ -656,6 +665,9 @@ class IronSdk {
     /// @param a1 `encryptOpts`    - optional document encrypt parameters
     /// @param a2 `id`             - unique id to use for the document. Document id will be stored unencrypted and must be unique per segment
     method document_encrypt(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptResult, String>; alias documentEncrypt;
+
+//    method document_edek_encrypt(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentDetachedEncryptResult, String>; alias documentEdekEncrypt;
+
     /// Update the encrypted content of an existing document. Persists any existing access to other users and groups.
     ///
     /// @param a0 `id`                - id of document to update
