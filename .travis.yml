@@ -17,6 +17,9 @@ matrix:
     - name: CentOS 7
       os: linux
       env: IMAGE=centos7 INDOCKER="docker exec target"
+    - name: CentOS 8 fake
+      os: linux
+      env: IMAGE=centos8fake INDOCKER="docker exec target" DOCKERFILE=".travis_scripts/Dockerfile.centos8fake"
 
 services:
 - docker

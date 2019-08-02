@@ -8,6 +8,10 @@ if [ -z "${IMAGE}" ] ; then
     exit 0
 fi
 
+if [ -n "${DOCKERFILE}" ] ; then
+    docker build -t centos:"${IMAGE}" -f "${DOCKERFILE}" .
+fi
+
 docker run --detach --name target -v "$(pwd)":/src -w /src -e IMAGE="${IMAGE}" centos:"${IMAGE}" sleep 999999999
 
 docker exec target yum group install -y "Development Tools"
