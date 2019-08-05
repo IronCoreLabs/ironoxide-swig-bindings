@@ -538,7 +538,7 @@ class DocumentDetachedEncryptResult {
     method document_edek_encrypt_result::id(&self) -> DocumentId; alias getId; 
     /// Bytes of encrypted document content
     method document_edek_encrypt_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
-    //  Bytes of encrypted document encryption keys (EDEKs)
+    /// Bytes of encrypted document encryption keys (EDEKs)
     method document_edek_encrypt_result::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks; 
     /// Get the users and groups whose access was successfully changed
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged; 
