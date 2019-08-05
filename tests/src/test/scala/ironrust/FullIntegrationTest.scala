@@ -500,6 +500,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         ).toEither
       val result = maybeResult.value
       result.getId.getId.length shouldBe 32
+      result.getEncryptedDeks.isEmpty shouldBe false
     }
 
     "grant to specified users" in {
@@ -516,6 +517,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       result.getChanged.getUsers.head.getId shouldEqual primaryTestUserId.getId
       result.getChanged.getUsers()(1).getId shouldEqual secondaryTestUserID.getId
       result.getChanged.getGroups should have length 0
+      result.getEncryptedDeks.isEmpty shouldBe false
     }
 
     "grant to specified groups and INTERNAL/PII policy" in {
@@ -544,6 +546,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       result.getErrors.getGroups should have length 2
       result.getErrors.getGroups.head.getId.getId shouldBe "badgroupid_frompolicy"
       result.getErrors.getGroups.tail.head.getId.getId shouldBe s"data_recovery_${primaryTestUserId.getId}"
+      result.getEncryptedDeks.isEmpty shouldBe false
     }
 
     "return failures for bad users and groups" in {
@@ -563,6 +566,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       result.getChanged.getUsers should have length 1
       result.getChanged.getUsers.head.getId shouldBe primaryTestUserId.getId
       result.getChanged.getGroups should have length 0
+      result.getEncryptedDeks.isEmpty shouldBe false
 
       // the invalid stuff should have errored
       result.getErrors.getUsers should have length 1
