@@ -33,8 +33,8 @@ impl IronSdkAdvanced {
         &self,
         data: &[i8],
         opts: &DocumentEncryptOpts,
-    ) -> Result<DocumentDetachedEncryptResult, String> {
-        document_edek_encrypt(&self.0, data, opts)
+    ) -> Result<DocumentEncryptUnmanagedResult, String> {
+        document_encrypt_unmanaged(&self.0, data, opts)
     }
 }
 
