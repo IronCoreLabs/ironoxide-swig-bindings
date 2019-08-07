@@ -7,7 +7,7 @@ cache:
     - "$HOME/bin"
 
 # build matrix
-rust: 1.35.0
+rust: 1.36.0
 matrix:
   include:
     - name: "Linux"
@@ -22,7 +22,7 @@ matrix:
       env: IMAGE=centos8fake INDOCKER="docker exec target" DOCKERFILE=".travis_scripts/Dockerfile.centos8fake"
 
 services:
-- docker
+  - docker
 
 branches:
   only:
