@@ -531,15 +531,15 @@ class DocumentEncryptResult{
 });
 
 foreigner_class!(
-class DocumentDetachedEncryptResult {
-    self_type DocumentDetachedEncryptResult;
+class DocumentEncryptUnmanagedResult {
+    self_type DocumentEncryptUnmanagedResult;
     private constructor = empty;
     /// Unique (within the segment) id of the document
-    method document_edek_encrypt_result::id(&self) -> DocumentId; alias getId; 
+    method document_encrypt_unmanaged_result::id(&self) -> DocumentId; alias getId; 
     /// Bytes of encrypted document content
-    method document_edek_encrypt_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
+    method document_encrypt_unmanaged_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
     /// Bytes of encrypted document encryption keys (EDEKs)
-    method document_edek_encrypt_result::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks; 
+    method document_encrypt_unmanaged_result::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks; 
     /// Get the users and groups whose access was successfully changed
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged; 
     /// Get the users and groups whose access failed to be modified
@@ -678,7 +678,7 @@ class IronSdk {
     /// @param a0 `documentData`   - bytes of the document to encrypt
     /// @param a1 `encryptOpts`    - optional document encrypt parameters
     /// @param a2 `id`             - unique id to use for the document. Document id will be stored unencrypted and must be unique per segment
-    method document_edek_encrypt(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentDetachedEncryptResult, String>; alias documentEdekEncrypt;
+    method document_encrypt_unmanaged(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias documentEncryptUnmanaged;
     /// Update the encrypted content of an existing document. Persists any existing access to other users and groups.
     ///
     /// @param a0 `id`                - id of document to update

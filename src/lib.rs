@@ -1,10 +1,10 @@
 mod jni_c_header;
 use ironoxide::{
     document::{
-        AssociationType, DocAccessEditErr, DocumentAccessResult, DocumentDecryptResult,
-        DocumentDetachedEncryptResult, DocumentEncryptOpts, DocumentEncryptResult,
-        DocumentListMeta, DocumentListResult, DocumentMetadataResult, UserOrGroup, VisibleGroup,
-        VisibleUser,
+        advanced::DocumentAdvancedOps, AssociationType, DocAccessEditErr, DocumentAccessResult,
+        DocumentDecryptResult, DocumentEncryptOpts, DocumentEncryptResult,
+        DocumentEncryptUnmanagedResult, DocumentListMeta, DocumentListResult,
+        DocumentMetadataResult, UserOrGroup, VisibleGroup, VisibleUser,
     },
     group::{
         GroupAccessEditErr, GroupAccessEditResult, GroupCreateOpts, GroupGetResult,
@@ -417,16 +417,16 @@ mod document_encrypt_result {
     }
 }
 
-mod document_edek_encrypt_result {
+mod document_encrypt_unmanaged_result {
     use super::*;
 
-    pub fn id(d: &DocumentDetachedEncryptResult) -> DocumentId {
+    pub fn id(d: &DocumentEncryptUnmanagedResult) -> DocumentId {
         d.id().clone()
     }
-    pub fn encrypted_data(d: &DocumentDetachedEncryptResult) -> Vec<i8> {
+    pub fn encrypted_data(d: &DocumentEncryptUnmanagedResult) -> Vec<i8> {
         u8_conv(d.encrypted_data()).to_vec()
     }
-    pub fn encrypted_deks(d: &DocumentDetachedEncryptResult) -> Vec<i8> {
+    pub fn encrypted_deks(d: &DocumentEncryptUnmanagedResult) -> Vec<i8> {
         u8_conv(d.encrypted_deks()).to_vec()
     }
 }
@@ -548,9 +548,9 @@ mod document_access_change_result {
         }
     }
 
-    impl DocumentAccessChange for DocumentDetachedEncryptResult {
+    impl DocumentAccessChange for DocumentEncryptUnmanagedResult {
         fn changed(&self) -> SucceededResult {
-            to_succeeded_result(&self.grants())
+            to_succeeded_result(&self.grants().unwrap()) //TODO: Don't unwrap here. Deal with Result
         }
 
         fn errors(&self) -> FailedResult {
@@ -702,12 +702,12 @@ fn document_encrypt(
 ) -> Result<DocumentEncryptResult, String> {
     Ok(sdk.document_encrypt(i8_conv(data), opts)?)
 }
-fn document_edek_encrypt(
+fn document_encrypt_unmanaged(
     sdk: &IronOxide,
     data: &[i8],
     opts: &DocumentEncryptOpts,
-) -> Result<DocumentDetachedEncryptResult, String> {
-    Ok(sdk.document_edek_encrypt(i8_conv(data), opts)?)
+) -> Result<DocumentEncryptUnmanagedResult, String> {
+    Ok(sdk.document_encrypt_unmanaged(i8_conv(data), opts)?)
 }
 fn document_update_bytes(
     sdk: &IronOxide,
