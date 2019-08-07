@@ -600,6 +600,14 @@ class DocumentAccessResult {
 
 });
 
+foreigner_class!(
+class IronSdkAdvanced {
+self_type IronSdkAdvanced;
+private constructor = empty;
+
+//    method document_encrypt_unmanaged(&self) ->
+});
+
 ///
 /// Full SDK Class Structure
 ///
@@ -630,6 +638,9 @@ class IronSdk {
     ///
     /// @return details about the newly created device
     static_method generate_new_device(_:&str, _:&str, _: &DeviceCreateOpts) -> Result<DeviceContext, String>; alias generateNewDevice;
+
+    method IronSdkAdvanced::advanced(&self) -> IronSdkAdvanced;
+
     /// Get all the devices for the current user
     ///
     /// @return all devices for the current user, sorted by the device id

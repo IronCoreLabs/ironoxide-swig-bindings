@@ -21,6 +21,23 @@ use std::convert::TryInto;
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
 
+/// Wrap IronOxide to allow namespacing of the advanced operations
+struct IronSdkAdvanced(IronOxide);
+
+impl IronSdkAdvanced {
+    pub fn advanced(ironoxide: &IronOxide) -> IronSdkAdvanced {
+        unimplemented!()
+    }
+
+    pub fn document_encrypt_unmanaged(
+        &self,
+        data: &[i8],
+        opts: &DocumentEncryptOpts,
+    ) -> Result<DocumentDetachedEncryptResult, String> {
+        document_edek_encrypt(&self.0, data, opts)
+    }
+}
+
 #[derive(Clone)]
 pub struct UserWithKey((UserId, PublicKey));
 impl UserWithKey {
