@@ -25,7 +25,7 @@ include!(concat!(env!("OUT_DIR"), "/lib.rs"));
 struct IronSdkAdvanced<'a>(&'a IronOxide);
 
 impl<'a> IronSdkAdvanced<'a> {
-    pub fn advanced(ironoxide: & IronOxide) -> IronSdkAdvanced {
+    pub fn advanced(ironoxide: &IronOxide) -> IronSdkAdvanced {
         IronSdkAdvanced(ironoxide)
     }
 
