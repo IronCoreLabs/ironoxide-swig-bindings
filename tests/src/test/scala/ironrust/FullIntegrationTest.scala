@@ -509,7 +509,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult =
         Try(
-          sdk.documentEncryptUnmanaged(data, DocumentEncryptOpts.create(null, null, true, Array(), Array(), null))
+          sdk.advanced().documentEncryptUnmanaged(data, DocumentEncryptOpts.create(null, null, true, Array(), Array(), null))
         ).toEither
       val result = maybeResult.value
       result.getId.getId.length shouldBe 32
