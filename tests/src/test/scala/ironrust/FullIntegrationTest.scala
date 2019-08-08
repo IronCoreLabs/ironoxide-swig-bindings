@@ -509,7 +509,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult =
         Try(
-          sdk.advanced().documentEncryptUnmanaged(data, DocumentEncryptOpts.create(null, null, true, Array(), Array(), null))
+          sdk
+            .advanced()
+            .documentEncryptUnmanaged(data, DocumentEncryptOpts.create(null, null, true, Array(), Array(), null))
         ).toEither
       val result = maybeResult.value
       result.getId.getId.length shouldBe 32
@@ -520,10 +522,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
-        sdk.documentEncryptUnmanaged(
-          data,
-          DocumentEncryptOpts.create(null, null, true, Array(secondaryTestUserID), Array(), null)
-        )
+        sdk
+          .advanced()
+          .documentEncryptUnmanaged(
+            data,
+            DocumentEncryptOpts.create(null, null, true, Array(secondaryTestUserID), Array(), null)
+          )
       ).toEither
       val result = maybeResult.value
       result.getChanged.getUsers should have length 2
@@ -537,17 +541,19 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
-        sdk.documentEncryptUnmanaged(
-          data,
-          DocumentEncryptOpts.create(
-            null,
-            null,
-            true,
-            Array(),
-            Array(validGroupId),
-            new PolicyGrant(Category.validate("PII"), Sensitivity.validate("INTERNAL"), null, null)
+        sdk
+          .advanced()
+          .documentEncryptUnmanaged(
+            data,
+            DocumentEncryptOpts.create(
+              null,
+              null,
+              true,
+              Array(),
+              Array(validGroupId),
+              new PolicyGrant(Category.validate("PII"), Sensitivity.validate("INTERNAL"), null, null)
+            )
           )
-        )
       ).toEither
       val result = maybeResult.value
       result.getChanged.getUsers should have length 1
@@ -568,10 +574,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val notAUser = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val maybeResult = Try(
-        sdk.documentEncryptUnmanaged(
-          data,
-          DocumentEncryptOpts.create(null, null, true, Array(notAUser), Array(notAGroup), null)
-        )
+        sdk
+          .advanced()
+          .documentEncryptUnmanaged(
+            data,
+            DocumentEncryptOpts.create(null, null, true, Array(notAUser), Array(notAGroup), null)
+          )
       ).toEither
       val result = maybeResult.value
 

@@ -602,9 +602,13 @@ class DocumentAccessResult {
 
 foreigner_class!(
 class IronSdkAdvanced {
-self_type IronSdkAdvanced<'a>;
-private constructor = empty;
-
+    self_type IronSdkAdvanced<'a>;
+    private constructor = empty;
+    /// Encrypt the provided document bytes. Return the encrypted document encryption keys (EDEKs) instead of creating a document entry in the IronCore webservice.
+    /// 
+    /// @param a0 `documentData`   - bytes of the document to encrypt
+    /// @param a1 `encryptOpts`    - optional document encrypt parameters
+    /// @param a2 `id`             - unique id to use for the document. Document id will be stored unencrypted and must be unique per segment
     method IronSdkAdvanced::document_encrypt_unmanaged(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias documentEncryptUnmanaged;
 });
 
@@ -684,12 +688,6 @@ class IronSdk {
     /// @param a1 `encryptOpts`    - optional document encrypt parameters
     /// @param a2 `id`             - unique id to use for the document. Document id will be stored unencrypted and must be unique per segment
     method document_encrypt(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptResult, String>; alias documentEncrypt;
-    /// Encrypt the provided document bytes. Return the encrypted document encryption keys (EDEKs) instead of creating a document entry in the IronCore webservice.
-    /// 
-    /// @param a0 `documentData`   - bytes of the document to encrypt
-    /// @param a1 `encryptOpts`    - optional document encrypt parameters
-    /// @param a2 `id`             - unique id to use for the document. Document id will be stored unencrypted and must be unique per segment
-    method document_encrypt_unmanaged(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias documentEncryptUnmanaged;
     /// Update the encrypted content of an existing document. Persists any existing access to other users and groups.
     ///
     /// @param a0 `id`                - id of document to update

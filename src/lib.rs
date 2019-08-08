@@ -25,7 +25,7 @@ include!(concat!(env!("OUT_DIR"), "/lib.rs"));
 struct IronSdkAdvanced<'a>(&'a IronOxide);
 
 impl<'a> IronSdkAdvanced<'a> {
-    pub fn advanced(ironoxide: &'a IronOxide) -> IronSdkAdvanced {
+    pub fn advanced(ironoxide: & IronOxide) -> IronSdkAdvanced {
         IronSdkAdvanced(ironoxide)
     }
 
@@ -34,7 +34,7 @@ impl<'a> IronSdkAdvanced<'a> {
         data: &[i8],
         opts: &DocumentEncryptOpts,
     ) -> Result<DocumentEncryptUnmanagedResult, String> {
-        document_encrypt_unmanaged(&self.0, data, opts)
+        Ok(self.0.document_encrypt_unmanaged(i8_conv(data), opts)?)
     }
 }
 
@@ -718,13 +718,6 @@ fn document_encrypt(
     opts: &DocumentEncryptOpts,
 ) -> Result<DocumentEncryptResult, String> {
     Ok(sdk.document_encrypt(i8_conv(data), opts)?)
-}
-fn document_encrypt_unmanaged(
-    sdk: &IronOxide,
-    data: &[i8],
-    opts: &DocumentEncryptOpts,
-) -> Result<DocumentEncryptUnmanagedResult, String> {
-    Ok(sdk.document_encrypt_unmanaged(i8_conv(data), opts)?)
 }
 fn document_update_bytes(
     sdk: &IronOxide,
