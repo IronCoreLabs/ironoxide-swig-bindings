@@ -1,8 +1,9 @@
 mod jni_c_header;
 use ironoxide::{
     document::{
-        AssociationType, DocAccessEditErr, DocumentAccessResult, DocumentDecryptResult,
-        DocumentEncryptOpts, DocumentEncryptResult, DocumentListMeta, DocumentListResult,
+        advanced::DocumentAdvancedOps, AssociationType, DocAccessEditErr, DocumentAccessResult,
+        DocumentDecryptResult, DocumentEncryptOpts, DocumentEncryptResult,
+        DocumentEncryptUnmanagedResult, DocumentListMeta, DocumentListResult,
         DocumentMetadataResult, UserOrGroup, VisibleGroup, VisibleUser,
     },
     group::{
@@ -19,6 +20,23 @@ use ironoxide::{DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey};
 use std::convert::TryInto;
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
+
+/// Wrap IronOxide to allow namespacing of the advanced operations
+struct IronSdkAdvanced<'a>(&'a IronOxide);
+
+impl<'a> IronSdkAdvanced<'a> {
+    pub fn advanced(ironoxide: &IronOxide) -> IronSdkAdvanced {
+        IronSdkAdvanced(ironoxide)
+    }
+
+    pub fn document_encrypt_unmanaged(
+        &self,
+        data: &[i8],
+        opts: &DocumentEncryptOpts,
+    ) -> Result<DocumentEncryptUnmanagedResult, String> {
+        Ok(self.0.document_encrypt_unmanaged(i8_conv(data), opts)?)
+    }
+}
 
 #[derive(Clone)]
 pub struct UserWithKey((UserId, PublicKey));
@@ -416,6 +434,20 @@ mod document_encrypt_result {
     }
 }
 
+mod document_encrypt_unmanaged_result {
+    use super::*;
+
+    pub fn id(d: &DocumentEncryptUnmanagedResult) -> DocumentId {
+        d.id().clone()
+    }
+    pub fn encrypted_data(d: &DocumentEncryptUnmanagedResult) -> Vec<i8> {
+        u8_conv(d.encrypted_data()).to_vec()
+    }
+    pub fn encrypted_deks(d: &DocumentEncryptUnmanagedResult) -> Vec<i8> {
+        u8_conv(d.encrypted_deks()).to_vec()
+    }
+}
+
 mod document_decrypt_result {
     use super::*;
 
@@ -526,6 +558,16 @@ mod document_access_change_result {
     impl DocumentAccessChange for DocumentEncryptResult {
         fn changed(&self) -> SucceededResult {
             to_succeeded_result(self.grants())
+        }
+
+        fn errors(&self) -> FailedResult {
+            to_failed_result(self.access_errs())
+        }
+    }
+
+    impl DocumentAccessChange for DocumentEncryptUnmanagedResult {
+        fn changed(&self) -> SucceededResult {
+            to_succeeded_result(&self.grants())
         }
 
         fn errors(&self) -> FailedResult {

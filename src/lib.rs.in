@@ -531,6 +531,23 @@ class DocumentEncryptResult{
 });
 
 foreigner_class!(
+class DocumentEncryptUnmanagedResult {
+    self_type DocumentEncryptUnmanagedResult;
+    private constructor = empty;
+    /// Unique (within the segment) id of the document
+    method document_encrypt_unmanaged_result::id(&self) -> DocumentId; alias getId; 
+    /// Bytes of encrypted document content
+    method document_encrypt_unmanaged_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
+    /// Bytes of encrypted document encryption keys (EDEKs)
+    method document_encrypt_unmanaged_result::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks; 
+    /// Get the users and groups whose access was successfully changed
+    method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged; 
+    /// Get the users and groups whose access failed to be modified
+    method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
+}
+);
+
+foreigner_class!(
 /// Result of decrypting a document. Includes minimal metadata as well as the decrypted bytes.
 class DocumentDecryptResult{
     self_type DocumentDecryptResult;
@@ -583,6 +600,17 @@ class DocumentAccessResult {
 
 });
 
+foreigner_class!(
+class IronSdkAdvanced {
+    self_type IronSdkAdvanced<'a>;
+    private constructor = empty;
+    /// Encrypt the provided document bytes. Return the encrypted document encryption keys (EDEKs) instead of creating a document entry in the IronCore webservice.
+    /// 
+    /// @param a0 `documentData`   - bytes of the document to encrypt
+    /// @param a1 `encryptOpts`    - optional document encrypt parameters
+    method IronSdkAdvanced::document_encrypt_unmanaged(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias documentEncryptUnmanaged;
+});
+
 ///
 /// Full SDK Class Structure
 ///
@@ -613,6 +641,10 @@ class IronSdk {
     ///
     /// @return details about the newly created device
     static_method generate_new_device(_:&str, _:&str, _: &DeviceCreateOpts) -> Result<DeviceContext, String>; alias generateNewDevice;
+    /// Access advanced SDK operations.
+    /// 
+    /// @return an instance of the IronSdkAdvanced
+    method IronSdkAdvanced::advanced(&self) -> IronSdkAdvanced<'a>;
     /// Get all the devices for the current user
     ///
     /// @return all devices for the current user, sorted by the device id
@@ -654,7 +686,6 @@ class IronSdk {
     ///
     /// @param a0 `documentData`   - bytes of the document to encrypt
     /// @param a1 `encryptOpts`    - optional document encrypt parameters
-    /// @param a2 `id`             - unique id to use for the document. Document id will be stored unencrypted and must be unique per segment
     method document_encrypt(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptResult, String>; alias documentEncrypt;
     /// Update the encrypted content of an existing document. Persists any existing access to other users and groups.
     ///
