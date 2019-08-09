@@ -567,7 +567,7 @@ mod document_access_change_result {
 
     impl DocumentAccessChange for DocumentEncryptUnmanagedResult {
         fn changed(&self) -> SucceededResult {
-            to_succeeded_result(&self.grants().unwrap()) //TODO: Don't unwrap here. Deal with Result
+            to_succeeded_result(&self.grants())
         }
 
         fn errors(&self) -> FailedResult {

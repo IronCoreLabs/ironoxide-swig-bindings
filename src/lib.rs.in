@@ -608,7 +608,6 @@ class IronSdkAdvanced {
     /// 
     /// @param a0 `documentData`   - bytes of the document to encrypt
     /// @param a1 `encryptOpts`    - optional document encrypt parameters
-    /// @param a2 `id`             - unique id to use for the document. Document id will be stored unencrypted and must be unique per segment
     method IronSdkAdvanced::document_encrypt_unmanaged(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias documentEncryptUnmanaged;
 });
 
@@ -642,9 +641,10 @@ class IronSdk {
     ///
     /// @return details about the newly created device
     static_method generate_new_device(_:&str, _:&str, _: &DeviceCreateOpts) -> Result<DeviceContext, String>; alias generateNewDevice;
-
+    /// Access advanced SDK operations.
+    /// 
+    /// @return an instance of the IronSdkAdvanced
     method IronSdkAdvanced::advanced(&self) -> IronSdkAdvanced<'a>;
-
     /// Get all the devices for the current user
     ///
     /// @return all devices for the current user, sorted by the device id
@@ -686,7 +686,6 @@ class IronSdk {
     ///
     /// @param a0 `documentData`   - bytes of the document to encrypt
     /// @param a1 `encryptOpts`    - optional document encrypt parameters
-    /// @param a2 `id`             - unique id to use for the document. Document id will be stored unencrypted and must be unique per segment
     method document_encrypt(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptResult, String>; alias documentEncrypt;
     /// Update the encrypted content of an existing document. Persists any existing access to other users and groups.
     ///
