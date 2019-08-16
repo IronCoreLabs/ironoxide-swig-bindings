@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.8"
-ironoxide = "0.10.0"
+ironoxide = {git = "https://github.com/IronCoreLabs/ironoxide", branch = "22-decrypt-unmanaged"} #TODO: depend on released version
 chrono = { version = "0.4", features = ["serde"] }
 
 [build-dependencies]

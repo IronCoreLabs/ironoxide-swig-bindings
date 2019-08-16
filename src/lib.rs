@@ -1,10 +1,11 @@
 mod jni_c_header;
 use ironoxide::{
     document::{
-        advanced::DocumentAdvancedOps, AssociationType, DocAccessEditErr, DocumentAccessResult,
-        DocumentDecryptResult, DocumentEncryptOpts, DocumentEncryptResult,
-        DocumentEncryptUnmanagedResult, DocumentListMeta, DocumentListResult,
-        DocumentMetadataResult, UserOrGroup, VisibleGroup, VisibleUser,
+        advanced::DocumentAdvancedOps, advanced::DocumentDecryptUnmanagedResult,
+        advanced::DocumentEncryptUnmanagedResult, AssociationType, DocAccessEditErr,
+        DocumentAccessResult, DocumentDecryptResult, DocumentEncryptOpts, DocumentEncryptResult,
+        DocumentListMeta, DocumentListResult, DocumentMetadataResult, UserOrGroup, VisibleGroup,
+        VisibleUser,
     },
     group::{
         GroupAccessEditErr, GroupAccessEditResult, GroupCreateOpts, GroupGetResult,
@@ -35,6 +36,16 @@ impl<'a> IronSdkAdvanced<'a> {
         opts: &DocumentEncryptOpts,
     ) -> Result<DocumentEncryptUnmanagedResult, String> {
         Ok(self.0.document_encrypt_unmanaged(i8_conv(data), opts)?)
+    }
+
+    pub fn document_decrypt_unmanaged(
+        &self,
+        encrypted_data: &[i8], //TODO: ask about i8 vs u8 here. it's u8 in ironoxide, but data is also u8 in document_encrypt_unmanaged in ironoxide
+        encrypted_deks: &[i8], //TODO: same question here.
+    ) -> Result<DocumentDecryptUnmanagedResult, String> {
+        Ok(self
+            .0
+            .document_decrypt_unmanaged(i8_conv(encrypted_data), i8_conv(encrypted_deks))?)
     }
 }
 
@@ -464,6 +475,17 @@ mod document_decrypt_result {
         d.last_updated().clone()
     }
     pub fn decrypted_data(d: &DocumentDecryptResult) -> Vec<i8> {
+        u8_conv(d.decrypted_data()).to_vec()
+    }
+}
+
+mod document_decrypt_unmanaged_result {
+    use super::*;
+
+    pub fn id(d: &DocumentDecryptUnmanagedResult) -> DocumentId {
+        d.id().clone()
+    }
+    pub fn decrypted_data(d: &DocumentDecryptUnmanagedResult) -> Vec<i8> {
         u8_conv(d.decrypted_data()).to_vec()
     }
 }

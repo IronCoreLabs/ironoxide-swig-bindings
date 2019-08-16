@@ -560,6 +560,17 @@ class DocumentDecryptResult{
 });
 
 foreigner_class!(
+/// Result of decrypting an unmanaged document. Includes the id and the decrypted bytes.
+class DocumentDecryptUnmanagedResult{
+    self_type DocumentDecryptUnmanagedResult;
+    private constructor = empty;
+    /// Unique (within the segment) id of the document
+    method document_decrypt_unmanaged_result::id(&self) -> DocumentId; alias getId;
+    /// Get the bytes of the decrypted document
+    method document_decrypt_unmanaged_result::decrypted_data(&self) -> Vec<i8>; alias getDecryptedData;
+});
+
+foreigner_class!(
 // A successful edit of the access list of a document.
 class SucceededResult {
     self_type SucceededResult;
@@ -597,7 +608,6 @@ class DocumentAccessResult {
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
-
 });
 
 foreigner_class!(
@@ -609,6 +619,11 @@ class IronSdkAdvanced {
     /// @param a0 `documentData`   - bytes of the document to encrypt
     /// @param a1 `encryptOpts`    - optional document encrypt parameters
     method IronSdkAdvanced::document_encrypt_unmanaged(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias documentEncryptUnmanaged;
+    /// Decrypt the provided encrypted document with the encrypted document encryption keys (EDEKs).
+    /// 
+    /// @param a0 'encrypted_data' - bytes of encrypted document. Should be the same bytes returned from {@link com.ironcorelabs.sdk.IronSdkAdvanced.documentUnmanagedEncrypt}
+    /// @param a1 'encrypted_deks' - encrypted document encryption keys
+    method IronSdkAdvanced::document_decrypt_unmanaged(&self,_: &[i8], _: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias documentDecryptUnmanaged;
 });
 
 ///
