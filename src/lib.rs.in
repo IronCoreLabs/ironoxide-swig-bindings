@@ -621,8 +621,10 @@ class IronSdkAdvanced {
     method IronSdkAdvanced::document_encrypt_unmanaged(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias documentEncryptUnmanaged;
     /// Decrypt the provided encrypted document with the encrypted document encryption keys (EDEKs).
     /// 
-    /// @param a0 'encrypted_data' - bytes of encrypted document. Should be the same bytes returned from {@link com.ironcorelabs.sdk.IronSdkAdvanced.documentUnmanagedEncrypt}
+    /// @param a0 'encrypted_data' - bytes of encrypted document. Should be the same bytes returned from {@link documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
     /// @param a1 'encrypted_deks' - encrypted document encryption keys
+    /// 
+    /// @return {@link com.ironcorelabs.sdk.DocumentDecryptResult} includes the id of the provided document as well as the decrypted document bytes
     method IronSdkAdvanced::document_decrypt_unmanaged(&self,_: &[i8], _: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias documentDecryptUnmanaged;
 });
 
@@ -676,7 +678,7 @@ class IronSdk {
     /// If deleting the currently signed in device (None for `device_id`), the sdk will need to be
     /// reinitialized with `IronSdk.initialize()` before further use.
     ///
-    /// @param a0 `deviceId` - id of the device to delete. If `null`, delete the currently signed in device {@link com.ironcorelabs.sdk.IronSdk.userListDevices} to get ids
+    /// @param a0 `deviceId` - id of the device to delete. If `null`, delete the currently signed in device {@link userListDevices()} to get ids
     ///
     /// @return id of deleted device or IronSdkErr
     method user_delete_device(&self, device_id: Option<DeviceId>) -> Result<DeviceId, String>; alias userDeleteDevice;
@@ -709,7 +711,7 @@ class IronSdk {
     method document_update_bytes(&self, _: &DocumentId, _: &[i8]) -> Result<DocumentEncryptResult, String>; alias documentUpdateBytes;
     /// Decrypts the provided encrypted document and returns details about the document as well as its decrypted bytes.
     ///
-    /// @param a0 `encryptedDocument` - bytes of encrypted document. Should be the same bytes returned from {@link com.ironcorelabs.sdk.IronSdk.documentEncrypt}
+    /// @param a0 `encryptedDocument` - bytes of encrypted document. Should be the same bytes returned from {@link documentEncrypt(byte[], DocumentEncryptOpts)}
     ///
     /// @return {@link com.ironcorelabs.sdk.DocumentDecryptResult} includes metadata about the provided document as well as the decrypted document bytes
     method document_decrypt(&self,_: &[i8]) -> Result<DocumentDecryptResult, String>; alias documentDecrypt;
