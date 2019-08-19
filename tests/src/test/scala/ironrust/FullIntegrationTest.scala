@@ -531,6 +531,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       decryptedResult.getId.getId.length shouldBe 32
       decryptedResult.getDecryptedData shouldBe data
+      decryptedResult.getAccessViaUserOrGroup.getId() shouldBe primaryTestUserId.getId()
+      decryptedResult.getAccessViaUserOrGroup.isUser() shouldBe true
+      decryptedResult.getAccessViaUserOrGroup.isGroup() shouldBe false
     }
 
     "grant to specified users" in {

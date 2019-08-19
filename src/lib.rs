@@ -481,12 +481,40 @@ mod document_decrypt_result {
 
 mod document_decrypt_unmanaged_result {
     use super::*;
+    /// Generic translation of ironoxide's UserOrGroup enum
+    pub struct UserOrGroupJ {
+        id: String,
+        is_user: bool,
+    }
 
+    impl UserOrGroupJ {
+        pub fn new(id: String, is_user: bool) -> UserOrGroupJ {
+            UserOrGroupJ { id, is_user }
+        }
+        pub fn id(via: &UserOrGroupJ) -> String {
+            via.id.clone()
+        }
+
+        pub fn is_user(&self) -> bool {
+            self.is_user
+        }
+
+        pub fn is_group(&self) -> bool {
+            !self.is_user
+        }
+    }
     pub fn id(d: &DocumentDecryptUnmanagedResult) -> DocumentId {
         d.id().clone()
     }
     pub fn decrypted_data(d: &DocumentDecryptUnmanagedResult) -> Vec<i8> {
         u8_conv(d.decrypted_data()).to_vec()
+    }
+    pub fn access_via(d: &DocumentDecryptUnmanagedResult) -> UserOrGroupJ {
+        let (id, is_user) = match d.access_via() {
+            UserOrGroup::User { id } => (id.id().to_string(), true),
+            UserOrGroup::Group { id } => (id.id().to_string(), false),
+        };
+        UserOrGroupJ::new(id, is_user)
     }
 }
 
