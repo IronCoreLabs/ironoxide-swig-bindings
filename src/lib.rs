@@ -40,8 +40,8 @@ impl<'a> IronSdkAdvanced<'a> {
 
     pub fn document_decrypt_unmanaged(
         &self,
-        encrypted_data: &[i8], //TODO: ask about i8 vs u8 here. it's u8 in ironoxide, but data is also u8 in document_encrypt_unmanaged in ironoxide
-        encrypted_deks: &[i8], //TODO: same question here.
+        encrypted_data: &[i8],
+        encrypted_deks: &[i8],
     ) -> Result<DocumentDecryptUnmanagedResult, String> {
         Ok(self
             .0
