@@ -1,10 +1,11 @@
 mod jni_c_header;
 use ironoxide::{
     document::{
-        advanced::DocumentAdvancedOps, AssociationType, DocAccessEditErr, DocumentAccessResult,
-        DocumentDecryptResult, DocumentEncryptOpts, DocumentEncryptResult,
-        DocumentEncryptUnmanagedResult, DocumentListMeta, DocumentListResult,
-        DocumentMetadataResult, UserOrGroup, VisibleGroup, VisibleUser,
+        advanced::DocumentAdvancedOps, advanced::DocumentDecryptUnmanagedResult,
+        advanced::DocumentEncryptUnmanagedResult, AssociationType, DocAccessEditErr,
+        DocumentAccessResult, DocumentDecryptResult, DocumentEncryptOpts, DocumentEncryptResult,
+        DocumentListMeta, DocumentListResult, DocumentMetadataResult, UserOrGroup, VisibleGroup,
+        VisibleUser,
     },
     group::{
         GroupAccessEditErr, GroupAccessEditResult, GroupCreateOpts, GroupGetResult,
@@ -35,6 +36,16 @@ impl<'a> IronSdkAdvanced<'a> {
         opts: &DocumentEncryptOpts,
     ) -> Result<DocumentEncryptUnmanagedResult, String> {
         Ok(self.0.document_encrypt_unmanaged(i8_conv(data), opts)?)
+    }
+
+    pub fn document_decrypt_unmanaged(
+        &self,
+        encrypted_data: &[i8],
+        encrypted_deks: &[i8],
+    ) -> Result<DocumentDecryptUnmanagedResult, String> {
+        Ok(self
+            .0
+            .document_decrypt_unmanaged(i8_conv(encrypted_data), i8_conv(encrypted_deks))?)
     }
 }
 
@@ -465,6 +476,45 @@ mod document_decrypt_result {
     }
     pub fn decrypted_data(d: &DocumentDecryptResult) -> Vec<i8> {
         u8_conv(d.decrypted_data()).to_vec()
+    }
+}
+
+mod document_decrypt_unmanaged_result {
+    use super::*;
+    /// Generic translation of ironoxide's UserOrGroup enum
+    pub struct UserOrGroupJ {
+        id: String,
+        is_user: bool,
+    }
+
+    impl UserOrGroupJ {
+        pub fn new(id: String, is_user: bool) -> UserOrGroupJ {
+            UserOrGroupJ { id, is_user }
+        }
+        pub fn id(via: &UserOrGroupJ) -> String {
+            via.id.clone()
+        }
+
+        pub fn is_user(&self) -> bool {
+            self.is_user
+        }
+
+        pub fn is_group(&self) -> bool {
+            !self.is_user
+        }
+    }
+    pub fn id(d: &DocumentDecryptUnmanagedResult) -> DocumentId {
+        d.id().clone()
+    }
+    pub fn decrypted_data(d: &DocumentDecryptUnmanagedResult) -> Vec<i8> {
+        u8_conv(d.decrypted_data()).to_vec()
+    }
+    pub fn access_via(d: &DocumentDecryptUnmanagedResult) -> UserOrGroupJ {
+        let (id, is_user) = match d.access_via() {
+            UserOrGroup::User { id } => (id.id().to_string(), true),
+            UserOrGroup::Group { id } => (id.id().to_string(), false),
+        };
+        UserOrGroupJ::new(id, is_user)
     }
 }
 

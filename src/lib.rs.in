@@ -1,7 +1,7 @@
 use crate::jni_c_header::*;
 use crate::{
     document_access_change_result::{DocumentAccessChange, FailedResult, SucceededResult},
-    group_get_result::GroupUserList
+    group_get_result::GroupUserList, document_decrypt_unmanaged_result::UserOrGroupJ
 };
 use chrono::{DateTime, Utc};
 use log::error; //This is used as part of Swig expansion as a transitive dependency
@@ -87,6 +87,36 @@ class GroupId {
         return false;
     }
 "#;
+});
+
+foreigner_class!(
+/// Either a user id or a group id
+class UserOrGroupId {
+    self_type UserOrGroupJ;
+    private constructor = empty;
+
+    method UserOrGroupJ::id(&self) -> String; alias getId;
+    method UserOrGroupJ::is_user(&self) -> bool; alias isUser;
+    method UserOrGroupJ::is_group(&self) -> bool; alias isGroup;
+
+foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode() * Boolean.hashCode(this.isUser());
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof UserOrGroupId){
+            UserOrGroupId uog = (UserOrGroupId) obj;
+            return uog.getId().equals(this.getId()) &&
+            uog.isUser() == this.isUser();
+        }
+        return false;
+    }
+"#;
+
 });
 
 foreigner_class!(
@@ -560,6 +590,20 @@ class DocumentDecryptResult{
 });
 
 foreigner_class!(
+/// Result of decrypting an unmanaged document. Includes the id and the decrypted bytes.
+class DocumentDecryptUnmanagedResult{
+    self_type DocumentDecryptUnmanagedResult;
+    private constructor = empty;
+    /// Unique (within the segment) id of the document
+    method document_decrypt_unmanaged_result::id(&self) -> DocumentId; alias getId;
+    /// Get the bytes of the decrypted document
+    method document_decrypt_unmanaged_result::decrypted_data(&self) -> Vec<i8>; alias getDecryptedData;
+    /// User/Group that granted access to the encrypted data. More specifically,
+    /// this is the user/group associated with the edek that was chosen and transformed by the webservice.
+    method document_decrypt_unmanaged_result::access_via(&self) -> UserOrGroupJ; alias getAccessViaUserOrGroup;
+});
+
+foreigner_class!(
 // A successful edit of the access list of a document.
 class SucceededResult {
     self_type SucceededResult;
@@ -597,7 +641,6 @@ class DocumentAccessResult {
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
-
 });
 
 foreigner_class!(
@@ -609,6 +652,13 @@ class IronSdkAdvanced {
     /// @param a0 `documentData`   - bytes of the document to encrypt
     /// @param a1 `encryptOpts`    - optional document encrypt parameters
     method IronSdkAdvanced::document_encrypt_unmanaged(&self,_: &[i8], _: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias documentEncryptUnmanaged;
+    /// Decrypt the provided encrypted document with the encrypted document encryption keys (EDEKs).
+    /// 
+    /// @param a0 'encrypted_data' - bytes of encrypted document. Should be the same bytes returned from {@link documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
+    /// @param a1 'encrypted_deks' - encrypted document encryption keys. Should be the same edeks returned from {@link documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
+    /// 
+    /// @return {@link com.ironcorelabs.sdk.DocumentDecryptResult} includes the id of the provided document as well as the decrypted document bytes
+    method IronSdkAdvanced::document_decrypt_unmanaged(&self,_: &[i8], _: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias documentDecryptUnmanaged;
 });
 
 ///
@@ -661,7 +711,7 @@ class IronSdk {
     /// If deleting the currently signed in device (None for `device_id`), the sdk will need to be
     /// reinitialized with `IronSdk.initialize()` before further use.
     ///
-    /// @param a0 `deviceId` - id of the device to delete. If `null`, delete the currently signed in device {@link com.ironcorelabs.sdk.IronSdk.userListDevices} to get ids
+    /// @param a0 `deviceId` - id of the device to delete. If `null`, delete the currently signed in device {@link userListDevices()} to get ids
     ///
     /// @return id of deleted device or IronSdkErr
     method user_delete_device(&self, device_id: Option<DeviceId>) -> Result<DeviceId, String>; alias userDeleteDevice;
@@ -694,7 +744,7 @@ class IronSdk {
     method document_update_bytes(&self, _: &DocumentId, _: &[i8]) -> Result<DocumentEncryptResult, String>; alias documentUpdateBytes;
     /// Decrypts the provided encrypted document and returns details about the document as well as its decrypted bytes.
     ///
-    /// @param a0 `encryptedDocument` - bytes of encrypted document. Should be the same bytes returned from {@link com.ironcorelabs.sdk.IronSdk.documentEncrypt}
+    /// @param a0 `encryptedDocument` - bytes of encrypted document. Should be the same bytes returned from {@link documentEncrypt(byte[], DocumentEncryptOpts)}
     ///
     /// @return {@link com.ironcorelabs.sdk.DocumentDecryptResult} includes metadata about the provided document as well as the decrypted document bytes
     method document_decrypt(&self,_: &[i8]) -> Result<DocumentDecryptResult, String>; alias documentDecrypt;

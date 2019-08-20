@@ -399,7 +399,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
   }
 
-  "Document encrypt" should {
+  "Document encrypt/decrypt" should {
     "succeed for good name and data" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
@@ -503,27 +503,56 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
   }
 
-  "Document Encrypt Unmanaged" should {
-    "succeed for good data" in {
+  "Document unmanaged encrypt/decrypt" should {
+    "roundtrip through a user" in {
       val sdk = IronSdk.initialize(createDeviceContext)
-      val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
-      val maybeResult =
-        Try(
-          sdk
-            .advanced()
-            .documentEncryptUnmanaged(data, DocumentEncryptOpts.create(null, null, true, Array(), Array(), null))
-        ).toEither
+      val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
+      val maybeResult = Try(sdk.advanced.documentEncryptUnmanaged(data, new DocumentEncryptOpts())).toEither
       val result = maybeResult.value
       result.getId.getId.length shouldBe 32
+
+      val maybeDecrypt =
+        Try(sdk.advanced.documentDecryptUnmanaged(result.getEncryptedData, result.getEncryptedDeks)).toEither
+      val decryptedResult = maybeDecrypt.value
+
+      decryptedResult.getId.getId shouldBe result.getId.getId
+      decryptedResult.getDecryptedData shouldBe data
+      decryptedResult.getAccessViaUserOrGroup.getId() shouldBe primaryTestUserId.getId()
+      decryptedResult.getAccessViaUserOrGroup.isUser() shouldBe true
+      decryptedResult.getAccessViaUserOrGroup.isGroup() shouldBe false
+    }
+
+    "roundtrip through a group" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
+      val maybeResult = Try(
+        sdk.advanced
+          .documentEncryptUnmanaged(
+            data,
+            DocumentEncryptOpts.create(null, null, false, Array(), Array(validGroupId), null)
+          )
+      ).toEither
+      val result = maybeResult.value
+      result.getChanged.getGroups should have length 1
+      result.getChanged.getGroups.head.getId shouldEqual validGroupId.getId
       result.getEncryptedDeks.isEmpty shouldBe false
+
+      val maybeDecrypt =
+        Try(sdk.advanced.documentDecryptUnmanaged(result.getEncryptedData, result.getEncryptedDeks)).toEither
+      val decryptedResult = maybeDecrypt.value
+
+      decryptedResult.getId.getId shouldBe result.getId.getId
+      decryptedResult.getDecryptedData shouldBe data
+      decryptedResult.getAccessViaUserOrGroup.getId() shouldBe validGroupId.getId()
+      decryptedResult.getAccessViaUserOrGroup.isUser() shouldBe false
+      decryptedResult.getAccessViaUserOrGroup.isGroup() shouldBe true
     }
 
     "grant to specified users" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
-        sdk
-          .advanced()
+        sdk.advanced
           .documentEncryptUnmanaged(
             data,
             DocumentEncryptOpts.create(null, null, true, Array(secondaryTestUserID), Array(), null)
@@ -541,8 +570,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
-        sdk
-          .advanced()
+        sdk.advanced
           .documentEncryptUnmanaged(
             data,
             DocumentEncryptOpts.create(
@@ -574,8 +602,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val notAUser = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val maybeResult = Try(
-        sdk
-          .advanced()
+        sdk.advanced
           .documentEncryptUnmanaged(
             data,
             DocumentEncryptOpts.create(null, null, true, Array(notAUser), Array(notAGroup), null)
