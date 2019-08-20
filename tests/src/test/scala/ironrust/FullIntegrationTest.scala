@@ -529,7 +529,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         Try(sdk.advanced.documentDecryptUnmanaged(result.getEncryptedData, result.getEncryptedDeks)).toEither
       val decryptedResult = maybeDecrypt.value
 
-      decryptedResult.getId.getId.length shouldBe 32
+      decryptedResult.getId.getId shouldBe result.getId.getId
       decryptedResult.getDecryptedData shouldBe data
       decryptedResult.getAccessViaUserOrGroup.getId() shouldBe primaryTestUserId.getId()
       decryptedResult.getAccessViaUserOrGroup.isUser() shouldBe true

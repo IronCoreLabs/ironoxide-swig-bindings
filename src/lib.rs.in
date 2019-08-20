@@ -655,7 +655,7 @@ class IronSdkAdvanced {
     /// Decrypt the provided encrypted document with the encrypted document encryption keys (EDEKs).
     /// 
     /// @param a0 'encrypted_data' - bytes of encrypted document. Should be the same bytes returned from {@link documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
-    /// @param a1 'encrypted_deks' - encrypted document encryption keys
+    /// @param a1 'encrypted_deks' - encrypted document encryption keys. Should be the same edeks returned from {@link documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
     /// 
     /// @return {@link com.ironcorelabs.sdk.DocumentDecryptResult} includes the id of the provided document as well as the decrypted document bytes
     method IronSdkAdvanced::document_decrypt_unmanaged(&self,_: &[i8], _: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias documentDecryptUnmanaged;
