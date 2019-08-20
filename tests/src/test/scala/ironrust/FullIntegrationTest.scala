@@ -504,27 +504,13 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   }
 
   "Document unmanaged encrypt/decrypt" should {
-    "succeed for good data" in {
-      val sdk = IronSdk.initialize(createDeviceContext)
-      val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
-      val maybeResult =
-        Try(
-          sdk.advanced
-            .documentEncryptUnmanaged(data, DocumentEncryptOpts.create(null, null, true, Array(), Array(), null))
-        ).toEither
-      val result = maybeResult.value
-      result.getId.getId.length shouldBe 32
-      result.getEncryptedDeks.isEmpty shouldBe false
-    }
-
-    "roundtrip for single level transform for good data" in {
+    "roundtrip through a user" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(sdk.advanced.documentEncryptUnmanaged(data, new DocumentEncryptOpts())).toEither
       val result = maybeResult.value
       result.getId.getId.length shouldBe 32
 
-      //Now try to decrypt
       val maybeDecrypt =
         Try(sdk.advanced.documentDecryptUnmanaged(result.getEncryptedData, result.getEncryptedDeks)).toEither
       val decryptedResult = maybeDecrypt.value
@@ -534,6 +520,32 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       decryptedResult.getAccessViaUserOrGroup.getId() shouldBe primaryTestUserId.getId()
       decryptedResult.getAccessViaUserOrGroup.isUser() shouldBe true
       decryptedResult.getAccessViaUserOrGroup.isGroup() shouldBe false
+    }
+
+    "roundtrip through a group" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
+      val maybeResult = Try(
+        sdk.advanced
+          .documentEncryptUnmanaged(
+            data,
+            DocumentEncryptOpts.create(null, null, false, Array(), Array(validGroupId), null)
+          )
+      ).toEither
+      val result = maybeResult.value
+      result.getChanged.getGroups should have length 1
+      result.getChanged.getGroups.head.getId shouldEqual validGroupId.getId
+      result.getEncryptedDeks.isEmpty shouldBe false
+
+      val maybeDecrypt =
+        Try(sdk.advanced.documentDecryptUnmanaged(result.getEncryptedData, result.getEncryptedDeks)).toEither
+      val decryptedResult = maybeDecrypt.value
+
+      decryptedResult.getId.getId shouldBe result.getId.getId
+      decryptedResult.getDecryptedData shouldBe data
+      decryptedResult.getAccessViaUserOrGroup.getId() shouldBe validGroupId.getId()
+      decryptedResult.getAccessViaUserOrGroup.isUser() shouldBe false
+      decryptedResult.getAccessViaUserOrGroup.isGroup() shouldBe true
     }
 
     "grant to specified users" in {
