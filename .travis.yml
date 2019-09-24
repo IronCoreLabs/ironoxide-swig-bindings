@@ -2,12 +2,12 @@ language: rust
 
 cache:
   directories:
-    - "$HOME/.ivy2/cache"
+    - "$HOME/.cache/coursier/v1"
     - "$HOME/.sbt/boot/"
     - "$HOME/bin"
 
 # build matrix
-rust: 1.36.0
+rust: 1.37.0
 matrix:
   include:
     - name: "Linux"

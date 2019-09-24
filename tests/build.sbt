@@ -1,6 +1,6 @@
 organization := "com.ironcorelabs"
 name := "ironoxide-java"
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.10"
 
 //We're using sbt to test, but this is a pure java library for now so we don't want scala version
 //in the paths and we don't want the scala lib in the dependencies.

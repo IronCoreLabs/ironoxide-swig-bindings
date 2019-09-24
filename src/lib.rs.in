@@ -4,7 +4,6 @@ use crate::{
     group_get_result::GroupUserList, document_decrypt_unmanaged_result::UserOrGroupJ
 };
 use chrono::{DateTime, Utc};
-use log::error; //This is used as part of Swig expansion as a transitive dependency
 
 ///
 /// Classes for Common Types
@@ -41,6 +40,7 @@ class DeviceSigningKeyPair {
 
 foreigner_class!(
 /// ID of a user. Unique with in a segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`.
+#[derive(Clone)]
 class UserId {
     self_type UserId;
     private constructor = empty;
@@ -66,6 +66,7 @@ class UserId {
 
 foreigner_class!(
 /// ID of a group. Unique within a segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`
+#[derive(Clone)]
 class GroupId {
     self_type GroupId;
     private constructor = empty;

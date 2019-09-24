@@ -1,6 +1,6 @@
 [package]
 name = "ironoxide-java"
-version = "0.3.0"
+version = "0.5.0"
 authors = ["IronCore Labs <info@ironcorelabs.com>"]
 build = "build.rs"
 edition = "2018"
@@ -13,10 +13,9 @@ crate-type = ["cdylib"]
 log = "0.4"
 itertools = "0.8"
 ironoxide = "0.10.1"
-chrono = { version = "0.4", features = ["serde"] }
+chrono = "0.4"
 
 [build-dependencies]
-env_logger = "0.6"
-log = "0.4"
-rust_swig = {git = "https://github.com/Dushistov/rust_swig.git", rev="a0ae74a" }
-bindgen = "0.46"
+env_logger = "0.7"
+rust_swig = { git = "https://github.com/Dushistov/rust_swig.git", rev = "f1af10fb0c1c96c9153857d18ea06a7c0644e265"}
+bindgen = "0.51"
