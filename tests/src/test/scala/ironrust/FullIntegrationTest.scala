@@ -364,7 +364,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   }
 
   "Group add admin" should {
-    "succeed and add secordary user as an admin" in {
+    "succeed and add secondary user as an admin" in {
       val sdk = IronSdk.initialize(createDeviceContext)
 
       val addAdminResp = Try(sdk.groupAddAdmins(validGroupId, List(secondaryTestUserID).toArray)).toEither
