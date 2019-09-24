@@ -4,7 +4,6 @@ use crate::{
     group_get_result::GroupUserList, document_decrypt_unmanaged_result::UserOrGroupJ
 };
 use chrono::{DateTime, Utc};
-use log::error; //This is used as part of Swig expansion as a transitive dependency
 
 ///
 /// Classes for Common Types
