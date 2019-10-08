@@ -40,16 +40,17 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   "User Create" should {
     "successfully create a new user" in {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
-      val resp = Try(IronSdk.userCreate(jwt, primaryTestUserPassword)).toEither
+      val resp = Try(IronSdk.userCreate(jwt, primaryTestUserPassword, UserCreateOpts.create(true))).toEither
       val createResult = resp.value
 
       createResult.getUserEncryptedMasterKey should have length 92
       createResult.getUserPublicKey.asBytes should have length 64
+      createResult.getNeedsRotation shouldBe true
     }
 
     "successfully create a 2nd new user" in {
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserID.getId)
-      val resp = Try(IronSdk.userCreate(jwt, secondaryTestUserPassword)).toEither
+      val resp = Try(IronSdk.userCreate(jwt, secondaryTestUserPassword, new UserCreateOpts())).toEither
       val createResult = resp.value
 
       //Store off the new user we created so it can used for future tests below
@@ -57,6 +58,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       createResult.getUserEncryptedMasterKey should have length 92
       createResult.getUserPublicKey.asBytes should have length 64
+      createResult.getNeedsRotation shouldBe false
     }
   }
 
@@ -80,6 +82,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       verifyResult.get.getAccountId shouldBe primaryTestUserId
       verifyResult.get.getSegmentId shouldBe 2013
+      verifyResult.get.getNeedsRotation shouldBe true
     }
   }
 

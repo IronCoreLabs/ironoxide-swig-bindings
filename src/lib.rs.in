@@ -324,6 +324,8 @@ class UserCreateKeyPair {
     /// user's private key encrypted with the provided passphrase
     method user_create_key_pair::user_encrypted_master_key_bytes(&self) -> Vec<i8>; alias getUserEncryptedMasterKey;
     method user_create_key_pair::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
+    /// True if the private key of the user's keypair needs to be rotated, else false.
+    method user_create_key_pair::needs_rotation(&self) -> bool; alias getNeedsRotation;
 });
 
 foreigner_class!(
@@ -334,6 +336,7 @@ class UserVerifyResult {
     method user_verify_result::account_id(&self) -> UserId; alias getAccountId;
     method user_verify_result::segment_id(&self) -> usize; alias getSegmentId;
     method user_verify_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
+    method user_verify_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
 });
 
 foreigner_class!(
@@ -360,6 +363,16 @@ foreigner_class!(class DeviceCreateOpts {
     constructor DeviceCreateOpts::default() -> DeviceCreateOpts;
     static_method device_create_opt::create(_:Option<DeviceName>) -> DeviceCreateOpts;
 });
+
+foreigner_class!(
+    /// Options that can be specified creating a user.
+    class UserCreateOpts {
+        self_type UserCreateOpts;
+        //Construct the UserCreateOpts with a needs_rotation of false.
+        constructor UserCreateOpts::default() -> UserCreateOpts;
+        static_method user_create_opt::create(_: bool) -> UserCreateOpts;
+    }
+);
 
 foreigner_class!(
 /// Devices for a user, sorted by the device id.
@@ -674,7 +687,7 @@ class IronSdk {
     self_type IronOxide;
     private constructor = empty;
     static_method user_verify(_:&str) -> Result<Option<UserVerifyResult>, String>; alias userVerify;
-    static_method user_create(_:&str, _:&str) -> Result<UserCreateKeyPair, String>; alias userCreate;
+    static_method user_create(_:&str, _:&str, _:&UserCreateOpts) -> Result<UserCreateKeyPair, String>; alias userCreate;
     /// Initialize IronSdk with a device. Verifies that the provided user/segment exists and the provided device
     /// keys are valid and exist for the provided account.
     /// 

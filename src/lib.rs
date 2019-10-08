@@ -14,7 +14,8 @@ use ironoxide::{
     policy::{Category, DataSubject, PolicyGrant, Sensitivity},
     prelude::*,
     user::{
-        DeviceCreateOpts, UserCreateKeyPair, UserDevice, UserDeviceListResult, UserVerifyResult,
+        DeviceCreateOpts, UserCreateKeyPair, UserCreateOpts, UserDevice, UserDeviceListResult,
+        UserVerifyResult,
     },
 };
 use ironoxide::{DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey};
@@ -202,6 +203,13 @@ mod device_create_opt {
     }
 }
 
+mod user_create_opt {
+    use super::*;
+    pub fn create(needs_rotation: bool) -> UserCreateOpts {
+        UserCreateOpts::new(needs_rotation)
+    }
+}
+
 mod policy_grant {
     use super::*;
     pub fn create(
@@ -331,6 +339,10 @@ mod user_create_key_pair {
     pub fn user_public_key(u: &UserCreateKeyPair) -> PublicKey {
         u.user_public_key().clone()
     }
+
+    pub fn needs_rotation(u: &UserCreateKeyPair) -> bool {
+        u.needs_rotation()
+    }
 }
 
 mod user_verify_result {
@@ -345,6 +357,10 @@ mod user_verify_result {
 
     pub fn segment_id(u: &UserVerifyResult) -> usize {
         u.segment_id()
+    }
+
+    pub fn needs_rotation(u: &UserVerifyResult) -> bool {
+        u.needs_rotation()
     }
 }
 
@@ -726,8 +742,12 @@ mod group_create_opts {
 fn user_verify(jwt: &str) -> Result<Option<UserVerifyResult>, String> {
     Ok(IronOxide::user_verify(jwt)?)
 }
-fn user_create(jwt: &str, password: &str) -> Result<UserCreateKeyPair, String> {
-    Ok(IronOxide::user_create(jwt, password)?)
+fn user_create(
+    jwt: &str,
+    password: &str,
+    opts: &UserCreateOpts,
+) -> Result<UserCreateKeyPair, String> {
+    Ok(IronOxide::user_create(jwt, password, opts)?)
 }
 fn initialize(init: &DeviceContext) -> Result<IronOxide, String> {
     Ok(ironoxide::initialize(init)?)
