@@ -169,6 +169,10 @@ mod device_name {
 
 mod public_key {
     use super::*;
+    use std::convert::TryInto;
+    pub fn validate(bytes: &[i8]) -> Result<PublicKey, String> {
+        Ok(i8_conv(bytes).try_into()?)
+    }
     pub fn as_bytes(pk: &PublicKey) -> Vec<i8> {
         u8_conv(&pk.as_bytes()[..]).to_vec()
     }
