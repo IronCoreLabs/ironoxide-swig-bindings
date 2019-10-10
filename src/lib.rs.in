@@ -319,14 +319,12 @@ class DeviceContext {
 
 foreigner_class!(
 /// Keypair for a newly created user.
-class UserCreateKeyPair {
-    self_type UserCreateKeyPair;
+class UserCreateResult {
+    self_type UserCreateResult;
     private constructor = empty;
-    /// user's private key encrypted with the provided passphrase
-    method user_create_key_pair::user_encrypted_master_key_bytes(&self) -> Vec<i8>; alias getUserEncryptedMasterKey;
-    method user_create_key_pair::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
+    method user_create_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
     /// True if the private key of the user's keypair needs to be rotated, else false.
-    method user_create_key_pair::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    method user_create_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
 });
 
 foreigner_class!(
@@ -362,7 +360,7 @@ foreigner_class!(class DeviceCreateOpts {
     self_type DeviceCreateOpts;
     //Construct the DeviceCreateOpts with None for name.
     constructor DeviceCreateOpts::default() -> DeviceCreateOpts;
-    static_method device_create_opt::create(_:Option<DeviceName>) -> DeviceCreateOpts;
+    static_method device_create_opts::create(_:Option<DeviceName>) -> DeviceCreateOpts;
 });
 
 foreigner_class!(
@@ -371,7 +369,7 @@ foreigner_class!(
         self_type UserCreateOpts;
         //Construct the UserCreateOpts with a needs_rotation of false.
         constructor UserCreateOpts::default() -> UserCreateOpts;
-        static_method user_create_opt::create(_: bool) -> UserCreateOpts;
+        static_method user_create_opts::create(_: bool) -> UserCreateOpts;
     }
 );
 
@@ -687,14 +685,26 @@ foreigner_class!(
 class IronSdk {
     self_type IronOxide;
     private constructor = empty;
-    static_method user_verify(_:&str) -> Result<Option<UserVerifyResult>, String>; alias userVerify;
-    static_method user_create(_:&str, _:&str, _:&UserCreateOpts) -> Result<UserCreateKeyPair, String>; alias userCreate;
+    /// Verify a user given a JWT for their user record.
+    ///
+    /// @param jwt valid IronCore JWT
+    /// @return option of whether the user's account record exists in the IronCore system or not. Error if the request couldn't be made.
+    static_method user_verify(jwt:&str) -> Result<Option<UserVerifyResult>, String>; alias userVerify;
+   /// Create a new user within the IronCore system.
+   ///
+   /// @param jwt       valid IronCore or Auth0 JWT
+   /// @param password  password used to encrypt and escrow the user's private master key
+   /// @param options   see {@link UserCreateOpts}. Use `new UserCreateOpts()` for defaults
+   /// @return see {@link UserCreateResult}. For most use cases, the public key can be discarded as IronCore escrows your user's keys.
+   ///         The escrowed keys are unlocked by the provided password.
+    static_method user_create(jwt:&str, password:&str, options:&UserCreateOpts) -> Result<UserCreateResult, String>; alias userCreate;
     /// Initialize IronSdk with a device. Verifies that the provided user/segment exists and the provided device
     /// keys are valid and exist for the provided account.
     /// 
+    /// @param init device context used to initialize the IronSdk with a set of device keys
     /// @throws java.lang.Exception if the provided `DeviceContext` is invalid
     /// @return an instance of the IronSdk
-    static_method initialize(_:&DeviceContext) -> Result<IronOxide, String>;
+    static_method initialize(init:&DeviceContext) -> Result<IronOxide, String>;
     /// Generates a new device for the user specified in the signed JWT.
     ///
     /// This will result in a new transform key (from the user's master private key to the new device's public key)
@@ -802,7 +812,7 @@ class IronSdk {
     method group_get_metadata(&self, id:&GroupId) -> Result<GroupGetResult, String>; alias groupGetMetadata;
     /// Create a group. The creating user will become a group admin.
     ///
-    /// @param groupCreateOpts see {@link GroupCreateOpts}. Use `new GroupGreateOpts()` for defaults
+    /// @param groupCreateOpts see {@link GroupCreateOpts}. Use `new GroupCreateOpts()` for defaults
     method group_create(&self, groupCreateOpts: &GroupCreateOpts) -> Result<GroupMetaResult, String>; alias groupCreate;
     /// Update a group name to a new value or clear its value.
     ///

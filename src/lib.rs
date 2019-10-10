@@ -14,7 +14,7 @@ use ironoxide::{
     policy::{Category, DataSubject, PolicyGrant, Sensitivity},
     prelude::*,
     user::{
-        DeviceCreateOpts, UserCreateKeyPair, UserCreateOpts, UserDevice, UserDeviceListResult,
+        DeviceCreateOpts, UserCreateOpts, UserCreateResult, UserDevice, UserDeviceListResult,
         UserVerifyResult,
     },
 };
@@ -200,14 +200,14 @@ mod device_signing_keys {
     }
 }
 
-mod device_create_opt {
+mod device_create_opts {
     use super::*;
     pub fn create(name: Option<DeviceName>) -> DeviceCreateOpts {
         DeviceCreateOpts::new(name)
     }
 }
 
-mod user_create_opt {
+mod user_create_opts {
     use super::*;
     pub fn create(needs_rotation: bool) -> UserCreateOpts {
         UserCreateOpts::new(needs_rotation)
@@ -334,17 +334,12 @@ mod device_context {
     }
 }
 
-mod user_create_key_pair {
+mod user_create_result {
     use super::*;
-    pub fn user_encrypted_master_key_bytes(u: &UserCreateKeyPair) -> Vec<i8> {
-        u8_conv(&u.user_encrypted_master_key_bytes()[..]).to_vec()
-    }
-
-    pub fn user_public_key(u: &UserCreateKeyPair) -> PublicKey {
+    pub fn user_public_key(u: &UserCreateResult) -> PublicKey {
         u.user_public_key().clone()
     }
-
-    pub fn needs_rotation(u: &UserCreateKeyPair) -> bool {
+    pub fn needs_rotation(u: &UserCreateResult) -> bool {
         u.needs_rotation()
     }
 }
@@ -750,7 +745,7 @@ fn user_create(
     jwt: &str,
     password: &str,
     opts: &UserCreateOpts,
-) -> Result<UserCreateKeyPair, String> {
+) -> Result<UserCreateResult, String> {
     Ok(IronOxide::user_create(jwt, password, opts)?)
 }
 fn initialize(init: &DeviceContext) -> Result<IronOxide, String> {
