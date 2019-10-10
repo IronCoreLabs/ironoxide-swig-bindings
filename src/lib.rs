@@ -14,7 +14,8 @@ use ironoxide::{
     policy::{Category, DataSubject, PolicyGrant, Sensitivity},
     prelude::*,
     user::{
-        DeviceCreateOpts, UserCreateKeyPair, UserDevice, UserDeviceListResult, UserVerifyResult,
+        DeviceCreateOpts, UserCreateOpts, UserCreateResult, UserDevice, UserDeviceListResult,
+        UserVerifyResult,
     },
 };
 use ironoxide::{DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey};
@@ -168,6 +169,10 @@ mod device_name {
 
 mod public_key {
     use super::*;
+    use std::convert::TryInto;
+    pub fn validate(bytes: &[i8]) -> Result<PublicKey, String> {
+        Ok(i8_conv(bytes).try_into()?)
+    }
     pub fn as_bytes(pk: &PublicKey) -> Vec<i8> {
         u8_conv(&pk.as_bytes()[..]).to_vec()
     }
@@ -195,10 +200,17 @@ mod device_signing_keys {
     }
 }
 
-mod device_create_opt {
+mod device_create_opts {
     use super::*;
     pub fn create(name: Option<DeviceName>) -> DeviceCreateOpts {
         DeviceCreateOpts::new(name)
+    }
+}
+
+mod user_create_opts {
+    use super::*;
+    pub fn create(needs_rotation: bool) -> UserCreateOpts {
+        UserCreateOpts::new(needs_rotation)
     }
 }
 
@@ -322,14 +334,13 @@ mod device_context {
     }
 }
 
-mod user_create_key_pair {
+mod user_create_result {
     use super::*;
-    pub fn user_encrypted_master_key_bytes(u: &UserCreateKeyPair) -> Vec<i8> {
-        u8_conv(&u.user_encrypted_master_key_bytes()[..]).to_vec()
-    }
-
-    pub fn user_public_key(u: &UserCreateKeyPair) -> PublicKey {
+    pub fn user_public_key(u: &UserCreateResult) -> PublicKey {
         u.user_public_key().clone()
+    }
+    pub fn needs_rotation(u: &UserCreateResult) -> bool {
+        u.needs_rotation()
     }
 }
 
@@ -345,6 +356,10 @@ mod user_verify_result {
 
     pub fn segment_id(u: &UserVerifyResult) -> usize {
         u.segment_id()
+    }
+
+    pub fn needs_rotation(u: &UserVerifyResult) -> bool {
+        u.needs_rotation()
     }
 }
 
@@ -726,8 +741,12 @@ mod group_create_opts {
 fn user_verify(jwt: &str) -> Result<Option<UserVerifyResult>, String> {
     Ok(IronOxide::user_verify(jwt)?)
 }
-fn user_create(jwt: &str, password: &str) -> Result<UserCreateKeyPair, String> {
-    Ok(IronOxide::user_create(jwt, password)?)
+fn user_create(
+    jwt: &str,
+    password: &str,
+    opts: &UserCreateOpts,
+) -> Result<UserCreateResult, String> {
+    Ok(IronOxide::user_create(jwt, password, opts)?)
 }
 fn initialize(init: &DeviceContext) -> Result<IronOxide, String> {
     Ok(ironoxide::initialize(init)?)
