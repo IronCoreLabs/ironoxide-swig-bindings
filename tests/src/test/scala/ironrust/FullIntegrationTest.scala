@@ -22,6 +22,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   var validGroupId: GroupId = null
   var validDocumentId: DocumentId = null
+  val validDeviceId: DeviceId = DeviceId.validate(1)
 
   /**
     * Convenience function to create a new DeviceContext instance from the stored off components we need. Takes the
@@ -30,6 +31,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     */
   def createDeviceContext = {
     new DeviceContext(
+      validDeviceId,
       primaryTestUserId,
       primaryTestUserSegmentId,
       PrivateKey.validate(primaryTestUserPrivateDeviceKeyBytes),
@@ -102,11 +104,11 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       //Store off the device component parts as raw values so we can use them to reconstruct
       //an DeviceContext instance to initialize the SDK.
       primaryTestUserSegmentId = newDeviceResult.getSegmentId
-      primaryTestUserPrivateDeviceKeyBytes = newDeviceResult.getPrivateDeviceKey.asBytes
-      primaryTestUserSigningKeysBytes = newDeviceResult.getSigningKeys.asBytes
+      primaryTestUserPrivateDeviceKeyBytes = newDeviceResult.getDevicePrivateKey.asBytes
+      primaryTestUserSigningKeysBytes = newDeviceResult.getSigningPrivateKey.asBytes
 
-      newDeviceResult.getSigningKeys.asBytes should have size 64
-      newDeviceResult.getPrivateDeviceKey.asBytes should have size 32
+      newDeviceResult.getSigningPrivateKey.asBytes should have size 64
+      newDeviceResult.getDevicePrivateKey.asBytes should have size 32
       newDeviceResult.getAccountId shouldBe primaryTestUserId
 
       val sdk = IronSdk.initialize(createDeviceContext)

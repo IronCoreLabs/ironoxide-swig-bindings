@@ -305,16 +305,18 @@ mod document_create_opt {
 mod device_context {
     use super::*;
     pub fn new(
+        device_id: &DeviceId,
         account_id: &UserId,
         segment_id: i64,
-        private_key: &PrivateKey,
-        signing_keys: &DeviceSigningKeyPair,
+        device_private_key: &PrivateKey,
+        signing_private_key: &DeviceSigningKeyPair,
     ) -> DeviceContext {
         DeviceContext::new(
+            device_id.clone(),
             account_id.clone(),
             segment_id as usize,
-            private_key.clone(),
-            signing_keys.clone(),
+            device_private_key.clone(),
+            signing_private_key.clone(),
         )
     }
     pub fn account_id(d: &DeviceContext) -> UserId {
@@ -325,12 +327,16 @@ mod device_context {
         d.segment_id()
     }
 
-    pub fn private_device_key(d: &DeviceContext) -> PrivateKey {
-        d.private_device_key().clone()
+    pub fn device_private_key(d: &DeviceContext) -> PrivateKey {
+        d.device_private_key().clone()
     }
 
-    pub fn signing_keys(d: &DeviceContext) -> DeviceSigningKeyPair {
-        d.signing_keys().clone()
+    pub fn signing_private_key(d: &DeviceContext) -> DeviceSigningKeyPair {
+        d.signing_private_key().clone()
+    }
+
+    pub fn device_id(d: &DeviceContext) -> DeviceId {
+        d.device_id().clone()
     }
 }
 

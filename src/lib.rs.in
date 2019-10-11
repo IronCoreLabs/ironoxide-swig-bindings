@@ -306,11 +306,12 @@ foreigner_class!(
 /// Accounts device context. Needed to initialize the Sdk with a set of device keys. See `Sdk.initialize()`
 class DeviceContext {
     self_type DeviceContext;
-    constructor device_context::new(account_id: &UserId, segment_id: i64, private_device_key: &PrivateKey, signing_keys: &DeviceSigningKeyPair) -> DeviceContext;
+    constructor device_context::new(device_id: &DeviceId, account_id: &UserId, segment_id: i64, device_private_key: &PrivateKey, signing_private_key: &DeviceSigningKeyPair) -> DeviceContext;
+    method device_context::device_id(&self) -> DeviceId; alias getDeviceId;
     method device_context::account_id(&self) -> UserId; alias getAccountId;
     method device_context::segment_id(&self) -> usize; alias getSegmentId;
-    method device_context::private_device_key(&self) -> PrivateKey; alias getPrivateDeviceKey;
-    method device_context::signing_keys(&self) -> DeviceSigningKeyPair; alias getSigningKeys;
+    method device_context::device_private_key(&self) -> PrivateKey; alias getDevicePrivateKey;
+    method device_context::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
 });
 
 ///
