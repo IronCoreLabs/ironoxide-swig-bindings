@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.8"
-ironoxide = {path = "../ironoxide"}
+ironoxide = { git = "https://github.com/IronCoreLabs/ironoxide.git", branch = "25-device-context-format"}
 chrono = "0.4"
 
 [build-dependencies]
