@@ -19,6 +19,7 @@ use ironoxide::{
     },
 };
 use ironoxide::{DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey};
+use serde_json;
 use std::convert::TryInto;
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
@@ -337,6 +338,17 @@ mod device_context {
 
     pub fn device_id(d: &DeviceContext) -> DeviceId {
         d.device_id().clone()
+    }
+
+    pub fn to_json_string(d: &DeviceContext) -> String {
+        //Colt: you should research this unwrap
+        serde_json::to_string(d).unwrap()
+    }
+
+    pub fn from_json_string(json_string: String) -> Result<DeviceContext, String> {
+        serde_json::from_str(&json_string).map_err(|_| {
+            "json_string was not a valid JSON representation of a DeviceContext.".to_string()
+        })
     }
 }
 

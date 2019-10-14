@@ -4,11 +4,14 @@ import java.util.Calendar
 import org.scalatest.CancelAfterFailure
 import com.ironcorelabs.sdk._
 import scala.util.Try
+import scodec.bits.ByteVector
 
 class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   //Generates a random user ID and password to use for this full integration test
   val primaryTestUserId = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
   val primaryTestUserPassword = java.util.UUID.randomUUID().toString()
+  val primaryTestUserJwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
+
   //Stores record of integration test users device context parts that are then used to initialize the
   //SDK for each test
   var primaryTestUserSegmentId = 0L
@@ -17,6 +20,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   val secondaryTestUserID = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
   val secondaryTestUserPassword = java.util.UUID.randomUUID().toString()
+  val secondaryTestUserJwt = JwtHelper.generateValidJwt(secondaryTestUserID.getId)
 
   var secondaryUserRecord: UserCreateResult = null
 
@@ -41,8 +45,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "User Create" should {
     "successfully create a new user" in {
-      val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
-      val resp = Try(IronSdk.userCreate(jwt, primaryTestUserPassword, UserCreateOpts.create(true))).toEither
+      val resp =
+        Try(IronSdk.userCreate(primaryTestUserJwt, primaryTestUserPassword, UserCreateOpts.create(true))).toEither
       val createResult = resp.value
 
       createResult.getUserPublicKey.asBytes should have length 64
@@ -50,8 +54,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "successfully create a 2nd new user" in {
-      val jwt = JwtHelper.generateValidJwt(secondaryTestUserID.getId)
-      val resp = Try(IronSdk.userCreate(jwt, secondaryTestUserPassword, new UserCreateOpts())).toEither
+      val resp = Try(IronSdk.userCreate(secondaryTestUserJwt, secondaryTestUserPassword, new UserCreateOpts())).toEither
       val createResult = resp.value
 
       //Store off the new user we created so it can used for future tests below
@@ -73,8 +76,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "successfully verify existing user" in {
-      val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
-      val resp = Try(IronSdk.userVerify(jwt)).toEither
+      val resp = Try(IronSdk.userVerify(primaryTestUserJwt)).toEither
 
       val verifyResult = resp.value
 
@@ -88,17 +90,19 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "User Device Generate" should {
     "fail for bad user password" in {
-      val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
-
-      val expectedException = Try(IronSdk.generateNewDevice(jwt, "BAD PASSWORD", new DeviceCreateOpts())).toEither
+      val expectedException =
+        Try(IronSdk.generateNewDevice(primaryTestUserJwt, "BAD PASSWORD", new DeviceCreateOpts())).toEither
       expectedException.leftValue.getMessage should include("AesError")
     }
 
     "succeed for valid user" in {
-      val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
       val deviceName = Try(DeviceName.validate("myDevice")).toEither.value
       val newDeviceResult = Try(
-        IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
+        IronSdk.generateNewDevice(
+          primaryTestUserJwt,
+          primaryTestUserPassword,
+          DeviceCreateOpts.create(deviceName.clone)
+        )
       ).toEither.value
 
       //Store off the device component parts as raw values so we can use them to reconstruct
@@ -120,20 +124,52 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
   }
 
+  "DeviceContext" should {
+    "Successfully serialize/deserialize as JSON" in {
+      val deviceName = DeviceName.validate("device")
+      val deviceContext =
+        IronSdk.generateNewDevice(
+          secondaryTestUserJwt,
+          secondaryTestUserPassword,
+          DeviceCreateOpts.create(deviceName.clone)
+        )
+      val json = deviceContext.toJsonString
+      val deviceId = deviceContext.getDeviceId.getId
+      val accountId = deviceContext.getAccountId.getId
+      val segmentId = deviceContext.getSegmentId
+      val signingPrivateKeyBase64 = ByteVector.view(deviceContext.getSigningPrivateKey.asBytes).toBase64
+      val devicePrivateKeyBase64 = ByteVector.view(deviceContext.getDevicePrivateKey.asBytes).toBase64
+      val expectJson =
+        s"""{"deviceId":$deviceId,"accountId":"$accountId","segmentId":$segmentId,"signingPrivateKey":"$signingPrivateKeyBase64","devicePrivateKey":"$devicePrivateKeyBase64"}"""
+      val result = DeviceContext.fromJsonString(json)
+
+      json shouldBe expectJson
+      result.getAccountId.getId shouldBe deviceContext.getAccountId.getId
+      result.getDeviceId.getId shouldBe deviceContext.getDeviceId.getId
+      result.getDevicePrivateKey.asBytes shouldBe deviceContext.getDevicePrivateKey.asBytes
+      result.getSegmentId shouldBe deviceContext.getSegmentId
+      result.getSigningPrivateKey.asBytes shouldBe deviceContext.getSigningPrivateKey.asBytes
+    }
+
+    "Fail to deserialize invalid json" in {
+      val result = Try(DeviceContext.fromJsonString("aaaa")).toEither
+      result.leftValue.getMessage shouldBe "json_string was not a valid JSON representation of a DeviceContext."
+    }
+  }
+
   "User Device" should {
     var secondaryDeviceId: DeviceId = null
     var tertiaryDevice: DeviceContext = null
 
     "List return 3 good devices" in {
       val now = Calendar.getInstance.getTimeInMillis
-      val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
 
       // a second device
-      val deviceResp =
-        Try(IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(null))).toEither
+      Try(IronSdk.generateNewDevice(primaryTestUserJwt, primaryTestUserPassword, DeviceCreateOpts.create(null))).toEither
 
       // a third device
-      val deviceResp2 = Try(IronSdk.generateNewDevice(jwt, primaryTestUserPassword, new DeviceCreateOpts())).toEither
+      val deviceResp2 =
+        Try(IronSdk.generateNewDevice(primaryTestUserJwt, primaryTestUserPassword, new DeviceCreateOpts())).toEither
       val dev3 = deviceResp2.value
 
       val sdk = IronSdk.initialize(createDeviceContext)
@@ -278,9 +314,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "provide public key to users out of the group" in {
-      val jwt = JwtHelper.generateValidJwt(secondaryTestUserID.getId)
       val secondaryUserDevice =
-        Try(IronSdk.generateNewDevice(jwt, secondaryTestUserPassword, new DeviceCreateOpts())).toEither.value
+        Try(IronSdk.generateNewDevice(secondaryTestUserJwt, secondaryTestUserPassword, new DeviceCreateOpts())).toEither.value
 
       val sdk = IronSdk.initialize(secondaryUserDevice)
       val resp = Try(sdk.groupGetMetadata(validGroupId)).toEither

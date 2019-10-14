@@ -1,7 +1,6 @@
 package ironrust
 
 import pdi.jwt.{Jwt, JwtClaim, JwtAlgorithm};
-import java.security.PrivateKey
 
 object JwtHelper{
   //Needed so that BC can create PrivateKeys from the PEM file base64
