@@ -1,11 +1,12 @@
 mod jni_c_header;
 use ironoxide::{
     document::{
-        advanced::DocumentAdvancedOps, advanced::DocumentDecryptUnmanagedResult,
-        advanced::DocumentEncryptUnmanagedResult, AssociationType, DocAccessEditErr,
-        DocumentAccessResult, DocumentDecryptResult, DocumentEncryptOpts, DocumentEncryptResult,
-        DocumentListMeta, DocumentListResult, DocumentMetadataResult, UserOrGroup, VisibleGroup,
-        VisibleUser,
+        advanced::{
+            DocumentAdvancedOps, DocumentDecryptUnmanagedResult, DocumentEncryptUnmanagedResult,
+        },
+        AssociationType, DocAccessEditErr, DocumentAccessResult, DocumentDecryptResult,
+        DocumentEncryptOpts, DocumentEncryptResult, DocumentListMeta, DocumentListResult,
+        DocumentMetadataResult, UserOrGroup, VisibleGroup, VisibleUser,
     },
     group::{
         GroupAccessEditErr, GroupAccessEditResult, GroupCreateOpts, GroupGetResult,
@@ -17,8 +18,8 @@ use ironoxide::{
         DeviceCreateOpts, UserCreateOpts, UserCreateResult, UserDevice, UserDeviceListResult,
         UserVerifyResult,
     },
+    DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey,
 };
-use ironoxide::{DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey};
 use serde_json;
 use std::convert::TryInto;
 
