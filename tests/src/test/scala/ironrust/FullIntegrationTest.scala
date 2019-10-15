@@ -4,11 +4,13 @@ import java.util.Calendar
 import org.scalatest.CancelAfterFailure
 import com.ironcorelabs.sdk._
 import scala.util.Try
+import scodec.bits.ByteVector
 
 class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   //Generates a random user ID and password to use for this full integration test
   val primaryTestUserId = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
   val primaryTestUserPassword = java.util.UUID.randomUUID().toString()
+
   //Stores record of integration test users device context parts that are then used to initialize the
   //SDK for each test
   var primaryTestUserSegmentId = 0L
@@ -22,6 +24,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   var validGroupId: GroupId = null
   var validDocumentId: DocumentId = null
+  val validDeviceId: DeviceId = DeviceId.validate(1)
 
   /**
     * Convenience function to create a new DeviceContext instance from the stored off components we need. Takes the
@@ -30,6 +33,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     */
   def createDeviceContext = {
     new DeviceContext(
+      validDeviceId,
       primaryTestUserId,
       primaryTestUserSegmentId,
       PrivateKey.validate(primaryTestUserPrivateDeviceKeyBytes),
@@ -87,7 +91,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   "User Device Generate" should {
     "fail for bad user password" in {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
-
       val expectedException = Try(IronSdk.generateNewDevice(jwt, "BAD PASSWORD", new DeviceCreateOpts())).toEither
       expectedException.leftValue.getMessage should include("AesError")
     }
@@ -102,11 +105,11 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       //Store off the device component parts as raw values so we can use them to reconstruct
       //an DeviceContext instance to initialize the SDK.
       primaryTestUserSegmentId = newDeviceResult.getSegmentId
-      primaryTestUserPrivateDeviceKeyBytes = newDeviceResult.getPrivateDeviceKey.asBytes
-      primaryTestUserSigningKeysBytes = newDeviceResult.getSigningKeys.asBytes
+      primaryTestUserPrivateDeviceKeyBytes = newDeviceResult.getDevicePrivateKey.asBytes
+      primaryTestUserSigningKeysBytes = newDeviceResult.getSigningPrivateKey.asBytes
 
-      newDeviceResult.getSigningKeys.asBytes should have size 64
-      newDeviceResult.getPrivateDeviceKey.asBytes should have size 32
+      newDeviceResult.getSigningPrivateKey.asBytes should have size 64
+      newDeviceResult.getDevicePrivateKey.asBytes should have size 32
       newDeviceResult.getAccountId shouldBe primaryTestUserId
 
       val sdk = IronSdk.initialize(createDeviceContext)
@@ -115,6 +118,36 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       deviceList.head.getId.getId shouldBe a[java.lang.Long]
       deviceList.head.getName.isPresent shouldBe true
       deviceList.head.getName.get shouldBe deviceName
+    }
+  }
+
+  "DeviceContext" should {
+    "Successfully serialize/deserialize as JSON" in {
+      val jwt = JwtHelper.generateValidJwt(secondaryTestUserID.getId)
+      val deviceName = DeviceName.validate("device")
+      val deviceContext =
+        IronSdk.generateNewDevice(jwt, secondaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
+      val json = deviceContext.toJsonString
+      val deviceId = deviceContext.getDeviceId.getId
+      val accountId = deviceContext.getAccountId.getId
+      val segmentId = deviceContext.getSegmentId
+      val signingPrivateKeyBase64 = ByteVector.view(deviceContext.getSigningPrivateKey.asBytes).toBase64
+      val devicePrivateKeyBase64 = ByteVector.view(deviceContext.getDevicePrivateKey.asBytes).toBase64
+      val expectJson =
+        s"""{"deviceId":$deviceId,"accountId":"$accountId","segmentId":$segmentId,"signingPrivateKey":"$signingPrivateKeyBase64","devicePrivateKey":"$devicePrivateKeyBase64"}"""
+      val result = DeviceContext.fromJsonString(json)
+
+      json shouldBe expectJson
+      result.getAccountId.getId shouldBe deviceContext.getAccountId.getId
+      result.getDeviceId.getId shouldBe deviceContext.getDeviceId.getId
+      result.getDevicePrivateKey.asBytes shouldBe deviceContext.getDevicePrivateKey.asBytes
+      result.getSegmentId shouldBe deviceContext.getSegmentId
+      result.getSigningPrivateKey.asBytes shouldBe deviceContext.getSigningPrivateKey.asBytes
+    }
+
+    "Fail to deserialize invalid json" in {
+      val result = Try(DeviceContext.fromJsonString("aaaa")).toEither
+      result.leftValue.getMessage shouldBe "jsonString was not a valid JSON representation of a DeviceContext."
     }
   }
 
@@ -127,8 +160,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
 
       // a second device
-      val deviceResp =
-        Try(IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(null))).toEither
+      Try(IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(null))).toEither
 
       // a third device
       val deviceResp2 = Try(IronSdk.generateNewDevice(jwt, primaryTestUserPassword, new DeviceCreateOpts())).toEither

@@ -1,11 +1,12 @@
 mod jni_c_header;
 use ironoxide::{
     document::{
-        advanced::DocumentAdvancedOps, advanced::DocumentDecryptUnmanagedResult,
-        advanced::DocumentEncryptUnmanagedResult, AssociationType, DocAccessEditErr,
-        DocumentAccessResult, DocumentDecryptResult, DocumentEncryptOpts, DocumentEncryptResult,
-        DocumentListMeta, DocumentListResult, DocumentMetadataResult, UserOrGroup, VisibleGroup,
-        VisibleUser,
+        advanced::{
+            DocumentAdvancedOps, DocumentDecryptUnmanagedResult, DocumentEncryptUnmanagedResult,
+        },
+        AssociationType, DocAccessEditErr, DocumentAccessResult, DocumentDecryptResult,
+        DocumentEncryptOpts, DocumentEncryptResult, DocumentListMeta, DocumentListResult,
+        DocumentMetadataResult, UserOrGroup, VisibleGroup, VisibleUser,
     },
     group::{
         GroupAccessEditErr, GroupAccessEditResult, GroupCreateOpts, GroupGetResult,
@@ -17,8 +18,9 @@ use ironoxide::{
         DeviceCreateOpts, UserCreateOpts, UserCreateResult, UserDevice, UserDeviceListResult,
         UserVerifyResult,
     },
+    DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey,
 };
-use ironoxide::{DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey};
+use serde_json;
 use std::convert::TryInto;
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
@@ -305,16 +307,18 @@ mod document_create_opt {
 mod device_context {
     use super::*;
     pub fn new(
+        device_id: &DeviceId,
         account_id: &UserId,
         segment_id: i64,
-        private_key: &PrivateKey,
-        signing_keys: &DeviceSigningKeyPair,
+        device_private_key: &PrivateKey,
+        signing_private_key: &DeviceSigningKeyPair,
     ) -> DeviceContext {
         DeviceContext::new(
+            device_id.clone(),
             account_id.clone(),
             segment_id as usize,
-            private_key.clone(),
-            signing_keys.clone(),
+            device_private_key.clone(),
+            signing_private_key.clone(),
         )
     }
     pub fn account_id(d: &DeviceContext) -> UserId {
@@ -325,12 +329,26 @@ mod device_context {
         d.segment_id()
     }
 
-    pub fn private_device_key(d: &DeviceContext) -> PrivateKey {
-        d.private_device_key().clone()
+    pub fn device_private_key(d: &DeviceContext) -> PrivateKey {
+        d.device_private_key().clone()
     }
 
-    pub fn signing_keys(d: &DeviceContext) -> DeviceSigningKeyPair {
-        d.signing_keys().clone()
+    pub fn signing_private_key(d: &DeviceContext) -> DeviceSigningKeyPair {
+        d.signing_private_key().clone()
+    }
+
+    pub fn device_id(d: &DeviceContext) -> DeviceId {
+        d.device_id().clone()
+    }
+
+    pub fn to_json_string(d: &DeviceContext) -> String {
+        serde_json::to_string(d).expect("DeviceContext should always serialize to JSON")
+    }
+
+    pub fn from_json_string(json_string: String) -> Result<DeviceContext, String> {
+        serde_json::from_str(&json_string).map_err(|_| {
+            "jsonString was not a valid JSON representation of a DeviceContext.".to_string()
+        })
     }
 }
 
