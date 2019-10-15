@@ -341,13 +341,12 @@ mod device_context {
     }
 
     pub fn to_json_string(d: &DeviceContext) -> String {
-        //Colt: you should research this unwrap
-        serde_json::to_string(d).unwrap()
+        serde_json::to_string(d).expect("DeviceContext should always serialize to JSON")
     }
 
     pub fn from_json_string(json_string: String) -> Result<DeviceContext, String> {
         serde_json::from_str(&json_string).map_err(|_| {
-            "json_string was not a valid JSON representation of a DeviceContext.".to_string()
+            "jsonString was not a valid JSON representation of a DeviceContext.".to_string()
         })
     }
 }
