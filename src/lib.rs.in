@@ -148,6 +148,14 @@ class GroupName {
 });
 
 foreigner_class!(
+    class NullableBoolean{
+        self_type NullableBoolean;
+        private constructor = empty;
+        method NullableBoolean::boolean(&self) -> bool; alias getBoolean;
+    }
+);
+
+foreigner_class!(
 /// ID of a document. Unique within the segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`.
 class DocumentId {
     self_type DocumentId;
@@ -400,6 +408,7 @@ class GroupMetaResult{
     method GroupMetaResult::is_member(&self) -> bool; alias isMember;
     method group_meta_result::created(&self) -> DateTime<Utc>; alias getCreated;
     method group_meta_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    method group_meta_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
 });
 
 foreigner_class!(class GroupListResult{
@@ -420,6 +429,7 @@ foreigner_class!(class GroupGetResult{
     method group_get_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
     method group_get_result::admin_list(&self) -> Option<GroupUserList>; alias getAdminList;
     method group_get_result::member_list(&self) -> Option<GroupUserList>; alias getMemberList;
+    method group_get_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
 });
 
 foreigner_class!(

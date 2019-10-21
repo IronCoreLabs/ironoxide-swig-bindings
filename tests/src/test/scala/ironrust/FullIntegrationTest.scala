@@ -19,6 +19,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   val secondaryTestUserID = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
   val secondaryTestUserPassword = java.util.UUID.randomUUID().toString()
+  var secondaryTestUserSegmentId = 0L
+  var secondaryTestUserPrivateDeviceKeyBytes: Array[Byte] = null
+  var secondaryTestUserSigningKeysBytes: Array[Byte] = null
 
   var secondaryUserRecord: UserCreateResult = null
 
@@ -38,6 +41,18 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       primaryTestUserSegmentId,
       PrivateKey.validate(primaryTestUserPrivateDeviceKeyBytes),
       DeviceSigningKeyPair.validate(primaryTestUserSigningKeysBytes)
+    )
+  }
+
+  def createSecondaryDeviceContext = {
+    IronSdk.initialize(
+      new DeviceContext(
+        validDeviceId,
+        secondaryTestUserID,
+        secondaryTestUserSegmentId,
+        PrivateKey.validate(secondaryTestUserPrivateDeviceKeyBytes),
+        DeviceSigningKeyPair.validate(secondaryTestUserSigningKeysBytes)
+      )
     )
   }
 
@@ -97,9 +112,13 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
     "succeed for valid user" in {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
+      val jwt2 = JwtHelper.generateValidJwt(secondaryTestUserID.getId)
       val deviceName = Try(DeviceName.validate("myDevice")).toEither.value
       val newDeviceResult = Try(
         IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
+      ).toEither.value
+      val secondDeviceResult = Try(
+        IronSdk.generateNewDevice(jwt2, secondaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
       ).toEither.value
 
       //Store off the device component parts as raw values so we can use them to reconstruct
@@ -107,6 +126,10 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       primaryTestUserSegmentId = newDeviceResult.getSegmentId
       primaryTestUserPrivateDeviceKeyBytes = newDeviceResult.getDevicePrivateKey.asBytes
       primaryTestUserSigningKeysBytes = newDeviceResult.getSigningPrivateKey.asBytes
+
+      secondaryTestUserSegmentId = secondDeviceResult.getSegmentId
+      secondaryTestUserPrivateDeviceKeyBytes = secondDeviceResult.getDevicePrivateKey.asBytes
+      secondaryTestUserSigningKeysBytes = secondDeviceResult.getSigningPrivateKey.asBytes
 
       newDeviceResult.getSigningPrivateKey.asBytes should have size 64
       newDeviceResult.getDevicePrivateKey.asBytes should have size 32
@@ -250,6 +273,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       groupCreateResult.isMember shouldBe true
       groupCreateResult.getCreated should not be null
       groupCreateResult.getLastUpdated shouldBe groupCreateResult.getCreated
+      groupCreateResult.getNeedsRotation.get.getBoolean shouldBe false
 
       validGroupId = groupCreateResult.getId
     }
@@ -288,7 +312,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "Succeed for valid group ID" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val resp = Try(sdk.groupGetMetadata(validGroupId)).toEither
-
       val group = resp.value
 
       group.getId.getId.length shouldBe 32
@@ -305,6 +328,25 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.getAdminList.get.getList.head shouldBe primaryTestUserId
       group.getMemberList.get.getList should have length 1
       group.getMemberList.get.getList.head shouldBe primaryTestUserId
+      group.getNeedsRotation.get.getBoolean shouldBe false
+    }
+
+    "succeed for a non-member" in {
+      val nonMemberSdk = createSecondaryDeviceContext
+      val resp = Try(nonMemberSdk.groupGetMetadata(validGroupId)).toEither
+      val group = resp.value
+
+      group.getId.getId.length shouldBe 32
+      group.getId shouldBe validGroupId
+      group.getName.get.getName shouldBe "a name"
+      group.getGroupMasterPublicKey.asBytes should have length 64
+      group.isAdmin shouldBe false
+      group.isMember shouldBe false
+      group.getCreated should not be null
+      group.getNeedsRotation.isPresent shouldBe false
+      group.getLastUpdated shouldBe group.getCreated
+      group.getAdminList.isPresent shouldBe false
+      group.getMemberList.isPresent shouldBe false
     }
 
     "provide public key to users out of the group" in {
@@ -377,11 +419,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "succeed and add user back to group" in {
       val sdk = IronSdk.initialize(createDeviceContext)
 
-      val addMemberResp = Try(sdk.groupAddMembers(validGroupId, List(primaryTestUserId).toArray)).toEither
+      val addMemberResp =
+        Try(sdk.groupAddMembers(validGroupId, List(primaryTestUserId, secondaryTestUserID).toArray)).toEither
 
       val addMember = addMemberResp.value
       addMember.getFailed.toList should have length 0
-      addMember.getSucceeded.toList should have length 1
+      addMember.getSucceeded.toList should have length 2
       addMember.getSucceeded.toList.head shouldBe primaryTestUserId
     }
 
@@ -393,6 +436,31 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val addMember = addMemberResp.value
       addMember.getFailed.toList should have length 1
       addMember.getSucceeded.toList should have length 0
+    }
+  }
+
+  // Now that the secondary user has been added as a member, re-verify the metadata it gets back
+  "Group Get Metadata" should {
+    "succeed for a member" in {
+      val memberSdk = createSecondaryDeviceContext
+      val resp = Try(memberSdk.groupGetMetadata(validGroupId)).toEither
+      val group = resp.value
+
+      group.getId.getId.length shouldBe 32
+      group.getId shouldBe validGroupId
+      group.getName.isPresent shouldBe false
+      group.getGroupMasterPublicKey.asBytes should have length 64
+      group.isAdmin shouldBe false
+      group.isMember shouldBe true
+      group.getCreated should not be null
+      group.getLastUpdated should not be null
+      group.getAdminList.isPresent shouldBe true
+      group.getMemberList.isPresent shouldBe true
+      group.getAdminList.get.getList should have length 1
+      group.getAdminList.get.getList.head shouldBe primaryTestUserId
+      group.getMemberList.get.getList should have length 2
+      group.getMemberList.get.getList.head shouldBe primaryTestUserId
+      group.getNeedsRotation.isPresent shouldBe false
     }
   }
 
