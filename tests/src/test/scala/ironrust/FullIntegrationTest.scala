@@ -536,6 +536,46 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
   }
 
+  "User Private Key Rotation" should {
+    "successfully rotate a private key for good password" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
+      val maybeResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither
+      val result = maybeResult.value
+      validDocumentId = result.getId
+
+      val originalPublicKey = sdk.userGetPublicKey(Array(primaryTestUserId))(0).getPublicKey.asBytes
+
+      val maybeDecrypt = Try(sdk.documentDecrypt(result.getEncryptedData)).toEither
+      val decryptedResult = maybeDecrypt.value
+
+      //Rotate private key
+      val rotateResult = Try(sdk.userRotatePrivateKey(primaryTestUserPassword)).toEither.value
+      val maybeRotatedDecrypt = Try(sdk.documentDecrypt(result.getEncryptedData)).toEither
+      val rotatedDecryptResult = maybeRotatedDecrypt.value
+
+      rotatedDecryptResult.getDecryptedData shouldBe decryptedResult.getDecryptedData
+      rotatedDecryptResult.getId shouldBe decryptedResult.getId
+      rotatedDecryptResult.getName shouldBe decryptedResult.getName
+
+      val rotatedPublicKey = sdk.userGetPublicKey(Array(primaryTestUserId))(0).getPublicKey.asBytes
+
+      rotatedPublicKey shouldBe originalPublicKey
+
+    //   val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
+    //   val deviceName = Try(DeviceName.validate("newdevice")).toEither.value
+    //   val newDeviceResult = Try(
+    //     IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
+    //   ).toEither.value
+    }
+    "fail for wrong password" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val maybeRotationResult = Try(sdk.userRotatePrivateKey("wrong password")).toEither
+
+      maybeRotationResult.leftValue.getMessage shouldBe "AesError"
+    }
+  }
+
   "Document unmanaged encrypt/decrypt" should {
     "roundtrip through a user" in {
       val sdk = IronSdk.initialize(createDeviceContext)
@@ -686,7 +726,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   "Document List" should {
     "Return previously created documents" in {
       val sdk = IronSdk.initialize(createDeviceContext)
-      sdk.documentList.getResult should have length 5
+      sdk.documentList.getResult should have length 6
     }
   }
 

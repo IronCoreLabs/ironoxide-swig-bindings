@@ -15,8 +15,8 @@ use ironoxide::{
     policy::{Category, DataSubject, PolicyGrant, Sensitivity},
     prelude::*,
     user::{
-        DeviceCreateOpts, UserCreateOpts, UserCreateResult, UserDevice, UserDeviceListResult,
-        UserVerifyResult,
+        DeviceCreateOpts, EncryptedPrivateKey, UserCreateOpts, UserCreateResult, UserDevice,
+        UserDeviceListResult, UserUpdatePrivateKeyResult, UserVerifyResult,
     },
     DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey,
 };
@@ -103,7 +103,7 @@ mod user_id {
 mod group_id {
     use super::*;
     use std::convert::TryInto;
-    pub fn id(g: &GroupId) -> String {
+    pub fn id(g: &GroupId) -> &str {
         g.id().clone()
     }
 
@@ -126,7 +126,7 @@ mod group_name {
 mod document_id {
     use super::*;
     use std::convert::TryInto;
-    pub fn id(d: &DocumentId) -> String {
+    pub fn id(d: &DocumentId) -> &str {
         d.id().clone()
     }
     pub fn validate(s: &str) -> Result<DocumentId, String> {
@@ -381,6 +381,19 @@ mod user_verify_result {
     }
 }
 
+mod user_update_private_key_result {
+    use super::*;
+    pub fn user_key_id(u: &UserUpdatePrivateKeyResult) -> usize {
+        u.user_key_id().clone()
+    }
+    pub fn user_master_private_key(u: &UserUpdatePrivateKeyResult) -> EncryptedPrivateKey {
+        u.user_master_private_key().clone()
+    }
+    pub fn needs_rotation(u: &UserUpdatePrivateKeyResult) -> bool {
+        u.needs_rotation()
+    }
+}
+
 mod user_device {
     use super::*;
     pub fn id(d: &UserDevice) -> DeviceId {
@@ -475,6 +488,13 @@ mod document_encrypt_result {
     }
     pub fn encrypted_data(d: &DocumentEncryptResult) -> Vec<i8> {
         u8_conv(d.encrypted_data()).to_vec()
+    }
+}
+
+mod encrypted_private_key {
+    use super::*;
+    pub fn as_bytes(e: &EncryptedPrivateKey) -> Vec<i8> {
+        u8_conv(e.as_bytes()).to_vec()
     }
 }
 
@@ -786,6 +806,12 @@ fn user_get_public_key(sdk: &IronOxide, users: Vec<UserId>) -> Result<Vec<UserWi
 }
 fn user_delete_device(sdk: &IronOxide, device_id: Option<DeviceId>) -> Result<DeviceId, String> {
     Ok(sdk.user_delete_device(device_id.as_ref())?)
+}
+fn user_rotate_private_key(
+    sdk: &IronOxide,
+    password: &str,
+) -> Result<UserUpdatePrivateKeyResult, String> {
+    Ok(sdk.user_rotate_private_key(password)?)
 }
 fn document_list(sdk: &IronOxide) -> Result<DocumentListResult, String> {
     Ok(sdk.document_list()?)

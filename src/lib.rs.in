@@ -1,7 +1,8 @@
 use crate::jni_c_header::*;
 use crate::{
     document_access_change_result::{DocumentAccessChange, FailedResult, SucceededResult},
-    group_get_result::GroupUserList, document_decrypt_unmanaged_result::UserOrGroupJ
+    document_decrypt_unmanaged_result::UserOrGroupJ,
+    group_get_result::GroupUserList,
 };
 use chrono::{DateTime, Utc};
 
@@ -72,7 +73,7 @@ class GroupId {
     self_type GroupId;
     private constructor = empty;
     static_method group_id::validate(s: &str) -> Result<GroupId, String>;
-    method group_id::id(&self) -> String; alias getId;
+    method group_id::id(&self) -> &str; alias getId;
     foreigner_code r#"
     /**
      * This implementation calls native code, which means it's relatively slow.
@@ -153,7 +154,7 @@ class DocumentId {
     self_type DocumentId;
     private constructor = empty;
     static_method document_id::validate(s: &str) -> Result<DocumentId, String>;
-    method document_id::id(&self) -> String; alias getId;
+    method document_id::id(&self) -> &str; alias getId;
     foreigner_code r#"
     /**
      * This implementation calls native code, which means it's relatively slow.
@@ -222,6 +223,22 @@ class DeviceId {
         return false;
     }
 "#;
+});
+
+foreigner_class!(
+    class UserUpdatePrivateKeyResult {
+        self_type UserUpdatePrivateKeyResult;
+        private constructor = empty;
+        method user_update_private_key_result::user_key_id(&self) -> usize; alias getUserKeyId;
+        method user_update_private_key_result::user_master_private_key(&self) -> EncryptedPrivateKey; alias getUserMasterPrivateKey;
+        method user_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+});
+
+foreigner_class!(
+    class EncryptedPrivateKey {
+    self_type EncryptedPrivateKey;
+    private constructor = empty;
+    method encrypted_private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
 });
 
 foreigner_class!(
@@ -744,6 +761,7 @@ class IronSdk {
     ///
     /// @return id of deleted device or IronSdkErr
     method user_delete_device(&self, deviceId: Option<DeviceId>) -> Result<DeviceId, String>; alias userDeleteDevice;
+    method user_rotate_private_key(&self, password: &str) -> Result<UserUpdatePrivateKeyResult, String>; alias userRotatePrivateKey;
     /// List all of the documents that the current user is able to decrypt.
     ///
     /// @return {@link DocumentListResult} struct with vec of metadata about each document the user can decrypt.
