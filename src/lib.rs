@@ -112,7 +112,7 @@ mod group_id {
     use super::*;
     use std::convert::TryInto;
     pub fn id(g: &GroupId) -> String {
-        g.id().clone()
+        g.id().to_string()
     }
 
     pub fn validate(s: &str) -> Result<GroupId, String> {
@@ -135,7 +135,7 @@ mod document_id {
     use super::*;
     use std::convert::TryInto;
     pub fn id(d: &DocumentId) -> String {
-        d.id().clone()
+        d.id().to_string()
     }
     pub fn validate(s: &str) -> Result<DocumentId, String> {
         Ok(s.try_into()?)
