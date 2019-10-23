@@ -16,7 +16,7 @@ use ironoxide::{
     prelude::*,
     user::{
         DeviceCreateOpts, EncryptedPrivateKey, UserCreateOpts, UserCreateResult, UserDevice,
-        UserDeviceListResult, UserUpdatePrivateKeyResult, UserVerifyResult,
+        UserDeviceListResult, UserResult, UserUpdatePrivateKeyResult,
     },
     DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey,
 };
@@ -104,7 +104,7 @@ mod group_id {
     use super::*;
     use std::convert::TryInto;
     pub fn id(g: &GroupId) -> &str {
-        g.id().clone()
+        &g.id()
     }
 
     pub fn validate(s: &str) -> Result<GroupId, String> {
@@ -127,7 +127,7 @@ mod document_id {
     use super::*;
     use std::convert::TryInto;
     pub fn id(d: &DocumentId) -> &str {
-        d.id().clone()
+        &d.id()
     }
     pub fn validate(s: &str) -> Result<DocumentId, String> {
         Ok(s.try_into()?)
@@ -362,29 +362,29 @@ mod user_create_result {
     }
 }
 
-mod user_verify_result {
+mod user_result {
     use super::*;
-    pub fn user_public_key(u: &UserVerifyResult) -> PublicKey {
+    pub fn user_public_key(u: &UserResult) -> PublicKey {
         u.user_public_key().clone()
     }
 
-    pub fn account_id(u: &UserVerifyResult) -> UserId {
+    pub fn account_id(u: &UserResult) -> UserId {
         u.account_id().clone()
     }
 
-    pub fn segment_id(u: &UserVerifyResult) -> usize {
+    pub fn segment_id(u: &UserResult) -> usize {
         u.segment_id()
     }
 
-    pub fn needs_rotation(u: &UserVerifyResult) -> bool {
+    pub fn needs_rotation(u: &UserResult) -> bool {
         u.needs_rotation()
     }
 }
 
 mod user_update_private_key_result {
     use super::*;
-    pub fn user_key_id(u: &UserUpdatePrivateKeyResult) -> usize {
-        u.user_key_id().clone()
+    pub fn user_key_id(u: &UserUpdatePrivateKeyResult) -> u64 {
+        u.user_key_id()
     }
     pub fn user_master_private_key(u: &UserUpdatePrivateKeyResult) -> EncryptedPrivateKey {
         u.user_master_private_key().clone()
@@ -776,7 +776,7 @@ mod group_create_opts {
 }
 
 //Java SDK wrapper functions for doing unnatural things with the JNI.
-fn user_verify(jwt: &str) -> Result<Option<UserVerifyResult>, String> {
+fn user_verify(jwt: &str) -> Result<Option<UserResult>, String> {
     Ok(IronOxide::user_verify(jwt)?)
 }
 fn user_create(

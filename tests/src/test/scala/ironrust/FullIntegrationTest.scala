@@ -562,11 +562,11 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       rotatedPublicKey shouldBe originalPublicKey
 
-    //   val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
-    //   val deviceName = Try(DeviceName.validate("newdevice")).toEither.value
-    //   val newDeviceResult = Try(
-    //     IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
-    //   ).toEither.value
+      //   val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
+      //   val deviceName = Try(DeviceName.validate("newdevice")).toEither.value
+      //   val newDeviceResult = Try(
+      //     IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
+      //   ).toEither.value
     }
     "fail for wrong password" in {
       val sdk = IronSdk.initialize(createDeviceContext)

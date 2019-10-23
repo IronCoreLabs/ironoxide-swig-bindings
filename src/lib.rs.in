@@ -229,7 +229,7 @@ foreigner_class!(
     class UserUpdatePrivateKeyResult {
         self_type UserUpdatePrivateKeyResult;
         private constructor = empty;
-        method user_update_private_key_result::user_key_id(&self) -> usize; alias getUserKeyId;
+        method user_update_private_key_result::user_key_id(&self) -> u64; alias getUserKeyId;
         method user_update_private_key_result::user_master_private_key(&self) -> EncryptedPrivateKey; alias getUserMasterPrivateKey;
         method user_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
 });
@@ -350,13 +350,13 @@ class UserCreateResult {
 
 foreigner_class!(
 /// IDs and public key for existing user on verify result
-class UserVerifyResult {
-    self_type UserVerifyResult;
+class UserResult {
+    self_type UserResult;
     private constructor = empty;
-    method user_verify_result::account_id(&self) -> UserId; alias getAccountId;
-    method user_verify_result::segment_id(&self) -> usize; alias getSegmentId;
-    method user_verify_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
-    method user_verify_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    method user_result::account_id(&self) -> UserId; alias getAccountId;
+    method user_result::segment_id(&self) -> usize; alias getSegmentId;
+    method user_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
+    method user_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
 });
 
 foreigner_class!(
@@ -710,7 +710,7 @@ class IronSdk {
     ///
     /// @param jwt valid IronCore JWT
     /// @return option of whether the user's account record exists in the IronCore system or not. Error if the request couldn't be made.
-    static_method user_verify(jwt:&str) -> Result<Option<UserVerifyResult>, String>; alias userVerify;
+    static_method user_verify(jwt:&str) -> Result<Option<UserResult>, String>; alias userVerify;
    /// Create a new user within the IronCore system.
    ///
    /// @param jwt       valid IronCore or Auth0 JWT
