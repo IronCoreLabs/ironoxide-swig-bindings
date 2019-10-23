@@ -157,7 +157,7 @@ mod device_id {
     use super::*;
     use std::convert::TryInto;
     pub fn id(d: &DeviceId) -> i64 {
-        //By constructon, DeviceIds are validated to be at most i64 max so this value won't
+        //By construction, DeviceIds are validated to be at most i64 max so this value won't
         //wrap over to be negative
         d.id().clone() as i64
     }
