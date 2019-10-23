@@ -103,8 +103,8 @@ mod user_id {
 mod group_id {
     use super::*;
     use std::convert::TryInto;
-    pub fn id(g: &GroupId) -> &str {
-        &g.id()
+    pub fn id(g: &GroupId) -> String {
+        g.id().to_string()
     }
 
     pub fn validate(s: &str) -> Result<GroupId, String> {
@@ -126,8 +126,8 @@ mod group_name {
 mod document_id {
     use super::*;
     use std::convert::TryInto;
-    pub fn id(d: &DocumentId) -> &str {
-        &d.id()
+    pub fn id(d: &DocumentId) -> String {
+        d.id().to_string()
     }
     pub fn validate(s: &str) -> Result<DocumentId, String> {
         Ok(s.try_into()?)

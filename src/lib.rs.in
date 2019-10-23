@@ -73,7 +73,7 @@ class GroupId {
     self_type GroupId;
     private constructor = empty;
     static_method group_id::validate(s: &str) -> Result<GroupId, String>;
-    method group_id::id(&self) -> &str; alias getId;
+    method group_id::id(&self) -> String; alias getId;
     foreigner_code r#"
     /**
      * This implementation calls native code, which means it's relatively slow.
@@ -154,7 +154,7 @@ class DocumentId {
     self_type DocumentId;
     private constructor = empty;
     static_method document_id::validate(s: &str) -> Result<DocumentId, String>;
-    method document_id::id(&self) -> &str; alias getId;
+    method document_id::id(&self) -> String; alias getId;
     foreigner_code r#"
     /**
      * This implementation calls native code, which means it's relatively slow.
