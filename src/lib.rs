@@ -104,7 +104,7 @@ mod group_id {
     use super::*;
     use std::convert::TryInto;
     pub fn id(g: &GroupId) -> String {
-        g.id().clone()
+        g.id().to_string()
     }
 
     pub fn validate(s: &str) -> Result<GroupId, String> {
@@ -127,7 +127,7 @@ mod document_id {
     use super::*;
     use std::convert::TryInto;
     pub fn id(d: &DocumentId) -> String {
-        d.id().clone()
+        d.id().to_string()
     }
     pub fn validate(s: &str) -> Result<DocumentId, String> {
         Ok(s.try_into()?)
@@ -149,7 +149,7 @@ mod device_id {
     use super::*;
     use std::convert::TryInto;
     pub fn id(d: &DeviceId) -> i64 {
-        //By constructon, DeviceIds are validated to be at most i64 max so this value won't
+        //By construction, DeviceIds are validated to be at most i64 max so this value won't
         //wrap over to be negative
         d.id().clone() as i64
     }
