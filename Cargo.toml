@@ -1,6 +1,6 @@
 [package]
 name = "ironoxide-java"
-version = "0.6.0"
+version = "0.6.1"
 authors = ["IronCore Labs <info@ironcorelabs.com>"]
 build = "build.rs"
 edition = "2018"
@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.8"
-ironoxide = "0.12.0"
+ironoxide = "0.12.1"
 chrono = "0.4"
 serde_json = "~1.0"
 
