@@ -23,8 +23,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   var secondaryTestUserPrivateDeviceKeyBytes: Array[Byte] = null
   var secondaryTestUserSigningKeysBytes: Array[Byte] = null
 
-  var secondaryUserRecord: UserCreateResult = null
-
   var validGroupId: GroupId = null
   var validDocumentId: DocumentId = null
   val validDeviceId: DeviceId = DeviceId.validate(1)
@@ -70,9 +68,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserId.getId)
       val resp = Try(IronSdk.userCreate(jwt, secondaryTestUserPassword, new UserCreateOpts())).toEither
       val createResult = resp.value
-
-      //Store off the new user we created so it can used for future tests below
-      secondaryUserRecord = createResult
 
       createResult.getUserPublicKey.asBytes should have length 64
       createResult.getNeedsRotation shouldBe false
