@@ -25,10 +25,10 @@ javacOptions in (Compile, doc) ++= Seq("-Xdoclint")
 
 libraryDependencies ++= Seq(
   "com.pauldijou" %% "jwt-core" % "2.1.0",
-  "org.scalatest" %% "scalatest" % "3.0.5",
-  "org.scodec" %% "scodec-bits" % "1.1.10",
+  "org.scalatest" %% "scalatest" % "3.0.8",
+  "org.scodec" %% "scodec-bits" % "1.1.12",
   "com.github.melrief" %% "pureconfig" % "0.5.1",
-  "com.ironcorelabs" %% "cats-scalatest" % "2.4.0"
+  "com.ironcorelabs" %% "cats-scalatest" % "3.0.0"
 ).map(_ % "test")
 //Include the generated java as part of the source directories
 unmanagedSourceDirectories in Compile += baseDirectory.value / ".." / "java"
