@@ -7,13 +7,14 @@ cache:
     - "$HOME/bin"
 
 # build matrix
-rust: 1.37.0
+rust: 1.38.0
 matrix:
   include:
     - name: "Linux"
       os: linux
     - name: "OSX"
       os: osx
+      osx_image: xcode10.1
     - name: CentOS 7
       os: linux
       env: IMAGE=centos7 INDOCKER="docker exec target"

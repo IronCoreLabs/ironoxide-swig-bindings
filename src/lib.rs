@@ -64,6 +64,14 @@ impl UserWithKey {
     }
 }
 
+// This was created because Option<bool> cannot be converted to Java
+pub struct NullableBoolean(bool);
+impl NullableBoolean {
+    pub fn boolean(&self) -> bool {
+        self.0
+    }
+}
+
 fn i8_conv(i8s: &[i8]) -> &[u8] {
     unsafe { core::slice::from_raw_parts(i8s.as_ptr() as *const u8, i8s.len()) }
 }
@@ -701,6 +709,9 @@ mod group_meta_result {
     pub fn last_updated(g: &GroupMetaResult) -> DateTime<Utc> {
         g.last_updated().clone()
     }
+    pub fn needs_rotation(g: &GroupMetaResult) -> Option<NullableBoolean> {
+        g.needs_rotation().map(|rotation| NullableBoolean(rotation))
+    }
 }
 
 mod group_list_result {
@@ -741,6 +752,9 @@ mod group_get_result {
     }
     pub fn last_updated(g: &GroupGetResult) -> DateTime<Utc> {
         g.last_updated().clone()
+    }
+    pub fn needs_rotation(g: &GroupGetResult) -> Option<NullableBoolean> {
+        g.needs_rotation().map(|rotation| NullableBoolean(rotation))
     }
 }
 
