@@ -199,7 +199,7 @@ mod private_key {
     }
 }
 
-mod device_signing_private_key {
+mod device_signing_keys {
     use super::*;
     use std::convert::TryInto;
     pub fn validate(bytes: &[i8]) -> Result<DeviceSigningKeyPair, String> {
