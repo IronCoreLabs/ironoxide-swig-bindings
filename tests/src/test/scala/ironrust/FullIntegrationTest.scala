@@ -38,7 +38,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       primaryTestUserId,
       primaryTestUserSegmentId,
       PrivateKey.validate(primaryTestUserPrivateDeviceKeyBytes),
-      DeviceSigningKeyPair.validate(primaryTestUserSigningKeysBytes)
+      DeviceSigningPrivateKey.validate(primaryTestUserSigningKeysBytes)
     )
   }
 
@@ -49,7 +49,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         secondaryTestUserId,
         secondaryTestUserSegmentId,
         PrivateKey.validate(secondaryTestUserPrivateDeviceKeyBytes),
-        DeviceSigningKeyPair.validate(secondaryTestUserSigningKeysBytes)
+        DeviceSigningPrivateKey.validate(secondaryTestUserSigningKeysBytes)
       )
     )
   }

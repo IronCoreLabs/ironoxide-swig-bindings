@@ -31,13 +31,13 @@ class PrivateKey {
 });
 
 foreigner_class!(
-/// Signing keypair specific to a device. Used to sign all requests to the IronCore API
+/// Signing private key specific to a device. Used to sign all requests to the IronCore API
 /// endpoints. Needed to create a `DeviceContext`.
-class DeviceSigningKeyPair {
-    self_type DeviceSigningKeyPair;
+class DeviceSigningPrivateKey {
+    self_type DeviceSigningKeyPair; //this is unchanged until the name changes in ironoxide
     private constructor = empty;
-    static_method device_signing_keys::validate(&[i8]) -> Result<DeviceSigningKeyPair, String>;
-    method device_signing_keys::as_bytes(&self) -> Vec<i8>; alias asBytes;
+    static_method device_signing_private_key::validate(&[i8]) -> Result<DeviceSigningKeyPair, String>;
+    method device_signing_private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
 });
 
 foreigner_class!(
