@@ -463,7 +463,7 @@ class GroupCreateOpts {
 
 foreigner_class!(
 /// A failure to edit a group's administrator or membership lists
-class AccessEditFailure{
+class GroupAccessEditErr{
     self_type GroupAccessEditErr;
     private constructor = empty;
     /// Get user whose access was to be granted/revoked
