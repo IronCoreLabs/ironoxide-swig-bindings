@@ -542,15 +542,16 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither
       val result = maybeResult.value
-      validDocumentId = result.getId
 
-      val originalPublicKey = sdk.userGetPublicKey(Array(primaryTestUserId))(0).getPublicKey.asBytes
+      val userPublicKeys = sdk.userGetPublicKey(Array(primaryTestUserId))
+      userPublicKeys.length shouldBe 1
+      val originalPublicKey = userPublicKeys(0).getPublicKey.asBytes
 
-      val maybeDecrypt = Try(sdk.documentDecrypt(result.getEncryptedData)).toEither
-      val decryptedResult = maybeDecrypt.value
+      val decryptedResult = Try(sdk.documentDecrypt(result.getEncryptedData)).toEither.value
 
       //Rotate private key
       val rotateResult = Try(sdk.userRotatePrivateKey(primaryTestUserPassword)).toEither.value
+      rotateResult.getNeedsRotation shouldBe false
       val maybeRotatedDecrypt = Try(sdk.documentDecrypt(result.getEncryptedData)).toEither
       val rotatedDecryptResult = maybeRotatedDecrypt.value
 
@@ -561,12 +562,13 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val rotatedPublicKey = sdk.userGetPublicKey(Array(primaryTestUserId))(0).getPublicKey.asBytes
 
       rotatedPublicKey shouldBe originalPublicKey
-
-      //   val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
-      //   val deviceName = Try(DeviceName.validate("newdevice")).toEither.value
-      //   val newDeviceResult = Try(
-      //     IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
-      //   ).toEither.value
+    }
+    "create a new device after rotation" in {
+      val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
+      val deviceName = Try(DeviceName.validate("newdevice")).toEither.value
+      val newDeviceResult = Try(
+        IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
+      ).toEither.value
     }
     "fail for wrong password" in {
       val sdk = IronSdk.initialize(createDeviceContext)
