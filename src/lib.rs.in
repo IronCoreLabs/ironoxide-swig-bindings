@@ -788,6 +788,13 @@ class IronSdk {
     ///
     /// @return id of deleted device or IronSdkErr
     method user_delete_device(&self, deviceId: Option<DeviceId>) -> Result<DeviceId, String>; alias userDeleteDevice;
+    /// Rotate the current user's private key, but leave the public key the same.
+    /// There's no black magic here! This is accomplished via multi-party computation with the
+    /// IronCore webservice.
+    ///
+    /// @param password password to unlock the current user's master private key
+    ///
+    /// @return The (encrypted) updated private key and associated metadata
     method user_rotate_private_key(&self, password: &str) -> Result<UserUpdatePrivateKeyResult, String>; alias userRotatePrivateKey;
     /// List all of the documents that the current user is able to decrypt.
     ///
