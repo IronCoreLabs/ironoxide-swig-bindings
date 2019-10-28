@@ -149,6 +149,14 @@ class GroupName {
 });
 
 foreigner_class!(
+    class NullableBoolean{
+        self_type NullableBoolean;
+        private constructor = empty;
+        method NullableBoolean::boolean(&self) -> bool; alias getBoolean;
+    }
+);
+
+foreigner_class!(
 /// ID of a document. Unique within the segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`.
 class DocumentId {
     self_type DocumentId;
@@ -411,12 +419,20 @@ foreigner_class!(
 class GroupMetaResult{
     self_type GroupMetaResult;
     private constructor = empty;
+    /// get the unique id of the group 
     method group_meta_result::id(&self) -> GroupId; alias getId;
+    /// null if the group has no name, else the group's name
     method group_meta_result::name(&self) -> Option<GroupName>; alias getName;
+    /// true if the calling user is a group admin
     method GroupMetaResult::is_admin(&self) -> bool; alias isAdmin;
+    /// true if the calling user is a group member
     method GroupMetaResult::is_member(&self) -> bool; alias isMember;
+    /// get the date and time that the group was created
     method group_meta_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    /// get the date and time that the group was last updated
     method group_meta_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
+    method group_meta_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
 });
 
 foreigner_class!(class GroupListResult{
@@ -428,15 +444,26 @@ foreigner_class!(class GroupListResult{
 foreigner_class!(class GroupGetResult{
     self_type GroupGetResult;
     private constructor = empty;
+    /// get the unique id of the group 
     method group_get_result::id(&self) -> GroupId; alias getId;
+    /// null if the group has no name, else the group's name
     method group_get_result::name(&self) -> Option<GroupName>; alias getName;
+    /// get the public key of the group
     method group_get_result::group_master_public_key(&self) -> PublicKey; alias getGroupMasterPublicKey;
+    /// true if the calling user is a group admin
     method GroupGetResult::is_admin(&self) -> bool; alias isAdmin;
+    /// true if the calling user is a group member
     method GroupGetResult::is_member(&self) -> bool; alias isMember;
+    /// get the date and time that the group was created
     method group_get_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    /// get the date and time that the group was last updated
     method group_get_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    /// null if the calling user is not in the group, else a GroupUserList of group admins 
     method group_get_result::admin_list(&self) -> Option<GroupUserList>; alias getAdminList;
+    /// null if the calling user is not in the group, else a GroupUserList of group members
     method group_get_result::member_list(&self) -> Option<GroupUserList>; alias getMemberList;
+    /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
+    method group_get_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
 });
 
 foreigner_class!(
@@ -452,7 +479,7 @@ class GroupCreateOpts {
 
 foreigner_class!(
 /// A failure to edit a group's administrator or membership lists
-class AccessEditFailure{
+class GroupAccessEditErr{
     self_type GroupAccessEditErr;
     private constructor = empty;
     /// Get user whose access was to be granted/revoked

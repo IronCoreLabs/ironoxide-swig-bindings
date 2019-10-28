@@ -64,6 +64,14 @@ impl UserWithKey {
     }
 }
 
+// This was created because Option<bool> cannot be converted to Java
+pub struct NullableBoolean(bool);
+impl NullableBoolean {
+    pub fn boolean(&self) -> bool {
+        self.0
+    }
+}
+
 fn i8_conv(i8s: &[i8]) -> &[u8] {
     unsafe { core::slice::from_raw_parts(i8s.as_ptr() as *const u8, i8s.len()) }
 }
@@ -149,7 +157,7 @@ mod device_id {
     use super::*;
     use std::convert::TryInto;
     pub fn id(d: &DeviceId) -> i64 {
-        //By constructon, DeviceIds are validated to be at most i64 max so this value won't
+        //By construction, DeviceIds are validated to be at most i64 max so this value won't
         //wrap over to be negative
         d.id().clone() as i64
     }
@@ -721,6 +729,9 @@ mod group_meta_result {
     pub fn last_updated(g: &GroupMetaResult) -> DateTime<Utc> {
         g.last_updated().clone()
     }
+    pub fn needs_rotation(g: &GroupMetaResult) -> Option<NullableBoolean> {
+        g.needs_rotation().map(|rotation| NullableBoolean(rotation))
+    }
 }
 
 mod group_list_result {
@@ -761,6 +772,9 @@ mod group_get_result {
     }
     pub fn last_updated(g: &GroupGetResult) -> DateTime<Utc> {
         g.last_updated().clone()
+    }
+    pub fn needs_rotation(g: &GroupGetResult) -> Option<NullableBoolean> {
+        g.needs_rotation().map(|rotation| NullableBoolean(rotation))
     }
 }
 
