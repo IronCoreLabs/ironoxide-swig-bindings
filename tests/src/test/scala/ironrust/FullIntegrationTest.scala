@@ -615,6 +615,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       rotatedDecryptResult.getDecryptedData shouldBe decryptResult.getDecryptedData
       rotatedDecryptResult.getId shouldBe decryptResult.getId
       rotatedDecryptResult.getName shouldBe decryptResult.getName
+      rotateResult.equals(rotateResult) shouldBe true
     }
     "create a new device after rotation" in {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
