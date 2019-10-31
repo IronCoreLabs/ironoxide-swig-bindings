@@ -1,4 +1,5 @@
 # IronCore Labs IronOxide Java SDK
+ [![javadoc.io](https://javadoc.io/badge2/com.ironcorelabs/ironoxide-java/javadoc.io.svg)](https://javadoc.io/doc/com.ironcorelabs/ironoxide-java) 
 
 SDK for using IronCore Labs from your Java server side applications. This library is a thin Rust shim that wraps the [Rust SDK](https://github.com/IronCoreLabs/ironoxide) and uses the [Rust Swig](https://github.com/Dushistov/rust_swig) toolset to generate JNI bindings to make it callable from the JVM.
 
