@@ -237,7 +237,6 @@ foreigner_class!(
     class UserUpdatePrivateKeyResult {
         self_type UserUpdatePrivateKeyResult;
         private constructor = empty;
-        method user_update_private_key_result::user_key_id(&self) -> u64; alias getUserKeyId;
         method user_update_private_key_result::user_master_private_key(&self) -> EncryptedPrivateKey; alias getUserMasterPrivateKey;
         method user_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
 });

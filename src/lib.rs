@@ -391,9 +391,6 @@ mod user_result {
 
 mod user_update_private_key_result {
     use super::*;
-    pub fn user_key_id(u: &UserUpdatePrivateKeyResult) -> u64 {
-        u.user_key_id()
-    }
     pub fn user_master_private_key(u: &UserUpdatePrivateKeyResult) -> EncryptedPrivateKey {
         u.user_master_private_key().clone()
     }
