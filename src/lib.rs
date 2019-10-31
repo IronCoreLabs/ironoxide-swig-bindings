@@ -401,27 +401,27 @@ mod user_update_private_key_result {
 
 mod user_device {
     use super::*;
-    pub fn id(d: &UserDevice) -> DeviceId {
-        d.id().clone()
+    pub fn id(u: &UserDevice) -> DeviceId {
+        u.id().clone()
     }
 
-    pub fn name(d: &UserDevice) -> Option<DeviceName> {
-        d.name().cloned()
+    pub fn name(u: &UserDevice) -> Option<DeviceName> {
+        u.name().cloned()
     }
 
-    pub fn created(d: &UserDevice) -> DateTime<Utc> {
-        d.created().clone()
+    pub fn created(u: &UserDevice) -> DateTime<Utc> {
+        u.created().clone()
     }
 
-    pub fn last_updated(d: &UserDevice) -> DateTime<Utc> {
-        d.last_updated().clone()
+    pub fn last_updated(u: &UserDevice) -> DateTime<Utc> {
+        u.last_updated().clone()
     }
 }
 
 mod user_device_list_result {
     use super::*;
-    pub fn result(d: &UserDeviceListResult) -> Vec<UserDevice> {
-        d.result().clone()
+    pub fn result(u: &UserDeviceListResult) -> Vec<UserDevice> {
+        u.result().clone()
     }
 }
 

@@ -602,29 +602,19 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   "User Private Key Rotation" should {
     "successfully rotate a private key for good password" in {
       val sdk = IronSdk.initialize(createDeviceContext)
+      val originalPublicKey = sdk.userGetPublicKey(Array(primaryTestUserId))(0).getPublicKey.asBytes
       val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
-      val maybeResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither
-      val result = maybeResult.value
-
-      val userPublicKeys = sdk.userGetPublicKey(Array(primaryTestUserId))
-      userPublicKeys.length shouldBe 1
-      val originalPublicKey = userPublicKeys(0).getPublicKey.asBytes
-
-      val decryptedResult = Try(sdk.documentDecrypt(result.getEncryptedData)).toEither.value
-
-      //Rotate private key
+      val encryptResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither.value
+      val decryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
       val rotateResult = Try(sdk.userRotatePrivateKey(primaryTestUserPassword)).toEither.value
-      rotateResult.getNeedsRotation shouldBe false
-      val maybeRotatedDecrypt = Try(sdk.documentDecrypt(result.getEncryptedData)).toEither
-      val rotatedDecryptResult = maybeRotatedDecrypt.value
-
-      rotatedDecryptResult.getDecryptedData shouldBe decryptedResult.getDecryptedData
-      rotatedDecryptResult.getId shouldBe decryptedResult.getId
-      rotatedDecryptResult.getName shouldBe decryptedResult.getName
-
       val rotatedPublicKey = sdk.userGetPublicKey(Array(primaryTestUserId))(0).getPublicKey.asBytes
+      val rotatedDecryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
 
       rotatedPublicKey shouldBe originalPublicKey
+      rotateResult.getNeedsRotation shouldBe false
+      rotatedDecryptResult.getDecryptedData shouldBe decryptResult.getDecryptedData
+      rotatedDecryptResult.getId shouldBe decryptResult.getId
+      rotatedDecryptResult.getName shouldBe decryptResult.getName
     }
     "create a new device after rotation" in {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
@@ -632,6 +622,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val newDeviceResult = Try(
         IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
       ).toEither.value
+      newDeviceResult.getAccountId.getId shouldBe primaryTestUserId.getId
     }
     "fail for wrong password" in {
       val sdk = IronSdk.initialize(createDeviceContext)
