@@ -640,7 +640,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val rotatedPublicKey = sdk.userGetPublicKey(Array(secondaryTestUserId))(0).getPublicKey.asBytes
       val rotatedDecryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
 
-      // need to call user verify to check the needsRotation. This can be simiplified when get current user is implemented
+      // need to call user verify to check the needsRotation
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserId.getId)
       val resp = Try(IronSdk.userVerify(jwt)).toEither.value.get
       val needsRotation = resp.getNeedsRotation
