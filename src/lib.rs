@@ -1,4 +1,5 @@
 mod jni_c_header;
+use ironoxide::InitAndRotationCheck;
 use ironoxide::{
     document::{
         advanced::{
@@ -799,6 +800,20 @@ fn user_create(
 }
 fn initialize(init: &DeviceContext) -> Result<IronOxide, String> {
     Ok(ironoxide::initialize(init)?)
+}
+fn initialize_and_rotate(init: &DeviceContext, password: &str) -> Result<IronOxide, String> {
+    Ok(match ironoxide::initialize_check_rotation(init)? {
+        InitAndRotationCheck::RotationNeeded(ironoxide, rotation) => {
+            match rotation.user_rotation_needed() {
+                Some(_) => {
+                    ironoxide.user_rotate_private_key(password)?;
+                    ironoxide
+                }
+                None => ironoxide,
+            }
+        }
+        InitAndRotationCheck::NoRotationNeeded(ironoxide) => ironoxide,
+    })
 }
 fn generate_new_device(
     jwt: &str,

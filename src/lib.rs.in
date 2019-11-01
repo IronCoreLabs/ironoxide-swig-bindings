@@ -787,6 +787,15 @@ class IronSdk {
     /// @throws java.lang.Exception if the provided `DeviceContext` is invalid
     /// @return an instance of the IronSdk
     static_method initialize(init:&DeviceContext) -> Result<IronOxide, String>;
+    /// Initialize IronSdk with a device. Verifies that the provided user/segment exists and the provided device
+    /// keys are valid and exist for the provided account.
+    /// After initialization, checks whether the calling user's private key needs rotation and rotates it 
+    /// if necessary.
+    /// 
+    /// @param init device context used to initialize the IronSdk with a set of device keys
+    /// @param password password used to encrypt and escrow the user's private master key
+    /// @return an instance of the IronSdk
+    static_method initialize_and_rotate(init: &DeviceContext, password: &str) -> Result<IronOxide, String>; alias initializeAndRotate;
     /// Generates a new device for the user specified in the signed JWT.
     ///
     /// This will result in a new transform key (from the user's master private key to the new device's public key)
