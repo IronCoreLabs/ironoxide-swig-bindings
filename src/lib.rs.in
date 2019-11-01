@@ -234,6 +234,56 @@ class DeviceId {
 });
 
 foreigner_class!(
+    class UserUpdatePrivateKeyResult {
+        self_type UserUpdatePrivateKeyResult;
+        private constructor = empty;
+        /// Updated encrypted user private key
+        method user_update_private_key_result::user_master_private_key(&self) -> EncryptedPrivateKey; alias getUserMasterPrivateKey;
+        /// True if this user's master key requires rotation
+        method user_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+        foreigner_code r#"
+        /**
+         * This implementation calls native code, which means it's relatively slow.
+         */
+        @Override
+        public int hashCode() {
+            return this.getUserMasterPrivateKey().hashCode() * Boolean.hashCode(this.getNeedsRotation());
+        }
+        public boolean equals(Object obj) {
+            if(obj instanceof UserUpdatePrivateKeyResult){
+                UserUpdatePrivateKeyResult uupkr = (UserUpdatePrivateKeyResult) obj;
+                return (uupkr.getUserMasterPrivateKey().equals(this.getUserMasterPrivateKey()) && 
+                uupkr.getNeedsRotation() == this.getNeedsRotation());
+            }
+            return false;
+        }
+    "#;
+});
+
+foreigner_class!(
+    class EncryptedPrivateKey {
+    self_type EncryptedPrivateKey;
+    private constructor = empty;
+    method encrypted_private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.asBytes().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof EncryptedPrivateKey){
+            EncryptedPrivateKey epk = (EncryptedPrivateKey) obj;
+            return java.util.Arrays.equals(epk.asBytes(), this.asBytes());
+        }
+        return false;
+    }
+"#;
+});
+
+foreigner_class!(
 /// Device name type. Validates that the provided name isn't an empty string
 class DeviceName {
     self_type DeviceName;
@@ -342,13 +392,13 @@ class UserCreateResult {
 
 foreigner_class!(
 /// IDs and public key for existing user on verify result
-class UserVerifyResult {
-    self_type UserVerifyResult;
+class UserResult {
+    self_type UserResult;
     private constructor = empty;
-    method user_verify_result::account_id(&self) -> UserId; alias getAccountId;
-    method user_verify_result::segment_id(&self) -> usize; alias getSegmentId;
-    method user_verify_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
-    method user_verify_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    method user_result::account_id(&self) -> UserId; alias getAccountId;
+    method user_result::segment_id(&self) -> usize; alias getSegmentId;
+    method user_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
+    method user_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
 });
 
 foreigner_class!(
@@ -721,7 +771,7 @@ class IronSdk {
     ///
     /// @param jwt valid IronCore JWT
     /// @return option of whether the user's account record exists in the IronCore system or not. Error if the request couldn't be made.
-    static_method user_verify(jwt:&str) -> Result<Option<UserVerifyResult>, String>; alias userVerify;
+    static_method user_verify(jwt:&str) -> Result<Option<UserResult>, String>; alias userVerify;
    /// Create a new user within the IronCore system.
    ///
    /// @param jwt       valid IronCore or Auth0 JWT
@@ -737,6 +787,15 @@ class IronSdk {
     /// @throws java.lang.Exception if the provided `DeviceContext` is invalid
     /// @return an instance of the IronSdk
     static_method initialize(init:&DeviceContext) -> Result<IronOxide, String>;
+    /// Initialize IronSdk with a device. Verifies that the provided user/segment exists and the provided device
+    /// keys are valid and exist for the provided account.
+    /// After initialization, checks whether the calling user's private key needs rotation and rotates it 
+    /// if necessary.
+    /// 
+    /// @param init device context used to initialize the IronSdk with a set of device keys
+    /// @param password password used to encrypt and escrow the user's private master key
+    /// @return an instance of the IronSdk
+    static_method initialize_and_rotate(init: &DeviceContext, password: &str) -> Result<IronOxide, String>; alias initializeAndRotate;
     /// Generates a new device for the user specified in the signed JWT.
     ///
     /// This will result in a new transform key (from the user's master private key to the new device's public key)
@@ -772,6 +831,14 @@ class IronSdk {
     ///
     /// @return id of deleted device or IronSdkErr
     method user_delete_device(&self, deviceId: Option<DeviceId>) -> Result<DeviceId, String>; alias userDeleteDevice;
+    /// Rotate the current user's private key, but leave the public key the same.
+    /// There's no black magic here! This is accomplished via multi-party computation with the
+    /// IronCore webservice.
+    ///
+    /// @param password password to unlock the current user's master private key
+    ///
+    /// @return The (encrypted) updated private key and associated metadata
+    method user_rotate_private_key(&self, password: &str) -> Result<UserUpdatePrivateKeyResult, String>; alias userRotatePrivateKey;
     /// List all of the documents that the current user is able to decrypt.
     ///
     /// @return {@link DocumentListResult} struct with vec of metadata about each document the user can decrypt.

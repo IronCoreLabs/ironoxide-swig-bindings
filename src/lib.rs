@@ -1,4 +1,5 @@
 mod jni_c_header;
+use ironoxide::InitAndRotationCheck;
 use ironoxide::{
     document::{
         advanced::{
@@ -15,8 +16,8 @@ use ironoxide::{
     policy::{Category, DataSubject, PolicyGrant, Sensitivity},
     prelude::*,
     user::{
-        DeviceCreateOpts, UserCreateOpts, UserCreateResult, UserDevice, UserDeviceListResult,
-        UserVerifyResult,
+        DeviceCreateOpts, EncryptedPrivateKey, UserCreateOpts, UserCreateResult, UserDevice,
+        UserDeviceListResult, UserResult, UserUpdatePrivateKeyResult,
     },
     DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey,
 };
@@ -370,48 +371,58 @@ mod user_create_result {
     }
 }
 
-mod user_verify_result {
+mod user_result {
     use super::*;
-    pub fn user_public_key(u: &UserVerifyResult) -> PublicKey {
+    pub fn user_public_key(u: &UserResult) -> PublicKey {
         u.user_public_key().clone()
     }
 
-    pub fn account_id(u: &UserVerifyResult) -> UserId {
+    pub fn account_id(u: &UserResult) -> UserId {
         u.account_id().clone()
     }
 
-    pub fn segment_id(u: &UserVerifyResult) -> usize {
+    pub fn segment_id(u: &UserResult) -> usize {
         u.segment_id()
     }
 
-    pub fn needs_rotation(u: &UserVerifyResult) -> bool {
+    pub fn needs_rotation(u: &UserResult) -> bool {
+        u.needs_rotation()
+    }
+}
+
+mod user_update_private_key_result {
+    use super::*;
+    pub fn user_master_private_key(u: &UserUpdatePrivateKeyResult) -> EncryptedPrivateKey {
+        u.user_master_private_key().clone()
+    }
+    pub fn needs_rotation(u: &UserUpdatePrivateKeyResult) -> bool {
         u.needs_rotation()
     }
 }
 
 mod user_device {
     use super::*;
-    pub fn id(d: &UserDevice) -> DeviceId {
-        d.id().clone()
+    pub fn id(u: &UserDevice) -> DeviceId {
+        u.id().clone()
     }
 
-    pub fn name(d: &UserDevice) -> Option<DeviceName> {
-        d.name().cloned()
+    pub fn name(u: &UserDevice) -> Option<DeviceName> {
+        u.name().cloned()
     }
 
-    pub fn created(d: &UserDevice) -> DateTime<Utc> {
-        d.created().clone()
+    pub fn created(u: &UserDevice) -> DateTime<Utc> {
+        u.created().clone()
     }
 
-    pub fn last_updated(d: &UserDevice) -> DateTime<Utc> {
-        d.last_updated().clone()
+    pub fn last_updated(u: &UserDevice) -> DateTime<Utc> {
+        u.last_updated().clone()
     }
 }
 
 mod user_device_list_result {
     use super::*;
-    pub fn result(d: &UserDeviceListResult) -> Vec<UserDevice> {
-        d.result().clone()
+    pub fn result(u: &UserDeviceListResult) -> Vec<UserDevice> {
+        u.result().clone()
     }
 }
 
@@ -483,6 +494,13 @@ mod document_encrypt_result {
     }
     pub fn encrypted_data(d: &DocumentEncryptResult) -> Vec<i8> {
         u8_conv(d.encrypted_data()).to_vec()
+    }
+}
+
+mod encrypted_private_key {
+    use super::*;
+    pub fn as_bytes(e: &EncryptedPrivateKey) -> Vec<i8> {
+        u8_conv(e.as_bytes()).to_vec()
     }
 }
 
@@ -770,7 +788,7 @@ mod group_create_opts {
 }
 
 //Java SDK wrapper functions for doing unnatural things with the JNI.
-fn user_verify(jwt: &str) -> Result<Option<UserVerifyResult>, String> {
+fn user_verify(jwt: &str) -> Result<Option<UserResult>, String> {
     Ok(IronOxide::user_verify(jwt)?)
 }
 fn user_create(
@@ -782,6 +800,20 @@ fn user_create(
 }
 fn initialize(init: &DeviceContext) -> Result<IronOxide, String> {
     Ok(ironoxide::initialize(init)?)
+}
+fn initialize_and_rotate(init: &DeviceContext, password: &str) -> Result<IronOxide, String> {
+    Ok(match ironoxide::initialize_check_rotation(init)? {
+        InitAndRotationCheck::RotationNeeded(ironoxide, rotation) => {
+            match rotation.user_rotation_needed() {
+                Some(_) => {
+                    ironoxide.user_rotate_private_key(password)?;
+                    ironoxide
+                }
+                None => ironoxide,
+            }
+        }
+        InitAndRotationCheck::NoRotationNeeded(ironoxide) => ironoxide,
+    })
 }
 fn generate_new_device(
     jwt: &str,
@@ -800,6 +832,12 @@ fn user_get_public_key(sdk: &IronOxide, users: Vec<UserId>) -> Result<Vec<UserWi
 }
 fn user_delete_device(sdk: &IronOxide, device_id: Option<DeviceId>) -> Result<DeviceId, String> {
     Ok(sdk.user_delete_device(device_id.as_ref())?)
+}
+fn user_rotate_private_key(
+    sdk: &IronOxide,
+    password: &str,
+) -> Result<UserUpdatePrivateKeyResult, String> {
+    Ok(sdk.user_rotate_private_key(password)?)
 }
 fn document_list(sdk: &IronOxide) -> Result<DocumentListResult, String> {
     Ok(sdk.document_list()?)

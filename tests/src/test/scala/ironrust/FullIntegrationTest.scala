@@ -43,14 +43,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   }
 
   def createSecondaryDeviceContext = {
-    IronSdk.initialize(
-      new DeviceContext(
-        validDeviceId,
-        secondaryTestUserId,
-        secondaryTestUserSegmentId,
-        PrivateKey.validate(secondaryTestUserPrivateDeviceKeyBytes),
-        DeviceSigningKeyPair.validate(secondaryTestUserSigningKeysBytes)
-      )
+    new DeviceContext(
+      validDeviceId,
+      secondaryTestUserId,
+      secondaryTestUserSegmentId,
+      PrivateKey.validate(secondaryTestUserPrivateDeviceKeyBytes),
+      DeviceSigningKeyPair.validate(secondaryTestUserSigningKeysBytes)
     )
   }
 
@@ -66,11 +64,11 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
     "successfully create a 2nd new user" in {
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserId.getId)
-      val resp = Try(IronSdk.userCreate(jwt, secondaryTestUserPassword, new UserCreateOpts())).toEither
+      val resp = Try(IronSdk.userCreate(jwt, secondaryTestUserPassword, UserCreateOpts.create(true))).toEither
       val createResult = resp.value
 
       createResult.getUserPublicKey.asBytes should have length 64
-      createResult.getNeedsRotation shouldBe false
+      createResult.getNeedsRotation shouldBe true
     }
   }
 
@@ -327,7 +325,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "succeed for a non-member" in {
-      val nonMemberSdk = createSecondaryDeviceContext
+      val nonMemberSdk = IronSdk.initialize(createSecondaryDeviceContext)
       val resp = Try(nonMemberSdk.groupGetMetadata(validGroupId)).toEither
       val group = resp.value
 
@@ -437,7 +435,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   // Now that the secondary user has been added as a member, re-verify the metadata it gets back
   "Group Get Metadata" should {
     "succeed for a member" in {
-      val memberSdk = createSecondaryDeviceContext
+      val memberSdk = IronSdk.initialize(createSecondaryDeviceContext)
       val resp = Try(memberSdk.groupGetMetadata(validGroupId)).toEither
       val group = resp.value
 
@@ -599,6 +597,62 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
   }
 
+  "User Private Key Rotation" should {
+    "successfully rotate a private key for good password" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val originalPublicKey = sdk.userGetPublicKey(Array(primaryTestUserId))(0).getPublicKey.asBytes
+      val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
+      val encryptResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither.value
+      val decryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
+      val rotateResult = Try(sdk.userRotatePrivateKey(primaryTestUserPassword)).toEither.value
+      val rotatedPublicKey = sdk.userGetPublicKey(Array(primaryTestUserId))(0).getPublicKey.asBytes
+      val rotatedDecryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
+
+      rotatedPublicKey shouldBe originalPublicKey
+      rotateResult.getNeedsRotation shouldBe false
+      rotatedDecryptResult.getDecryptedData shouldBe decryptResult.getDecryptedData
+      rotatedDecryptResult.getId shouldBe decryptResult.getId
+      rotatedDecryptResult.getName shouldBe decryptResult.getName
+      rotateResult.equals(rotateResult) shouldBe true
+    }
+    "create a new device after rotation" in {
+      val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
+      val deviceName = Try(DeviceName.validate("newdevice")).toEither.value
+      val newDeviceResult = Try(
+        IronSdk.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
+      ).toEither.value
+      newDeviceResult.getAccountId.getId shouldBe primaryTestUserId.getId
+    }
+    "fail for wrong password" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val maybeRotationResult = Try(sdk.userRotatePrivateKey("wrong password")).toEither
+
+      maybeRotationResult.leftValue.getMessage shouldBe "AesError"
+    }
+    "rotate with initializeAndRotate for second user" in {
+      val sdk = IronSdk.initialize(createSecondaryDeviceContext)
+      val originalPublicKey = sdk.userGetPublicKey(Array(secondaryTestUserId))(0).getPublicKey.asBytes
+      val data: Array[Byte] = List(3, 1, 4).map(_.toByte).toArray
+      val encryptResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither.value
+      val decryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
+      // rotate the private key using initializeAndRotate, but ignore the duplicate sdk returned
+      IronSdk.initializeAndRotate(createSecondaryDeviceContext, secondaryTestUserPassword)
+      val rotatedPublicKey = sdk.userGetPublicKey(Array(secondaryTestUserId))(0).getPublicKey.asBytes
+      val rotatedDecryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
+
+      // need to call user verify to check the needsRotation
+      val jwt = JwtHelper.generateValidJwt(secondaryTestUserId.getId)
+      val resp = Try(IronSdk.userVerify(jwt)).toEither.value.get
+      val needsRotation = resp.getNeedsRotation
+
+      rotatedPublicKey shouldBe originalPublicKey
+      needsRotation shouldBe false
+      rotatedDecryptResult.getDecryptedData shouldBe decryptResult.getDecryptedData
+      rotatedDecryptResult.getId shouldBe decryptResult.getId
+      rotatedDecryptResult.getName shouldBe decryptResult.getName
+    }
+  }
+
   "Document unmanaged encrypt/decrypt" should {
     "roundtrip through a user" in {
       val sdk = IronSdk.initialize(createDeviceContext)
@@ -749,7 +803,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   "Document List" should {
     "Return previously created documents" in {
       val sdk = IronSdk.initialize(createDeviceContext)
-      sdk.documentList.getResult should have length 5
+      sdk.documentList.getResult should have length 6
     }
   }
 
