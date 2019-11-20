@@ -259,14 +259,14 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "Create valid group" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val groupName = Try(GroupName.validate("a name")).toEither.value
-      val groupCreateResult = sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, true))
+      val groupCreateResult = sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, true, true))
       groupCreateResult.getId.getId.length shouldBe 32 //gooid
       groupCreateResult.getName.get shouldBe groupName
       groupCreateResult.isAdmin shouldBe true
       groupCreateResult.isMember shouldBe true
       groupCreateResult.getCreated should not be null
       groupCreateResult.getLastUpdated shouldBe groupCreateResult.getCreated
-      groupCreateResult.getNeedsRotation.get.getBoolean shouldBe false
+      groupCreateResult.getNeedsRotation.get.getBoolean shouldBe true
 
       validGroupId = groupCreateResult.getId
     }
@@ -321,7 +321,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.getAdminList.get.getList.head shouldBe primaryTestUserId
       group.getMemberList.get.getList should have length 1
       group.getMemberList.get.getList.head shouldBe primaryTestUserId
-      group.getNeedsRotation.get.getBoolean shouldBe false
+      group.getNeedsRotation.get.getBoolean shouldBe true
     }
 
     "succeed for a non-member" in {

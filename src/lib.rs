@@ -782,8 +782,9 @@ mod group_create_opts {
         id: Option<GroupId>,
         name: Option<GroupName>,
         add_as_member: bool,
+        needs_rotation: bool,
     ) -> GroupCreateOpts {
-        GroupCreateOpts::new(id, name, add_as_member)
+        GroupCreateOpts::new(id, name, add_as_member, needs_rotation)
     }
 }
 
