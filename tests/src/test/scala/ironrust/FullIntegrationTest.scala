@@ -256,29 +256,42 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   }
 
   "Group Create" should {
+    "Create valid group" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val groupName = Try(GroupName.validate("a name")).toEither.value
+      val groupCreateResult = sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, true, true))
+
+      groupCreateResult.getId.getId.length shouldBe 32 //gooid
+      groupCreateResult.isAdmin shouldBe true
+      groupCreateResult.isMember shouldBe true
+      groupCreateResult.getCreated should not be null
+      groupCreateResult.getLastUpdated shouldBe groupCreateResult.getCreated
+      groupCreateResult.getNeedsRotation.get.getBoolean shouldBe true
+
+      validGroupId = groupCreateResult.getId
+    }
     "Create default group" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val groupCreateResult = sdk.groupCreate(new GroupCreateOpts())
+
       groupCreateResult.getId.getId.length shouldBe 32 //gooid
       groupCreateResult.isAdmin shouldBe true
       groupCreateResult.isMember shouldBe true
       groupCreateResult.getCreated should not be null
       groupCreateResult.getLastUpdated shouldBe groupCreateResult.getCreated
       groupCreateResult.getNeedsRotation.get.getBoolean shouldBe false
-
-      validGroupId = groupCreateResult.getId
     }
-    "Create non-default group" in {
+    "Create group without members" in {
       val sdk = IronSdk.initialize(createDeviceContext)
-      val groupName = Try(GroupName.validate("a name")).toEither.value
-      val groupCreateResult = sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, false, true))
+      val groupName = Try(GroupName.validate("no member")).toEither.value
+      val groupCreateResult = sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, false, false))
+
       groupCreateResult.getId.getId.length shouldBe 32 //gooid
-      groupCreateResult.getName.get shouldBe groupName
       groupCreateResult.isAdmin shouldBe true
       groupCreateResult.isMember shouldBe false
       groupCreateResult.getCreated should not be null
       groupCreateResult.getLastUpdated shouldBe groupCreateResult.getCreated
-      groupCreateResult.getNeedsRotation.get.getBoolean shouldBe true
+      groupCreateResult.getNeedsRotation.get.getBoolean shouldBe false
     }
   }
 
@@ -288,9 +301,10 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       val groupResult = sdk.groupList().getResult()
 
-      groupResult.length shouldBe 2
+      groupResult.length shouldBe 3
 
       groupResult.head.getId.getId.length shouldBe 32 //gooid
+      groupResult.head.getName.get.getName shouldBe "a name"
       groupResult.head.isAdmin shouldBe true
       groupResult.head.isMember shouldBe true
       groupResult.head.getCreated should not be null
@@ -303,8 +317,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val groupId = Try(GroupId.validate("not-a-group=ID-that-exists=")).toEither.value
       val resp = Try(sdk.groupGetMetadata(groupId)).toEither
-      resp.leftValue.getMessage should include("""404""")
-      resp.leftValue.getMessage should include("""Requested resource was not found""")
+      resp.leftValue.getMessage should include("404")
+      resp.leftValue.getMessage should include("Requested resource was not found")
     }
 
     "Succeed for valid group ID" in {
@@ -314,6 +328,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       group.getId.getId.length shouldBe 32
       group.getId shouldBe validGroupId
+      group.getName.get.getName shouldBe "a name"
       group.getGroupMasterPublicKey.asBytes should have length 64
       group.isAdmin shouldBe true
       group.isMember shouldBe true
@@ -325,7 +340,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.getAdminList.get.getList.head shouldBe primaryTestUserId
       group.getMemberList.get.getList should have length 1
       group.getMemberList.get.getList.head shouldBe primaryTestUserId
-      group.getNeedsRotation.get.getBoolean shouldBe false
+      group.getNeedsRotation.get.getBoolean shouldBe true
     }
 
     "succeed for a non-member" in {
@@ -335,6 +350,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       group.getId.getId.length shouldBe 32
       group.getId shouldBe validGroupId
+      group.getName.get.getName shouldBe "a name"
       group.getGroupMasterPublicKey.asBytes should have length 64
       group.isAdmin shouldBe false
       group.isMember shouldBe false
@@ -814,8 +830,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val docID = Try(DocumentId.validate("not-a-document-ID-that-exists=/")).toEither.value
       val resp = Try(sdk.documentGetMetadata(docID)).toEither
-      resp.leftValue.getMessage should include("""404""")
-      resp.leftValue.getMessage should include("""Requested resource was not found""")
+      resp.leftValue.getMessage should include("404")
+      resp.leftValue.getMessage should include("Requested resource was not found")
     }
 
     "Return expected details about document" in {
@@ -905,14 +921,14 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       sdk.groupDelete(validGroupId) shouldBe validGroupId
 
-      sdk.groupList.getResult.length shouldBe 1
+      sdk.groupList.getResult.length shouldBe 2
     }
 
     "fail to delete non-existent group" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val badGroupId = Try(GroupId.validate("bad-group-id")).toEither.value
       val resp = Try(sdk.groupDelete(badGroupId)).toEither
-      resp.leftValue.getMessage should include("""404""")
+      resp.leftValue.getMessage should include("404")
     }
   }
 }
