@@ -507,8 +507,8 @@ class GroupCreateOpts {
     constructor GroupCreateOpts::default() -> GroupCreateOpts;
     /// @param id unique id of a group within a segment. If none, the server will assign an id.
     /// @param name human readable name of the group. Does not need to be unique.
-    /// @param addAsMember creating user will (default, true) or will not (false) be added to the group's membership (in addition to being a group admin)
-    /// @param needsRotation the group will be marked as needing its private key rotated.
+    /// @param addAsMember if true (default), the creating user will be added to the group's membership (in addition to being a group admin)
+    /// @param needsRotation if true, the group will be marked as needing its private key rotated.
     static_method group_create_opts::create(id: Option<GroupId>, name: Option<GroupName>, addAsMember: bool, needsRotation: bool) -> GroupCreateOpts;
 });
 
