@@ -373,6 +373,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       group.getId.getId.length shouldBe 32
       group.getId shouldBe validGroupId
+      group.getName.get.getName shouldBe "a name"
       group.getGroupMasterPublicKey.asBytes should have length 64
       group.isAdmin shouldBe false
       group.isMember shouldBe false
