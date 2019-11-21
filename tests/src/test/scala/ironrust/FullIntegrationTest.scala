@@ -262,6 +262,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val groupCreateResult = sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, true, true))
 
       groupCreateResult.getId.getId.length shouldBe 32 //gooid
+      groupCreateResult.getName.get shouldBe groupName
       groupCreateResult.isAdmin shouldBe true
       groupCreateResult.isMember shouldBe true
       groupCreateResult.getCreated should not be null
