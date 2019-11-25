@@ -10,8 +10,8 @@ use ironoxide::{
         DocumentMetadataResult, UserOrGroup, VisibleGroup, VisibleUser,
     },
     group::{
-        GroupAccessEditErr, GroupAccessEditResult, GroupCreateOpts, GroupGetResult,
-        GroupListResult, GroupMetaResult,
+        GroupAccessEditErr, GroupAccessEditResult, GroupCreateOpts, GroupCreateResult,
+        GroupGetResult, GroupListResult, GroupMetaResult,
     },
     policy::{Category, DataSubject, PolicyGrant, Sensitivity},
     prelude::*,
@@ -732,6 +732,37 @@ mod group_meta_result {
     }
 }
 
+mod group_create_result {
+    use super::*;
+    pub fn id(g: &GroupCreateResult) -> GroupId {
+        g.id().clone()
+    }
+    pub fn name(g: &GroupCreateResult) -> Option<GroupName> {
+        g.name().cloned()
+    }
+    pub fn group_master_public_key(g: &GroupCreateResult) -> PublicKey {
+        g.group_master_public_key().clone()
+    }
+    pub fn owner(g: &GroupCreateResult) -> UserId {
+        g.owner().clone()
+    }
+    pub fn admins(g: &GroupCreateResult) -> Vec<UserId> {
+        g.admins().clone()
+    }
+    pub fn members(g: &GroupCreateResult) -> Vec<UserId> {
+        g.members().clone()
+    }
+    pub fn created(g: &GroupCreateResult) -> DateTime<Utc> {
+        g.created().clone()
+    }
+    pub fn last_updated(g: &GroupCreateResult) -> DateTime<Utc> {
+        g.last_updated().clone()
+    }
+    pub fn needs_rotation(g: &GroupCreateResult) -> Option<NullableBoolean> {
+        g.needs_rotation().map(|rotation| NullableBoolean(rotation))
+    }
+}
+
 mod group_list_result {
     use super::*;
     pub fn result(g: &GroupListResult) -> Vec<GroupMetaResult> {
@@ -781,10 +812,23 @@ mod group_create_opts {
     pub fn create(
         id: Option<GroupId>,
         name: Option<GroupName>,
+        add_as_admin: bool,
         add_as_member: bool,
+        owner: Option<UserId>,
+        admins: Vec<UserId>,
+        members: Vec<UserId>,
         needs_rotation: bool,
     ) -> GroupCreateOpts {
-        GroupCreateOpts::new(id, name, add_as_member, needs_rotation)
+        GroupCreateOpts::new(
+            id,
+            name,
+            add_as_admin,
+            add_as_member,
+            owner,
+            admins,
+            members,
+            needs_rotation,
+        )
     }
 }
 
@@ -920,7 +964,7 @@ fn group_list(sdk: &IronOxide) -> Result<GroupListResult, String> {
 fn group_get_metadata(sdk: &IronOxide, id: &GroupId) -> Result<GroupGetResult, String> {
     Ok(sdk.group_get_metadata(id)?)
 }
-fn group_create(sdk: &IronOxide, opts: &GroupCreateOpts) -> Result<GroupMetaResult, String> {
+fn group_create(sdk: &IronOxide, opts: &GroupCreateOpts) -> Result<GroupCreateResult, String> {
     Ok(sdk.group_create(opts)?)
 }
 fn group_update_name(
