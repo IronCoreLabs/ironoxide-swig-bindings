@@ -597,7 +597,7 @@ impl UserAccessErr {
 }
 
 /// Wrap the Vec<UserId> type in a newtype because swig can't handle
-/// passing through an Option<Vec<*>>
+/// passing through an Option<Vec<*>> for GroupGetResult
 pub struct GroupUserList(Vec<UserId>);
 impl GroupUserList {
     pub fn list(&self) -> Vec<UserId> {
