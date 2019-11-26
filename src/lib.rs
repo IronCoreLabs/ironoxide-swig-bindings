@@ -596,6 +596,15 @@ impl UserAccessErr {
     }
 }
 
+/// Wrap the Vec<UserId> type in a newtype because swig can't handle
+/// passing through an Option<Vec<*>>
+pub struct GroupUserList(Vec<UserId>);
+impl GroupUserList {
+    pub fn list(&self) -> Vec<UserId> {
+        self.0.clone()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct GroupAccessErr {
     id: GroupId,
@@ -746,11 +755,11 @@ mod group_create_result {
     pub fn owner(g: &GroupCreateResult) -> UserId {
         g.owner().clone()
     }
-    pub fn admins(g: &GroupCreateResult) -> Vec<UserId> {
-        g.admins().clone()
+    pub fn admin_list(g: &GroupCreateResult) -> GroupUserList {
+        GroupUserList(g.admins().clone())
     }
-    pub fn members(g: &GroupCreateResult) -> Vec<UserId> {
-        g.members().clone()
+    pub fn member_list(g: &GroupCreateResult) -> GroupUserList {
+        GroupUserList(g.members().clone())
     }
     pub fn created(g: &GroupCreateResult) -> DateTime<Utc> {
         g.created().clone()
@@ -772,15 +781,6 @@ mod group_list_result {
 
 mod group_get_result {
     use super::*;
-    /// Wrap the Vec<UserId> type in a newtype because swig can't handle
-    /// passing through an Option<Vec<*>>
-    pub struct GroupUserList(Vec<UserId>);
-    impl GroupUserList {
-        pub fn list(&self) -> Vec<UserId> {
-            self.0.clone()
-        }
-    }
-
     pub fn id(g: &GroupGetResult) -> GroupId {
         g.id().clone()
     }

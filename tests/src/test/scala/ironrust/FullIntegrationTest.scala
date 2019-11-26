@@ -268,6 +268,10 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       groupCreateResult.isMember shouldBe true
       groupCreateResult.getCreated should not be null
       groupCreateResult.getLastUpdated shouldBe groupCreateResult.getCreated
+      groupCreateResult.getAdminList.getList should have length 1
+      groupCreateResult.getAdminList.getList.head shouldBe primaryTestUserId
+      groupCreateResult.getMemberList.getList should have length 1
+      groupCreateResult.getMemberList.getList.head shouldBe primaryTestUserId
       groupCreateResult.getNeedsRotation.get.getBoolean shouldBe true
 
       validGroupId = groupCreateResult.getId
@@ -296,6 +300,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       groupCreateResult.isMember shouldBe false
       groupCreateResult.getCreated should not be null
       groupCreateResult.getLastUpdated shouldBe groupCreateResult.getCreated
+      groupCreateResult.getAdminList.getList should have length 1
+      groupCreateResult.getAdminList.getList.head shouldBe primaryTestUserId
+      groupCreateResult.getMemberList.getList should have length 0
       groupCreateResult.getNeedsRotation.get.getBoolean shouldBe false
     }
   }
@@ -667,10 +674,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       // need to call user verify to check the needsRotation
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserId.getId)
       val resp = Try(IronSdk.userVerify(jwt)).toEither.value.get
-      val needsRotation = resp.getNeedsRotation
 
       rotatedPublicKey shouldBe originalPublicKey
-      needsRotation shouldBe false
+      resp.getNeedsRotation shouldBe false
       rotatedDecryptResult.getDecryptedData shouldBe decryptResult.getDecryptedData
       rotatedDecryptResult.getId shouldBe decryptResult.getId
       rotatedDecryptResult.getName shouldBe decryptResult.getName

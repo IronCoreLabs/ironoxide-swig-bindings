@@ -2,7 +2,6 @@ use crate::jni_c_header::*;
 use crate::{
     document_access_change_result::{DocumentAccessChange, FailedResult, SucceededResult},
     document_decrypt_unmanaged_result::UserOrGroupJ,
-    group_get_result::GroupUserList,
 };
 use chrono::{DateTime, Utc};
 
@@ -486,10 +485,10 @@ foreigner_class!(
         method GroupCreateResult::is_member(&self) -> bool; alias isMember;
         /// owner of the group
         method group_create_result::owner(&self) -> UserId; alias getOwner; 
-        /// list of all group admins. Group admins can change group membership.
-        method group_create_result::admins(&self) -> Vec<UserId>; alias getAdmins;
-        /// list of group members. Members of a group can decrypt values encrypted to the group.
-        method group_create_result::members(&self) -> Vec<UserId>; alias getMembers;
+        /// a GroupUserList of group admins. Group admins can change group membership.
+        method group_create_result::admin_list(&self) -> GroupUserList; alias getAdminList;
+        /// a GroupUserList of group members. Members of a group can decrypt values encrypted to the group.
+        method group_create_result::member_list(&self) -> GroupUserList; alias getMemberList;
         /// get the date and time that the group was created
         method group_create_result::created(&self) -> DateTime<Utc>; alias getCreated;
         /// get the date and time that the group was last updated
