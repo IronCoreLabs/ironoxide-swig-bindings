@@ -2,7 +2,6 @@ use crate::jni_c_header::*;
 use crate::{
     document_access_change_result::{DocumentAccessChange, FailedResult, SucceededResult},
     document_decrypt_unmanaged_result::UserOrGroupJ,
-    group_get_result::GroupUserList,
 };
 use chrono::{DateTime, Utc};
 
@@ -469,6 +468,35 @@ class GroupMetaResult{
     method group_meta_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
 });
 
+foreigner_class!(
+    /// Group information from creation.
+    class GroupCreateResult{
+        self_type GroupCreateResult;
+        private constructor = empty;
+        /// get the unique id of the group 
+        method group_create_result::id(&self) -> GroupId; alias getId;
+        /// null if the group has no name, else the group's name
+        method group_create_result::name(&self) -> Option<GroupName>; alias getName;
+        /// public key for encrypting to the group
+        method group_create_result::group_master_public_key(&self) -> PublicKey; alias getGroupMasterPublicKey;
+        /// true if the calling user is a group admin
+        method GroupCreateResult::is_admin(&self) -> bool; alias isAdmin;
+        /// true if the calling user is a group member
+        method GroupCreateResult::is_member(&self) -> bool; alias isMember;
+        /// owner of the group
+        method group_create_result::owner(&self) -> UserId; alias getOwner; 
+        /// a GroupUserList of group admins. Group admins can change group membership.
+        method group_create_result::admin_list(&self) -> GroupUserList; alias getAdminList;
+        /// a GroupUserList of group members. Members of a group can decrypt values encrypted to the group.
+        method group_create_result::member_list(&self) -> GroupUserList; alias getMemberList;
+        /// date and time that the group was created
+        method group_create_result::created(&self) -> DateTime<Utc>; alias getCreated;
+        /// date and time that the group was last updated
+        method group_create_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+        /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
+        method group_create_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
+    });
+
 foreigner_class!(class GroupListResult{
     self_type GroupListResult;
     private constructor = empty;
@@ -505,11 +533,15 @@ foreigner_class!(
 class GroupCreateOpts {
     self_type GroupCreateOpts;
     constructor GroupCreateOpts::default() -> GroupCreateOpts;
-    /// @param id unique id of a group within a segment. If none, the server will assign an id.
+    /// @param id unique id of a group within a segment. If null, the server will assign an id.
     /// @param name human readable name of the group. Does not need to be unique.
-    /// @param addAsMember if true (default), the creating user will be added to the group's membership (in addition to being a group admin)
+    /// @param addAsAdmin if true (default), the creating user will be added as a group admin.
+    /// @param addAsMember if true (default), the creating user will be added to the group's membership.
+    /// @param owner if null (default), the creating user will be the owner of the group, else the specified user will be the owner and automatically added as an admin. 
+    /// @param admins list of users to be added as admins of the group. This list takes priority over `addAsAdmin`, so the creating user will be added as an admin even if `addAsAdmin` is false.
+    /// @param members list of users to be added as members of the group. This list takes priority over `addAsMember`, so the creating user will be added as a member even if `addAsMember` is false.
     /// @param needsRotation if true, the group will be marked as needing its private key rotated.
-    static_method group_create_opts::create(id: Option<GroupId>, name: Option<GroupName>, addAsMember: bool, needsRotation: bool) -> GroupCreateOpts;
+    static_method group_create_opts::create(id: Option<GroupId>, name: Option<GroupName>, addAsAdmin: bool, addAsMember: bool, owner: Option<UserId>, admins: Vec<UserId>, members: Vec<UserId>, needsRotation: bool) -> GroupCreateOpts;
 });
 
 foreigner_class!(
@@ -913,7 +945,7 @@ class IronSdk {
     /// Create a group. The creating user will become a group admin.
     ///
     /// @param groupCreateOpts see {@link GroupCreateOpts}. Use `new GroupCreateOpts()` for defaults
-    method group_create(&self, groupCreateOpts: &GroupCreateOpts) -> Result<GroupMetaResult, String>; alias groupCreate;
+    method group_create(&self, groupCreateOpts: &GroupCreateOpts) -> Result<GroupCreateResult, String>; alias groupCreate;
     /// Update a group name to a new value or clear its value.
     ///
     /// @param id      id of the group to update

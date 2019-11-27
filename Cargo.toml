@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.8"
-ironoxide = {git = "https://github.com/IronCoreLabs/ironoxide", rev = "4d86f7102a57db04aa5bd0ffb3b08540d9e6b781"}
+ironoxide = {git = "https://github.com/IronCoreLabs/ironoxide", rev = "a6eaa54a12f54cdac6765315fe532d696fc5e245"}
 chrono = "0.4"
 serde_json = "~1.0"
 
