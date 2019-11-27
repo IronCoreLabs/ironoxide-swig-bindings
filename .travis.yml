@@ -28,7 +28,6 @@ services:
 
 branches:
   only:
-    - 0.14-catch-up #TODO: remove this before merge to master
     - master
     - /^v\d+\.\d+\.\d+/
 
