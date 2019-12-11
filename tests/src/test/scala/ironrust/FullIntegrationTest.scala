@@ -307,6 +307,24 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
   }
 
+  "Group Private Key Rotate" should {
+    "Successfully rotate a valid group" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val rotateResult = sdk.groupRotatePrivateKey(validGroupId)
+      rotateResult.getNeedsRotation shouldBe false
+    }
+    "Fail for non-admin" in {
+      val sdk = IronSdk.initialize(createSecondaryDeviceContext)
+      val rotateResult = Try(sdk.groupRotatePrivateKey(validGroupId)).toEither
+      rotateResult.isLeft shouldBe true
+    }
+    "Fail for invalid group" in {
+      val sdk = IronSdk.initialize(createDeviceContext)
+      val rotateResult = Try(sdk.groupRotatePrivateKey(GroupId.validate("7584"))).toEither
+      rotateResult.isLeft shouldBe true
+    }
+  }
+
   "Group List" should {
     "Return previously created group" in {
       val sdk = IronSdk.initialize(createDeviceContext)
@@ -352,7 +370,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.getAdminList.get.getList.head shouldBe primaryTestUserId
       group.getMemberList.get.getList should have length 1
       group.getMemberList.get.getList.head shouldBe primaryTestUserId
-      group.getNeedsRotation.get.getBoolean shouldBe true
+      group.getNeedsRotation.get.getBoolean shouldBe false
     }
 
     "succeed for a non-member" in {

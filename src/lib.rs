@@ -11,7 +11,7 @@ use ironoxide::{
     },
     group::{
         GroupAccessEditErr, GroupAccessEditResult, GroupCreateOpts, GroupCreateResult,
-        GroupGetResult, GroupListResult, GroupMetaResult,
+        GroupGetResult, GroupListResult, GroupMetaResult, GroupUpdatePrivateKeyResult,
     },
     policy::{Category, DataSubject, PolicyGrant, Sensitivity},
     prelude::*,
@@ -807,6 +807,13 @@ mod group_get_result {
     }
 }
 
+mod group_update_private_key_result {
+    use super::*;
+    pub fn needs_rotation(g: &GroupUpdatePrivateKeyResult) -> bool {
+        g.needs_rotation()
+    }
+}
+
 mod group_create_opts {
     use super::*;
     pub fn create(
@@ -1004,6 +1011,12 @@ fn group_remove_admins(
     users: Vec<UserId>,
 ) -> Result<GroupAccessEditResult, String> {
     Ok(sdk.group_remove_admins(group_id, &users)?)
+}
+fn group_rotate_private_key(
+    sdk: &IronOxide,
+    group_id: &GroupId,
+) -> Result<GroupUpdatePrivateKeyResult, String> {
+    Ok(sdk.group_rotate_private_key(group_id)?)
 }
 
 mod group_access_edit_result {
