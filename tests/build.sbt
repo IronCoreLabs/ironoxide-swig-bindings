@@ -22,6 +22,7 @@ scalacOptions := Seq(
 )
 
 javacOptions in (Compile, doc) ++= Seq("-Xdoclint")
+javacOptions in (Compile, compile) ++= Seq("-source", "1.8", "-target", "1.8")
 
 libraryDependencies ++= Seq(
   "com.pauldijou" %% "jwt-core" % "2.1.0",
