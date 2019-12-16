@@ -856,13 +856,8 @@ fn initialize(init: &DeviceContext) -> Result<IronOxide, String> {
 fn initialize_and_rotate(init: &DeviceContext, password: &str) -> Result<IronOxide, String> {
     Ok(match ironoxide::initialize_check_rotation(init)? {
         InitAndRotationCheck::RotationNeeded(ironoxide, rotation) => {
-            match rotation.user_rotation_needed() {
-                Some(_) => {
-                    ironoxide.user_rotate_private_key(password)?;
-                    ironoxide
-                }
-                None => ironoxide,
-            }
+            rotation.rotate_all(&ironoxide, password)?;
+            ironoxide
         }
         InitAndRotationCheck::NoRotationNeeded(ironoxide) => ironoxide,
     })

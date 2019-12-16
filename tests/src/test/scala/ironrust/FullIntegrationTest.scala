@@ -680,6 +680,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
     "rotate with initializeAndRotate for second user" in {
       val sdk = IronSdk.initialize(createSecondaryDeviceContext)
+      val groupName = Try(GroupName.validate("a name")).toEither.value
+      val groupCreateResult =
+        sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, true, true, null, Array(), Array(), true))
       val originalPublicKey = sdk.userGetPublicKey(Array(secondaryTestUserId))(0).getPublicKey.asBytes
       val data: Array[Byte] = List(3, 1, 4).map(_.toByte).toArray
       val encryptResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither.value
@@ -688,6 +691,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       IronSdk.initializeAndRotate(createSecondaryDeviceContext, secondaryTestUserPassword)
       val rotatedPublicKey = sdk.userGetPublicKey(Array(secondaryTestUserId))(0).getPublicKey.asBytes
       val rotatedDecryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
+      val groupGetResult = sdk.groupGetMetadata(groupCreateResult.getId)
 
       // need to call user verify to check the needsRotation
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserId.getId)
@@ -698,6 +702,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       rotatedDecryptResult.getDecryptedData shouldBe decryptResult.getDecryptedData
       rotatedDecryptResult.getId shouldBe decryptResult.getId
       rotatedDecryptResult.getName shouldBe decryptResult.getName
+      groupGetResult.getNeedsRotation.get.getBoolean shouldBe false
     }
   }
 

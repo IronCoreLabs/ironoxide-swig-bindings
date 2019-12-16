@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.8"
-ironoxide = { git = "https://github.com/IronCoreLabs/ironoxide", branch = "45-group-key-rotation"}
+ironoxide = { git = "https://github.com/IronCoreLabs/ironoxide", branch = "rotate_all"}
 chrono = "0.4"
 serde_json = "~1.0"
 
