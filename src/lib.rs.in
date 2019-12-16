@@ -1002,7 +1002,7 @@ class IronSdk {
     /// IronCore webservice.
     /// Note: You must be an admin of the group in order to rotate its private key.
     /// 
-    /// @param id ID of the group you wish to rotate the private key of
+    /// @param id id of the group you wish to rotate the private key of
     /// @return The id of the group whose private key got updated and associated metadata
     method group_rotate_private_key(&self, id:&GroupId) -> Result<GroupUpdatePrivateKeyResult, String>; alias groupRotatePrivateKey;
 });
