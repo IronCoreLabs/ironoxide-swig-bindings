@@ -812,6 +812,9 @@ mod group_update_private_key_result {
     pub fn needs_rotation(g: &GroupUpdatePrivateKeyResult) -> bool {
         g.needs_rotation()
     }
+    pub fn id(g: &GroupUpdatePrivateKeyResult) -> GroupId {
+        g.id().clone()
+    }
 }
 
 mod group_create_opts {

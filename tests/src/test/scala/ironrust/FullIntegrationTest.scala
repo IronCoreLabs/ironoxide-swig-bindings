@@ -312,6 +312,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val rotateResult = sdk.groupRotatePrivateKey(validGroupId)
       rotateResult.getNeedsRotation shouldBe false
+      rotateResult.getId shouldBe validGroupId
     }
     "Fail for non-admin" in {
       val sdk = IronSdk.initialize(createSecondaryDeviceContext)
