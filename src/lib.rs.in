@@ -528,6 +528,15 @@ foreigner_class!(class GroupGetResult{
     method group_get_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
 });
 
+foreigner_class!(class GroupUpdatePrivateKeyResult{
+    self_type GroupUpdatePrivateKeyResult;
+    private constructor = empty;
+    /// true if the group still needs rotation, else false
+    method group_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    /// the id of the group whose private key was rotated
+    method group_update_private_key_result::id(&self) -> GroupId; alias getId;
+});
+
 foreigner_class!(
 /// Options for group creation.
 class GroupCreateOpts {
@@ -823,7 +832,7 @@ class IronSdk {
     /// Initialize IronSdk with a device. Verifies that the provided user/segment exists and the provided device
     /// keys are valid and exist for the provided account.
     /// After initialization, checks whether the calling user's private key needs rotation and rotates it 
-    /// if necessary.
+    /// if necessary, then does the same for each group the user is an admin of.
     /// 
     /// @param init device context used to initialize the IronSdk with a set of device keys
     /// @param password password used to encrypt and escrow the user's private master key
@@ -988,4 +997,12 @@ class IronSdk {
     ///
     /// @return list of users that were removed and the users that failed to be removed with the reason they were not
     method group_remove_admins(&self, id:&GroupId, userRevokes: Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupRemoveAdmins;
+    /// Rotate the provided group's private key, but leave the public key the same.
+    /// There's no black magic here! This is accomplished via multi-party computation with the
+    /// IronCore webservice.
+    /// Note: You must be an admin of the group in order to rotate its private key.
+    /// 
+    /// @param id id of the group you wish to rotate the private key of
+    /// @return The id of the group whose private key got updated and associated metadata
+    method group_rotate_private_key(&self, id:&GroupId) -> Result<GroupUpdatePrivateKeyResult, String>; alias groupRotatePrivateKey;
 });
