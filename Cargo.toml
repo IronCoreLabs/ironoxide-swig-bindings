@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.8"
-ironoxide = "0.15.0"
+ironoxide = {path = "../ironoxide"}
 chrono = "0.4"
 serde_json = "~1.0"
 
