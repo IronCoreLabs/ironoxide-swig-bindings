@@ -763,7 +763,7 @@ dependencies = [
 
 [[package]]
 name = "ironoxide-java"
-version = "0.8.2"
+version = "0.9.0"
 dependencies = [
  "bindgen 0.51.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)",
