@@ -361,12 +361,10 @@ foreigner_class!(class GroupUserList {
 ///
 
 foreigner_class!(
-// #[derive(Serialize, Deserialize)]
-/// Accounts device context. Needed to initialize the Sdk with a set of device keys. See `Sdk.initialize()`
+/// Account's device context. Needed to initialize the Sdk with a set of device keys. See `Sdk.initialize()`
 class DeviceContext {
     self_type DeviceContext;
-    constructor device_context::new(deviceId: &DeviceId, accountId: &UserId, segmentId: i64, devicePrivateKey: &PrivateKey, signingPrivateKey: &DeviceSigningKeyPair) -> DeviceContext;
-    method device_context::device_id(&self) -> DeviceId; alias getDeviceId;
+    constructor device_context::new(accountId: &UserId, segmentId: i64, devicePrivateKey: &PrivateKey, signingPrivateKey: &DeviceSigningKeyPair) -> DeviceContext;
     method device_context::account_id(&self) -> UserId; alias getAccountId;
     method device_context::segment_id(&self) -> usize; alias getSegmentId;
     method device_context::device_private_key(&self) -> PrivateKey; alias getDevicePrivateKey;

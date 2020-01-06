@@ -316,14 +316,12 @@ mod document_create_opt {
 mod device_context {
     use super::*;
     pub fn new(
-        device_id: &DeviceId,
         account_id: &UserId,
         segment_id: i64,
         device_private_key: &PrivateKey,
         signing_private_key: &DeviceSigningKeyPair,
     ) -> DeviceContext {
         DeviceContext::new(
-            device_id.clone(),
             account_id.clone(),
             segment_id as usize,
             device_private_key.clone(),
@@ -344,10 +342,6 @@ mod device_context {
 
     pub fn signing_private_key(d: &DeviceContext) -> DeviceSigningKeyPair {
         d.signing_private_key().clone()
-    }
-
-    pub fn device_id(d: &DeviceContext) -> DeviceId {
-        d.device_id().clone()
     }
 
     pub fn to_json_string(d: &DeviceContext) -> String {

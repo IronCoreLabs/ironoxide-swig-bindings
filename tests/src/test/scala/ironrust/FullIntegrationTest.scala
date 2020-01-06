@@ -25,7 +25,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   var validGroupId: GroupId = null
   var validDocumentId: DocumentId = null
-  val validDeviceId: DeviceId = DeviceId.validate(1)
 
   /**
     * Convenience function to create a new DeviceContext instance from the stored off components we need. Takes the
@@ -34,7 +33,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     */
   def createDeviceContext = {
     new DeviceContext(
-      validDeviceId,
       primaryTestUserId,
       primaryTestUserSegmentId,
       PrivateKey.validate(primaryTestUserPrivateDeviceKeyBytes),
@@ -44,7 +42,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   def createSecondaryDeviceContext = {
     new DeviceContext(
-      validDeviceId,
       secondaryTestUserId,
       secondaryTestUserSegmentId,
       PrivateKey.validate(secondaryTestUserPrivateDeviceKeyBytes),
@@ -144,18 +141,16 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val deviceContext =
         IronSdk.generateNewDevice(jwt, secondaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
       val json = deviceContext.toJsonString
-      val deviceId = deviceContext.getDeviceId.getId
       val accountId = deviceContext.getAccountId.getId
       val segmentId = deviceContext.getSegmentId
       val signingPrivateKeyBase64 = ByteVector.view(deviceContext.getSigningPrivateKey.asBytes).toBase64
       val devicePrivateKeyBase64 = ByteVector.view(deviceContext.getDevicePrivateKey.asBytes).toBase64
       val expectJson =
-        s"""{"deviceId":$deviceId,"accountId":"$accountId","segmentId":$segmentId,"signingPrivateKey":"$signingPrivateKeyBase64","devicePrivateKey":"$devicePrivateKeyBase64"}"""
+        s"""{"accountId":"$accountId","segmentId":$segmentId,"signingPrivateKey":"$signingPrivateKeyBase64","devicePrivateKey":"$devicePrivateKeyBase64"}"""
       val result = DeviceContext.fromJsonString(json)
 
       json shouldBe expectJson
       result.getAccountId.getId shouldBe deviceContext.getAccountId.getId
-      result.getDeviceId.getId shouldBe deviceContext.getDeviceId.getId
       result.getDevicePrivateKey.asBytes shouldBe deviceContext.getDevicePrivateKey.asBytes
       result.getSegmentId shouldBe deviceContext.getSegmentId
       result.getSigningPrivateKey.asBytes shouldBe deviceContext.getSigningPrivateKey.asBytes
