@@ -394,7 +394,7 @@ class DeviceAddResult {
     /// The date and time that the device was created
     method device_add_result::created(&self) -> DateTime<Utc>; alias getCreated;
     /// The date and time that the device was last updated
-    method device_add_result::updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    method device_add_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
 });
 
 ///

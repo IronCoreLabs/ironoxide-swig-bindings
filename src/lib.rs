@@ -331,7 +331,6 @@ mod device_context {
     pub fn new_from_dar(dar: &DeviceAddResult) -> DeviceContext {
         dar.clone().into()
     }
-    
     pub fn account_id(d: &DeviceContext) -> UserId {
         d.account_id().clone()
     }
@@ -382,8 +381,8 @@ mod device_add_result {
     pub fn created(d: &DeviceAddResult) -> DateTime<Utc> {
         d.created().clone()
     }
-    pub fn updated(d: &DeviceAddResult) -> DateTime<Utc> {
-        d.updated().clone()
+    pub fn last_updated(d: &DeviceAddResult) -> DateTime<Utc> {
+        d.last_updated().clone()
     }
 }
 
