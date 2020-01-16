@@ -12,3 +12,4 @@ tests/src/test/resources/service-keys.conf.local
 .DS_Store
 java/*
 release_artifacts
+tests/project/metals.sbt

@@ -1,5 +1,4 @@
 mod jni_c_header;
-use ironoxide::InitAndRotationCheck;
 use ironoxide::{
     document::{
         advanced::{
@@ -19,7 +18,8 @@ use ironoxide::{
         DeviceCreateOpts, EncryptedPrivateKey, UserCreateOpts, UserCreateResult, UserDevice,
         UserDeviceListResult, UserResult, UserUpdatePrivateKeyResult,
     },
-    DeviceContext, DeviceSigningKeyPair, PrivateKey, PublicKey,
+    DeviceAddResult, DeviceContext, DeviceSigningKeyPair, InitAndRotationCheck, PrivateKey,
+    PublicKey,
 };
 use serde_json;
 use std::convert::TryInto;
@@ -328,6 +328,9 @@ mod device_context {
             signing_private_key.clone(),
         )
     }
+    pub fn new_from_dar(dar: &DeviceAddResult) -> DeviceContext {
+        dar.clone().into()
+    }
     pub fn account_id(d: &DeviceContext) -> UserId {
         d.account_id().clone()
     }
@@ -352,6 +355,34 @@ mod device_context {
         serde_json::from_str(&json_string).map_err(|_| {
             "jsonString was not a valid JSON representation of a DeviceContext.".to_string()
         })
+    }
+}
+
+mod device_add_result {
+    use super::*;
+    pub fn account_id(d: &DeviceAddResult) -> UserId {
+        d.account_id().clone()
+    }
+    pub fn segment_id(d: &DeviceAddResult) -> usize {
+        d.segment_id()
+    }
+    pub fn device_private_key(d: &DeviceAddResult) -> PrivateKey {
+        d.device_private_key().clone()
+    }
+    pub fn signing_private_key(d: &DeviceAddResult) -> DeviceSigningKeyPair {
+        d.signing_private_key().clone()
+    }
+    pub fn device_id(d: &DeviceAddResult) -> DeviceId {
+        d.device_id().clone()
+    }
+    pub fn name(d: &DeviceAddResult) -> Option<DeviceName> {
+        d.name().cloned()
+    }
+    pub fn created(d: &DeviceAddResult) -> DateTime<Utc> {
+        d.created().clone()
+    }
+    pub fn last_updated(d: &DeviceAddResult) -> DateTime<Utc> {
+        d.last_updated().clone()
     }
 }
 
@@ -863,7 +894,7 @@ fn generate_new_device(
     jwt: &str,
     password: &str,
     opts: &DeviceCreateOpts,
-) -> Result<DeviceContext, String> {
+) -> Result<DeviceAddResult, String> {
     Ok(IronOxide::generate_new_device(jwt, password, opts)?)
 }
 fn user_list_devices(sdk: &IronOxide) -> Result<UserDeviceListResult, String> {

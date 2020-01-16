@@ -365,12 +365,36 @@ foreigner_class!(
 class DeviceContext {
     self_type DeviceContext;
     constructor device_context::new(accountId: &UserId, segmentId: i64, devicePrivateKey: &PrivateKey, signingPrivateKey: &DeviceSigningKeyPair) -> DeviceContext;
+    constructor device_context::new_from_dar(dar: &DeviceAddResult) -> DeviceContext;
     method device_context::account_id(&self) -> UserId; alias getAccountId;
     method device_context::segment_id(&self) -> usize; alias getSegmentId;
     method device_context::device_private_key(&self) -> PrivateKey; alias getDevicePrivateKey;
     method device_context::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
     method device_context::to_json_string(&self) -> String; alias toJsonString;
     static_method device_context::from_json_string(jsonString: String) -> Result<DeviceContext, String>; alias fromJsonString;
+});
+
+foreigner_class!(
+/// Result from adding a new device
+class DeviceAddResult {
+    self_type DeviceAddResult;
+    private constructor = empty;
+    /// The user's given id, which uniquely identifies them inside the segment.
+    method device_add_result::account_id(&self) -> UserId; alias getAccountId;
+    /// The user's segment id
+    method device_add_result::segment_id(&self) -> usize; alias getSegmentId;
+    /// The private key which was generated for a particular device for the user. Not the user's master private key.
+    method device_add_result::device_private_key(&self) -> PrivateKey; alias getDevicePrivateKey;
+    /// The signing key which was generated for the device
+    method device_add_result::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
+    /// The id of the device that was added
+    method device_add_result::device_id(&self) -> DeviceId; alias getDeviceId;
+    /// The name of the device that was added
+    method device_add_result::name(&self) -> Option<DeviceName>; alias getName;
+    /// The date and time that the device was created
+    method device_add_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    /// The date and time that the device was last updated
+    method device_add_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
 });
 
 ///
@@ -846,7 +870,7 @@ class IronSdk {
     /// @param deviceCreateOptions optional values, like device name
     ///
     /// @return details about the newly created device
-    static_method generate_new_device(jwt:&str, password:&str, deviceCreateOptions: &DeviceCreateOpts) -> Result<DeviceContext, String>; alias generateNewDevice;
+    static_method generate_new_device(jwt:&str, password:&str, deviceCreateOptions: &DeviceCreateOpts) -> Result<DeviceAddResult, String>; alias generateNewDevice;
     /// Access advanced SDK operations.
     /// 
     /// @return an instance of the IronSdkAdvanced

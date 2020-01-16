@@ -111,6 +111,10 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         IronSdk.generateNewDevice(jwt2, secondaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
       ).toEither.value
 
+      newDeviceResult.getCreated shouldBe newDeviceResult.getLastUpdated
+      newDeviceResult.getName.isPresent shouldBe true
+      newDeviceResult.getName.get shouldBe deviceName
+
       //Store off the device component parts as raw values so we can use them to reconstruct
       //an DeviceContext instance to initialize the SDK.
       primaryTestUserSegmentId = newDeviceResult.getSegmentId
@@ -139,7 +143,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserId.getId)
       val deviceName = DeviceName.validate("device")
       val deviceContext =
-        IronSdk.generateNewDevice(jwt, secondaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
+        new DeviceContext(
+          IronSdk.generateNewDevice(jwt, secondaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone))
+        )
       val json = deviceContext.toJsonString
       val accountId = deviceContext.getAccountId.getId
       val segmentId = deviceContext.getSegmentId
@@ -175,7 +181,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       // a third device
       val deviceResp2 = Try(IronSdk.generateNewDevice(jwt, primaryTestUserPassword, new DeviceCreateOpts())).toEither
-      val dev3 = deviceResp2.value
+      val dev3 = new DeviceContext(deviceResp2.value)
 
       val sdk = IronSdk.initialize(createDeviceContext)
       val deviceList = Try(sdk.userListDevices).toEither.value.getResult
@@ -392,7 +398,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val secondaryUserDevice =
         Try(IronSdk.generateNewDevice(jwt, secondaryTestUserPassword, new DeviceCreateOpts())).toEither.value
 
-      val sdk = IronSdk.initialize(secondaryUserDevice)
+      val sdk = IronSdk.initialize(new DeviceContext(secondaryUserDevice))
       val resp = Try(sdk.groupGetMetadata(validGroupId)).toEither
       val group = resp.value
 
