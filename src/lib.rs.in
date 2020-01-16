@@ -385,7 +385,7 @@ class DeviceAddResult {
     method device_add_result::segment_id(&self) -> usize; alias getSegmentId;
     /// The private key which was generated for a particular device for the user. Not the user's master private key.
     method device_add_result::device_private_key(&self) -> PrivateKey; alias getDevicePrivateKey;
-    /// The signing key which was generated for the device. “expanded private key” (both pub/priv)
+    /// The signing key which was generated for the device
     method device_add_result::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
     /// The id of the device that was added
     method device_add_result::device_id(&self) -> DeviceId; alias getDeviceId;
