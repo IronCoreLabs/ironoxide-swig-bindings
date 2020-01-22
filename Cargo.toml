@@ -18,5 +18,5 @@ serde_json = "~1.0"
 
 [build-dependencies]
 env_logger = "0.7"
-rust_swig = { git = "https://github.com/Dushistov/rust_swig.git", rev = "f1af10fb0c1c96c9153857d18ea06a7c0644e265"}
-bindgen = "0.51"
+rust_swig = { git = "https://github.com/Dushistov/rust_swig.git", rev = "cfd12fb7406f9f2774832c051ce7b4e6c2e193d7"}
+bindgen = "0.52"

@@ -678,7 +678,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val maybeRotationResult = Try(sdk.userRotatePrivateKey("wrong password")).toEither
 
-      maybeRotationResult.leftValue.getMessage shouldBe "AesError"
+      maybeRotationResult.leftValue.getMessage should include("AesError")
     }
     "rotate with initializeAndRotate for second user" in {
       val sdk = IronSdk.initialize(createSecondaryDeviceContext)
