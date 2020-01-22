@@ -41,6 +41,6 @@ scalacOptions in (Compile, console) ~= {
 }
 scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 
-javaOptions in Test += s"-Djava.library.path=../target/debug/"
+javaOptions in Test += s"-Djava.library.path=../target/release/"
 fork in Test := true
 envVars in Test := Map("IRONCORE_ENV" -> "stage")

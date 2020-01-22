@@ -802,24 +802,6 @@ class DocumentAccessResult {
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
 });
 
-foreigner_class!(
-class IronSdkAdvanced {
-    self_type IronSdkAdvanced<'a>;
-    private constructor = empty;
-    /// Encrypt the provided document bytes. Return the encrypted document encryption keys (EDEKs) instead of creating a document entry in the IronCore webservice.
-    /// 
-    /// @param documentData   bytes of the document to encrypt
-    /// @param encryptOpts    optional document encrypt parameters
-    method IronSdkAdvanced::document_encrypt_unmanaged(&self, documentData: &[i8], encryptOpts: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias documentEncryptUnmanaged;
-    /// Decrypt the provided encrypted document with the encrypted document encryption keys (EDEKs).
-    /// 
-    /// @param encryptedData bytes of encrypted document. Should be the same bytes returned from {@link #documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
-    /// @param encryptedDeks encrypted document encryption keys. Should be the same edeks returned from {@link #documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
-    /// 
-    /// @return {@link DocumentDecryptResult} includes the id of the provided document as well as the decrypted document bytes
-    method IronSdkAdvanced::document_decrypt_unmanaged(&self, encryptedData: &[i8], encryptedDeks: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias documentDecryptUnmanaged;
-});
-
 ///
 /// Full SDK Class Structure
 ///
@@ -871,10 +853,6 @@ class IronSdk {
     ///
     /// @return details about the newly created device
     static_method generate_new_device(jwt:&str, password:&str, deviceCreateOptions: &DeviceCreateOpts) -> Result<DeviceAddResult, String>; alias generateNewDevice;
-    /// Access advanced SDK operations.
-    /// 
-    /// @return an instance of the IronSdkAdvanced
-    method IronSdkAdvanced::advanced(&self) -> IronSdkAdvanced<'a>;
     /// Get all the devices for the current user
     ///
     /// @return all devices for the current user, sorted by the device id
@@ -1023,8 +1001,21 @@ class IronSdk {
     /// There's no black magic here! This is accomplished via multi-party computation with the
     /// IronCore webservice.
     /// Note: You must be an admin of the group in order to rotate its private key.
-    /// 
+    ///
     /// @param id id of the group you wish to rotate the private key of
     /// @return The id of the group whose private key got updated and associated metadata
     method group_rotate_private_key(&self, id:&GroupId) -> Result<GroupUpdatePrivateKeyResult, String>; alias groupRotatePrivateKey;
+
+    /// Encrypt the provided document bytes. Return the encrypted document encryption keys (EDEKs) instead of creating a document entry in the IronCore webservice.
+    ///
+    /// @param documentData   bytes of the document to encrypt
+    /// @param encryptOpts    optional document encrypt parameters
+    method advanced_document_encrypt_unmanaged(&self, documentData: &[i8], encryptOpts: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias advancedDocumentEncryptUnmanaged;
+    /// Decrypt the provided encrypted document with the encrypted document encryption keys (EDEKs).
+    ///
+    /// @param encryptedData bytes of encrypted document. Should be the same bytes returned from {@link #documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
+    /// @param encryptedDeks encrypted document encryption keys. Should be the same edeks returned from {@link #documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
+    ///
+    /// @return {@link DocumentDecryptResult} includes the id of the provided document as well as the decrypted document bytes
+    method advanced_document_decrypt_unmanaged(&self, encryptedData: &[i8], encryptedDeks: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias advancedDocumentDecryptUnmanaged;
 });

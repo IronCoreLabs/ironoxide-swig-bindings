@@ -712,12 +712,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "roundtrip through a user" in {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
-      val maybeResult = Try(sdk.advanced.documentEncryptUnmanaged(data, new DocumentEncryptOpts())).toEither
+      val maybeResult = Try(sdk.advancedDocumentEncryptUnmanaged(data, new DocumentEncryptOpts())).toEither
       val result = maybeResult.value
       result.getId.getId.length shouldBe 32
 
       val maybeDecrypt =
-        Try(sdk.advanced.documentDecryptUnmanaged(result.getEncryptedData, result.getEncryptedDeks)).toEither
+        Try(sdk.advancedDocumentDecryptUnmanaged(result.getEncryptedData, result.getEncryptedDeks)).toEither
       val decryptedResult = maybeDecrypt.value
 
       decryptedResult.getId.getId shouldBe result.getId.getId
@@ -731,8 +731,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
-        sdk.advanced
-          .documentEncryptUnmanaged(
+        sdk.advancedDocumentEncryptUnmanaged(
             data,
             DocumentEncryptOpts.create(null, null, false, Array(), Array(validGroupId), null)
           )
@@ -743,7 +742,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       result.getEncryptedDeks.isEmpty shouldBe false
 
       val maybeDecrypt =
-        Try(sdk.advanced.documentDecryptUnmanaged(result.getEncryptedData, result.getEncryptedDeks)).toEither
+        Try(sdk.advancedDocumentDecryptUnmanaged(result.getEncryptedData, result.getEncryptedDeks)).toEither
       val decryptedResult = maybeDecrypt.value
 
       decryptedResult.getId.getId shouldBe result.getId.getId
@@ -757,8 +756,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
-        sdk.advanced
-          .documentEncryptUnmanaged(
+        sdk.advancedDocumentEncryptUnmanaged(
             data,
             DocumentEncryptOpts.create(null, null, true, Array(secondaryTestUserId), Array(), null)
           )
@@ -775,8 +773,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronSdk.initialize(createDeviceContext)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
-        sdk.advanced
-          .documentEncryptUnmanaged(
+        sdk.advancedDocumentEncryptUnmanaged(
             data,
             DocumentEncryptOpts.create(
               null,
@@ -807,8 +804,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val notAUser = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val maybeResult = Try(
-        sdk.advanced
-          .documentEncryptUnmanaged(
+        sdk.advancedDocumentEncryptUnmanaged(
             data,
             DocumentEncryptOpts.create(null, null, true, Array(notAUser), Array(notAGroup), null)
           )
