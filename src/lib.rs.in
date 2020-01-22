@@ -1013,8 +1013,8 @@ class IronSdk {
     method advanced_document_encrypt_unmanaged(&self, documentData: &[i8], encryptOpts: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias advancedDocumentEncryptUnmanaged;
     /// Decrypt the provided encrypted document with the encrypted document encryption keys (EDEKs).
     ///
-    /// @param encryptedData bytes of encrypted document. Should be the same bytes returned from {@link #documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
-    /// @param encryptedDeks encrypted document encryption keys. Should be the same edeks returned from {@link #documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
+    /// @param encryptedData bytes of encrypted document. Should be the same bytes returned from {@link #advancedDocumentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
+    /// @param encryptedDeks encrypted document encryption keys. Should be the same edeks returned from {@link #advancedDocumentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
     ///
     /// @return {@link DocumentDecryptResult} includes the id of the provided document as well as the decrypted document bytes
     method advanced_document_decrypt_unmanaged(&self, encryptedData: &[i8], encryptedDeks: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias advancedDocumentDecryptUnmanaged;
