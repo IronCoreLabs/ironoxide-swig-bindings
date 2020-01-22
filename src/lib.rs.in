@@ -15,7 +15,7 @@ foreigner_class!(
 class PublicKey {
     self_type PublicKey;
     private constructor = empty;
-    static_method public_key::validate(&[i8]) -> Result<PublicKey, String>;
+    static_method public_key::validate(bytes: &[i8]) -> Result<PublicKey, String>;
     method public_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
 });
 
@@ -25,7 +25,7 @@ foreigner_class!(
 class PrivateKey {
     self_type PrivateKey;
     private constructor = empty;
-    static_method private_key::validate(&[i8]) -> Result<PrivateKey, String>;
+    static_method private_key::validate(bytes: &[i8]) -> Result<PrivateKey, String>;
     method private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
 });
 
@@ -35,7 +35,7 @@ foreigner_class!(
 class DeviceSigningKeyPair {
     self_type DeviceSigningKeyPair;
     private constructor = empty;
-    static_method device_signing_keys::validate(&[i8]) -> Result<DeviceSigningKeyPair, String>;
+    static_method device_signing_keys::validate(bytes: &[i8]) -> Result<DeviceSigningKeyPair, String>;
     method device_signing_keys::as_bytes(&self) -> Vec<i8>; alias asBytes;
 });
 
