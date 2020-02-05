@@ -7,7 +7,7 @@ cache:
     - "$HOME/bin"
 
 # build matrix
-rust: 1.40.0
+rust: 1.41.0
 matrix:
   include:
     - name: "Linux"
