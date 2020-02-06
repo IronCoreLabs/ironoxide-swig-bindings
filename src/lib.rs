@@ -1,9 +1,8 @@
 mod jni_c_header;
 use ironoxide::{
+    blocking::BlockingIronOxide as IronOxide,
     document::{
-        advanced::{
-            DocumentAdvancedOps, DocumentDecryptUnmanagedResult, DocumentEncryptUnmanagedResult,
-        },
+        advanced::{DocumentDecryptUnmanagedResult, DocumentEncryptUnmanagedResult},
         AssociationType, DocAccessEditErr, DocumentAccessResult, DocumentDecryptResult,
         DocumentEncryptOpts, DocumentEncryptResult, DocumentListMeta, DocumentListResult,
         DocumentMetadataResult, UserOrGroup, VisibleGroup, VisibleUser,
@@ -852,16 +851,18 @@ fn user_create(
     Ok(IronOxide::user_create(jwt, password, opts)?)
 }
 fn initialize(init: &DeviceContext) -> Result<IronOxide, String> {
-    Ok(ironoxide::initialize(init)?)
+    Ok(ironoxide::blocking::initialize(init)?)
 }
 fn initialize_and_rotate(init: &DeviceContext, password: &str) -> Result<IronOxide, String> {
-    Ok(match ironoxide::initialize_check_rotation(init)? {
-        InitAndRotationCheck::RotationNeeded(ironoxide, rotation) => {
-            rotation.rotate_all(&ironoxide, password)?;
-            ironoxide
-        }
-        InitAndRotationCheck::NoRotationNeeded(ironoxide) => ironoxide,
-    })
+    Ok(
+        match ironoxide::blocking::initialize_check_rotation(init)? {
+            InitAndRotationCheck::RotationNeeded(ironoxide, rotation) => {
+                ironoxide.rotate_all(&rotation, password)?;
+                ironoxide
+            }
+            InitAndRotationCheck::NoRotationNeeded(ironoxide) => ironoxide,
+        },
+    )
 }
 fn generate_new_device(
     jwt: &str,
