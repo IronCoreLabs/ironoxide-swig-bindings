@@ -340,7 +340,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       groupResult.head.isAdmin shouldBe true
       groupResult.head.isMember shouldBe true
       groupResult.head.getCreated should not be null
-      groupResult.head.getLastUpdated shouldBe groupResult.head.getCreated
+      groupResult.head.getLastUpdated should be > groupResult.head.getCreated
     }
   }
 
@@ -365,7 +365,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.isAdmin shouldBe true
       group.isMember shouldBe true
       group.getCreated should not be null
-      group.getLastUpdated shouldBe group.getCreated
+      group.getLastUpdated should be > group.getCreated
       group.getAdminList.isPresent shouldBe true
       group.getMemberList.isPresent shouldBe true
       group.getAdminList.get.getList should have length 1
@@ -388,7 +388,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.isMember shouldBe false
       group.getCreated should not be null
       group.getNeedsRotation.isPresent shouldBe false
-      group.getLastUpdated shouldBe group.getCreated
+      group.getLastUpdated should be > group.getCreated
       group.getAdminList.isPresent shouldBe false
       group.getMemberList.isPresent shouldBe false
     }
@@ -409,7 +409,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       group.isAdmin shouldBe false
       group.isMember shouldBe false
       group.getCreated should not be null
-      group.getLastUpdated shouldBe group.getCreated
+      group.getLastUpdated should be > group.getCreated
       group.getAdminList.isPresent shouldBe false
       group.getMemberList.isPresent shouldBe false
     }
@@ -732,9 +732,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
-            data,
-            DocumentEncryptOpts.create(null, null, false, Array(), Array(validGroupId), null)
-          )
+          data,
+          DocumentEncryptOpts.create(null, null, false, Array(), Array(validGroupId), null)
+        )
       ).toEither
       val result = maybeResult.value
       result.getChanged.getGroups should have length 1
@@ -757,9 +757,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
-            data,
-            DocumentEncryptOpts.create(null, null, true, Array(secondaryTestUserId), Array(), null)
-          )
+          data,
+          DocumentEncryptOpts.create(null, null, true, Array(secondaryTestUserId), Array(), null)
+        )
       ).toEither
       val result = maybeResult.value
       result.getChanged.getUsers should have length 2
@@ -774,16 +774,16 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
-            data,
-            DocumentEncryptOpts.create(
-              null,
-              null,
-              true,
-              Array(),
-              Array(validGroupId),
-              new PolicyGrant(Category.validate("PII"), Sensitivity.validate("INTERNAL"), null, null)
-            )
+          data,
+          DocumentEncryptOpts.create(
+            null,
+            null,
+            true,
+            Array(),
+            Array(validGroupId),
+            new PolicyGrant(Category.validate("PII"), Sensitivity.validate("INTERNAL"), null, null)
           )
+        )
       ).toEither
       val result = maybeResult.value
       result.getChanged.getUsers should have length 1
@@ -805,9 +805,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
-            data,
-            DocumentEncryptOpts.create(null, null, true, Array(notAUser), Array(notAGroup), null)
-          )
+          data,
+          DocumentEncryptOpts.create(null, null, true, Array(notAUser), Array(notAGroup), null)
+        )
       ).toEither
       val result = maybeResult.value
 
