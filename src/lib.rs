@@ -851,46 +851,31 @@ mod ironoxide_config {
     use super::*;
     pub fn create(
         policy_caching: &PolicyCachingConfig,
-        sdk_operation_timeout: Option<&Timeout>,
+        sdk_operation_timeout: Option<&Duration>,
     ) -> IronOxideConfig {
         IronOxideConfig {
             policy_caching: policy_caching.clone(),
-            sdk_operation_timeout: sdk_operation_timeout.map(Timeout::into_duration),
+            sdk_operation_timeout: sdk_operation_timeout.cloned(),
         }
-    }
-}
-
-#[derive(Clone)]
-pub struct Timeout {
-    millis: u64,
-}
-impl Timeout {
-    pub fn from_millis(millis: u64) -> Timeout {
-        Timeout { millis }
-    }
-    pub fn from_secs(secs: u32) -> Timeout {
-        Timeout {
-            millis: (secs * 1000) as u64,
-        }
-    }
-    fn into_duration(&self) -> Duration {
-        Duration::from_millis(self.millis)
     }
 }
 
 //Java SDK wrapper functions for doing unnatural things with the JNI.
-fn user_verify(jwt: &str, timeout: Option<&Timeout>) -> Result<Option<UserResult>, String> {
-    let maybe_duration = timeout.map(Timeout::into_duration);
-    Ok(IronOxide::user_verify(jwt, maybe_duration)?)
+fn user_verify(jwt: &str, timeout: Option<&Duration>) -> Result<Option<UserResult>, String> {
+    Ok(IronOxide::user_verify(jwt, timeout.cloned())?)
 }
 fn user_create(
     jwt: &str,
     password: &str,
     opts: &UserCreateOpts,
-    timeout: Option<&Timeout>,
+    timeout: Option<&Duration>,
 ) -> Result<UserCreateResult, String> {
-    let maybe_duration = timeout.map(Timeout::into_duration);
-    Ok(IronOxide::user_create(jwt, password, opts, maybe_duration)?)
+    Ok(IronOxide::user_create(
+        jwt,
+        password,
+        opts,
+        timeout.cloned(),
+    )?)
 }
 fn initialize(init: &DeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String> {
     Ok(ironoxide::blocking::initialize(init, config)?)
@@ -899,12 +884,9 @@ fn initialize_and_rotate(
     init: &DeviceContext,
     password: &str,
     config: &IronOxideConfig,
-    timeout: Option<&Timeout>,
+    timeout: Option<&Duration>,
 ) -> Result<IronOxide, String> {
-    let rotate_timeout = match timeout {
-        Some(t) => Some(t.into_duration()),
-        None => config.sdk_operation_timeout,
-    };
+    let rotate_timeout = timeout.cloned().or(config.sdk_operation_timeout);
     Ok(
         match ironoxide::blocking::initialize_check_rotation(init, config)? {
             InitAndRotationCheck::RotationNeeded(ironoxide, rotation) => {
@@ -919,14 +901,13 @@ fn generate_new_device(
     jwt: &str,
     password: &str,
     opts: &DeviceCreateOpts,
-    timeout: Option<&Timeout>,
+    timeout: Option<&Duration>,
 ) -> Result<DeviceAddResult, String> {
-    let maybe_duration = timeout.map(Timeout::into_duration);
     Ok(IronOxide::generate_new_device(
         jwt,
         password,
         opts,
-        maybe_duration,
+        timeout.cloned(),
     )?)
 }
 fn user_list_devices(sdk: &IronOxide) -> Result<UserDeviceListResult, String> {

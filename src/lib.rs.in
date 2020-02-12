@@ -812,16 +812,16 @@ foreigner_class!(
 foreigner_class!(
     class IronOxideConfig{
         self_type IronOxideConfig;
-        constructor ironoxide_config::create(policy_caching: &PolicyCachingConfig, sdk_operation_timeout: Option<&Timeout>) -> IronOxideConfig;
+        constructor ironoxide_config::create(policy_caching: &PolicyCachingConfig, sdk_operation_timeout: Option<&Duration>) -> IronOxideConfig;
     }
 );
 
 foreigner_class!(
-    class Timeout{
-        self_type Timeout;
+    class Duration{
+        self_type Duration;
         private constructor = empty;
-        static_method Timeout::from_millis(millis: u64) -> Timeout;
-        static_method Timeout::from_secs(secs: u32) -> Timeout;
+        static_method Duration::from_millis(millis: u64) -> Duration;
+        static_method Duration::from_secs(secs: u64) -> Duration;
     }
 );
 
@@ -841,7 +841,7 @@ class IronOxide {
     /// @param jwt      valid IronCore JWT
     /// @param timeout  timeout for this operation or `null` for no timeout
     /// @return option of whether the user's account record exists in the IronCore system or not. Error if the request couldn't be made.
-    static_method user_verify(jwt:&str, timeout: Option<&Timeout>) -> Result<Option<UserResult>, String>; alias userVerify;
+    static_method user_verify(jwt:&str, timeout: Option<&Duration>) -> Result<Option<UserResult>, String>; alias userVerify;
     /// Create a new user within the IronCore system.
     ///
     /// @param jwt       valid IronCore or Auth0 JWT
@@ -850,7 +850,7 @@ class IronOxide {
     /// @param timeout   timeout for this operation or `null` for no timeout
     /// @return see {@link UserCreateResult}. For most use cases, the public key can be discarded as IronCore escrows your user's keys.
     ///         The escrowed keys are unlocked by the provided password.
-    static_method user_create(jwt:&str, password:&str, options:&UserCreateOpts, timeout: Option<&Timeout>) -> Result<UserCreateResult, String>; alias userCreate;
+    static_method user_create(jwt:&str, password:&str, options:&UserCreateOpts, timeout: Option<&Duration>) -> Result<UserCreateResult, String>; alias userCreate;
     /// Initialize IronOxide with a device. Verifies that the provided user/segment exists and the provided device
     /// keys are valid and exist for the provided account.
     /// 
@@ -871,7 +871,7 @@ class IronOxide {
     ///                  from the SDK-wide timeout as it is expected that this operation might take significantly
     ///                  longer than other operations. If `null`, defaults to the SDK operation timeout in `config`.
     /// @return an instance of the IronOxide
-    static_method initialize_and_rotate(init: &DeviceContext, password: &str, config: &IronOxideConfig, timeout: Option<&Timeout>) -> Result<IronOxide, String>; alias initializeAndRotate;
+    static_method initialize_and_rotate(init: &DeviceContext, password: &str, config: &IronOxideConfig, timeout: Option<&Duration>) -> Result<IronOxide, String>; alias initializeAndRotate;
     /// Generates a new device for the user specified in the signed JWT.
     ///
     /// This will result in a new transform key (from the user's master private key to the new device's public key)
@@ -882,7 +882,7 @@ class IronOxide {
     /// @param deviceCreateOptions  optional values, like device name
     /// @param timeout              timeout for this operation or `null` for no timeout
     /// @return details about the newly created device
-    static_method generate_new_device(jwt:&str, password:&str, deviceCreateOptions: &DeviceCreateOpts, timeout: Option<&Timeout>) -> Result<DeviceAddResult, String>; alias generateNewDevice;
+    static_method generate_new_device(jwt:&str, password:&str, deviceCreateOptions: &DeviceCreateOpts, timeout: Option<&Duration>) -> Result<DeviceAddResult, String>; alias generateNewDevice;
     /// Get all the devices for the current user
     ///
     /// @return all devices for the current user, sorted by the device id
