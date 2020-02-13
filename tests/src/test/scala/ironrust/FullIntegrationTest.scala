@@ -35,28 +35,10 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   val shortConfig = new IronOxideConfig(defaultPolicyCaching, shortTimeout)
   val defaultConfig = new IronOxideConfig(defaultPolicyCaching, defaultTimeout)
 
-  /**
-    * Convenience function to create a new DeviceContext instance from the stored off components we need. Takes the
-    * users account ID, segment ID, private device key bytes, and signing key bytes and returns a new DeviceContext
-    * instance. This helps us prove that we can create this class instance from scratch.
-    */
-  def createDeviceContext = {
-    new DeviceContext(
-      primaryTestUserId,
-      primaryTestUserSegmentId,
-      PrivateKey.validate(primaryTestUserPrivateDeviceKeyBytes),
-      DeviceSigningKeyPair.validate(primaryTestUserSigningKeysBytes)
-    )
-  }
+  var deviceContext: DeviceContext = null
+  var secondaryDeviceContext: DeviceContext = null
 
-  def createSecondaryDeviceContext = {
-    new DeviceContext(
-      secondaryTestUserId,
-      secondaryTestUserSegmentId,
-      PrivateKey.validate(secondaryTestUserPrivateDeviceKeyBytes),
-      DeviceSigningKeyPair.validate(secondaryTestUserSigningKeysBytes)
-    )
-  }
+  var sdk: IronOxide = null
 
   "User Create" should {
     "successfully create a new user" in {
@@ -135,7 +117,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       newDeviceResult.getName.get shouldBe deviceName
 
       //Store off the device component parts as raw values so we can use them to reconstruct
-      //an DeviceContext instance to initialize the SDK.
+      //a DeviceContext instance to initialize the SDK.
       primaryTestUserSegmentId = newDeviceResult.getSegmentId
       primaryTestUserPrivateDeviceKeyBytes = newDeviceResult.getDevicePrivateKey.asBytes
       primaryTestUserSigningKeysBytes = newDeviceResult.getSigningPrivateKey.asBytes
@@ -148,7 +130,21 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       newDeviceResult.getDevicePrivateKey.asBytes should have size 32
       newDeviceResult.getAccountId shouldBe primaryTestUserId
 
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
+      deviceContext = new DeviceContext(
+        primaryTestUserId,
+        primaryTestUserSegmentId,
+        PrivateKey.validate(primaryTestUserPrivateDeviceKeyBytes),
+        DeviceSigningKeyPair.validate(primaryTestUserSigningKeysBytes)
+      )
+
+      secondaryDeviceContext = new DeviceContext(
+        secondaryTestUserId,
+        secondaryTestUserSegmentId,
+        PrivateKey.validate(secondaryTestUserPrivateDeviceKeyBytes),
+        DeviceSigningKeyPair.validate(secondaryTestUserSigningKeysBytes)
+      )
+
+      sdk = IronOxide.initialize(deviceContext, defaultConfig)
       val deviceList = sdk.userListDevices.getResult
       deviceList.length shouldBe 1
       deviceList.head.getId.getId shouldBe a[java.lang.Long]
@@ -159,7 +155,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Initialize" should {
     "fail with short timeout" in {
-      val maybeSdk = Try(IronOxide.initialize(createDeviceContext, shortConfig)).toEither
+      val maybeSdk = Try(IronOxide.initialize(deviceContext, shortConfig)).toEither
       maybeSdk.isLeft shouldBe true
     }
   }
@@ -210,7 +206,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         Try(IronOxide.generateNewDevice(jwt, primaryTestUserPassword, new DeviceCreateOpts(), null)).toEither
       val dev3 = new DeviceContext(deviceResp2.value)
 
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val deviceList = Try(sdk.userListDevices).toEither.value.getResult
 
       deviceList.length shouldBe 3 // We have the primary device as well as secondary and tertiary devices generated above
@@ -234,7 +229,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "Delete valid device" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val result = Try(sdk.userDeleteDevice(secondaryDeviceId.clone)).toEither
 
       result.value shouldBe secondaryDeviceId
@@ -246,7 +240,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "Error for other user's device" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val deviceId = Try(DeviceId.validate(42)).toEither.value
       val result = Try(sdk.userDeleteDevice(deviceId)).toEither
 
@@ -254,27 +247,24 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "Delete current device" in {
-      val sdk = IronOxide.initialize(tertiaryDevice, defaultConfig)
-      sdk.userDeleteDevice(null)
+      val tertiarySdk = IronOxide.initialize(tertiaryDevice, defaultConfig)
+      tertiarySdk.userDeleteDevice(null)
 
       // Need to use a new SDK object since I just deleted the device of the old one
-      val sdk2 = IronOxide.initialize(createDeviceContext, defaultConfig)
       // confirm that the third device was deleted. Only primary should remain.
-      val deviceList = sdk2.userListDevices().getResult()
+      val deviceList = sdk.userListDevices().getResult()
       deviceList.length shouldBe 1
     }
   }
 
   "User Get PublicKey" should {
     "Return empty for ids that don't exist" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val badUserId = Try(UserId.validate("not-a-user")).toEither.value
       val result = Try(sdk.userGetPublicKey(List(badUserId).toArray)).toEither
       result.value.toList shouldBe Nil
     }
 
     "Return both for ids that do exist" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val result = Try(sdk.userGetPublicKey(List(primaryTestUserId, secondaryTestUserId).toArray)).toEither
       //Sort the values just to make sure the assertion doesn't fail due to ordering being off.
       result.value.toList
@@ -285,7 +275,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Group Create" should {
     "Create valid group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val groupName = Try(GroupName.validate("a name")).toEither.value
       val groupCreateResult =
         sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, true, true, null, Array(), Array(), true))
@@ -305,7 +294,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       validGroupId = groupCreateResult.getId
     }
     "Create default group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val groupCreateResult = sdk.groupCreate(new GroupCreateOpts())
 
       groupCreateResult.getId.getId.length shouldBe 32 //gooid
@@ -316,7 +304,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       groupCreateResult.getNeedsRotation.get.getBoolean shouldBe false
     }
     "Create group without members" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val groupName = Try(GroupName.validate("no member")).toEither.value
       val groupCreateResult =
         sdk.groupCreate(
@@ -337,18 +324,16 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Group Private Key Rotate" should {
     "Successfully rotate a valid group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val rotateResult = sdk.groupRotatePrivateKey(validGroupId)
       rotateResult.getNeedsRotation shouldBe false
       rotateResult.getId shouldBe validGroupId
     }
     "Fail for non-admin" in {
-      val sdk = IronOxide.initialize(createSecondaryDeviceContext, defaultConfig)
+      val sdk = IronOxide.initialize(secondaryDeviceContext, defaultConfig)
       val rotateResult = Try(sdk.groupRotatePrivateKey(validGroupId)).toEither
       rotateResult.isLeft shouldBe true
     }
     "Fail for invalid group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val rotateResult = Try(sdk.groupRotatePrivateKey(GroupId.validate("7584"))).toEither
       rotateResult.isLeft shouldBe true
     }
@@ -356,8 +341,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Group List" should {
     "Return previously created group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
-
       val groupResult = sdk.groupList().getResult()
 
       groupResult.length shouldBe 3
@@ -373,7 +356,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Group Get Metadata" should {
     "Return an error when retrieving a group that doesnt exist" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val groupId = Try(GroupId.validate("not-a-group=ID-that-exists=")).toEither.value
       val resp = Try(sdk.groupGetMetadata(groupId)).toEither
       resp.leftValue.getMessage should include("404")
@@ -381,7 +363,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "Succeed for valid group ID" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val resp = Try(sdk.groupGetMetadata(validGroupId)).toEither
       val group = resp.value
 
@@ -403,7 +384,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "succeed for a non-member" in {
-      val nonMemberSdk = IronOxide.initialize(createSecondaryDeviceContext, defaultConfig)
+      val nonMemberSdk = IronOxide.initialize(secondaryDeviceContext, defaultConfig)
       val resp = Try(nonMemberSdk.groupGetMetadata(validGroupId)).toEither
       val group = resp.value
 
@@ -425,7 +406,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val secondaryUserDevice =
         Try(IronOxide.generateNewDevice(jwt, secondaryTestUserPassword, new DeviceCreateOpts(), null)).toEither.value
 
-      val sdk = IronOxide.initialize(new DeviceContext(secondaryUserDevice), defaultConfig)
+      val sdk = IronOxide.initialize(secondaryDeviceContext, defaultConfig)
       val resp = Try(sdk.groupGetMetadata(validGroupId)).toEither
       val group = resp.value
 
@@ -444,7 +425,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Group update name" should {
     "change name of group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val newGroupName = Try(GroupName.validate("new name")).toEither.value
 
       val updateResp = Try(sdk.groupUpdateName(validGroupId, newGroupName.clone)).toEither
@@ -460,8 +440,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "clear out the group name" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
-
       val clearResp = Try(sdk.groupUpdateName(validGroupId, null)).toEither
       val clearedGroup = clearResp.value
 
@@ -471,25 +449,22 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Group remove member" should {
     "remove current user from group and fail for unknown user" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
-      val randoUser = Try(UserId.validate("not-a-real-user")).toEither.value
+      val randomUser = Try(UserId.validate("not-a-real-user")).toEither.value
       val removeMemberResp =
-        Try(sdk.groupRemoveMembers(validGroupId, List(primaryTestUserId, randoUser).toArray)).toEither
+        Try(sdk.groupRemoveMembers(validGroupId, List(primaryTestUserId, randomUser).toArray)).toEither
 
       val removeMember = removeMemberResp.value
 
       removeMember.getSucceeded.toList should have length 1
       removeMember.getSucceeded.toList.head shouldBe primaryTestUserId
       removeMember.getFailed.toList should have length 1
-      removeMember.getFailed.toList.head.getUser shouldBe randoUser
-      removeMember.getFailed.toList.head.getError should include(randoUser.getId)
+      removeMember.getFailed.toList.head.getUser shouldBe randomUser
+      removeMember.getFailed.toList.head.getError should include(randomUser.getId)
     }
   }
 
   "Group add member" should {
     "succeed and add user back to group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
-
       val addMemberResp =
         Try(sdk.groupAddMembers(validGroupId, List(primaryTestUserId, secondaryTestUserId).toArray)).toEither
 
@@ -500,8 +475,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "fail to add a user who is already in the group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
-
       val addMemberResp = Try(sdk.groupAddMembers(validGroupId, List(primaryTestUserId).toArray)).toEither
 
       val addMember = addMemberResp.value
@@ -513,7 +486,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   // Now that the secondary user has been added as a member, re-verify the metadata it gets back
   "Group Get Metadata" should {
     "succeed for a member" in {
-      val memberSdk = IronOxide.initialize(createSecondaryDeviceContext, defaultConfig)
+      val memberSdk = IronOxide.initialize(secondaryDeviceContext, defaultConfig)
       val resp = Try(memberSdk.groupGetMetadata(validGroupId)).toEither
       val group = resp.value
 
@@ -537,8 +510,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Group add admin" should {
     "succeed and add secondary user as an admin" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
-
       val addAdminResp = Try(sdk.groupAddAdmins(validGroupId, List(secondaryTestUserId).toArray)).toEither
 
       val addMember = addAdminResp.value
@@ -548,8 +519,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "fail to add a user who is already in an admin of the group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
-
       val addAdminsResp = Try(sdk.groupAddMembers(validGroupId, List(primaryTestUserId).toArray)).toEither
 
       val addMember = addAdminsResp.value
@@ -560,8 +529,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Group remove admin" should {
     "Succeed at removing a secondary user" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
-
       val removeMemberResp = Try(sdk.groupRemoveAdmins(validGroupId, List(secondaryTestUserId).toArray)).toEither
 
       val addMember = removeMemberResp.value
@@ -573,7 +540,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Document encrypt/decrypt" should {
     "succeed for good name and data" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val docName = Try(DocumentName.validate("name")).toEither.value
       val maybeResult =
@@ -584,7 +550,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "roundtrip for single level transform for no name and good data" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither
       val result = maybeResult.value
@@ -606,7 +571,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "grant to specified users" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
         sdk.documentEncrypt(
@@ -622,7 +586,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "grant to specified groups and INTERNAL/PII policy" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
         sdk.documentEncrypt(
@@ -651,7 +614,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "return failures for bad users and groups" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val notAUser = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID().toString())).toEither.value
@@ -677,7 +639,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "User Private Key Rotation" should {
     "successfully rotate a private key for good password" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val originalPublicKey = sdk.userGetPublicKey(Array(primaryTestUserId))(0).getPublicKey.asBytes
       val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
       val encryptResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither.value
@@ -702,13 +663,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       newDeviceResult.getAccountId.getId shouldBe primaryTestUserId.getId
     }
     "fail for wrong password" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val maybeRotationResult = Try(sdk.userRotatePrivateKey("wrong password")).toEither
 
       maybeRotationResult.leftValue.getMessage should include("AesError")
     }
     "rotate with initializeAndRotate for second user" in {
-      val sdk = IronOxide.initialize(createSecondaryDeviceContext, defaultConfig)
+      val sdk = IronOxide.initialize(secondaryDeviceContext, defaultConfig)
       val groupName = Try(GroupName.validate("a name")).toEither.value
       val groupCreateResult =
         sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, true, true, null, Array(), Array(), true))
@@ -719,11 +679,11 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       // try to rotate everything within 5ms and fail
       val failedSdk = Try(
         IronOxide
-          .initializeAndRotate(createSecondaryDeviceContext, secondaryTestUserPassword, defaultConfig, shortTimeout)
+          .initializeAndRotate(secondaryDeviceContext, secondaryTestUserPassword, defaultConfig, shortTimeout)
       ).toEither
       failedSdk.isLeft shouldBe true
       // rotate the private key using initializeAndRotate, but ignore the duplicate sdk returned
-      IronOxide.initializeAndRotate(createSecondaryDeviceContext, secondaryTestUserPassword, defaultConfig, longTimeout)
+      IronOxide.initializeAndRotate(secondaryDeviceContext, secondaryTestUserPassword, defaultConfig, longTimeout)
       val rotatedPublicKey = sdk.userGetPublicKey(Array(secondaryTestUserId))(0).getPublicKey.asBytes
       val rotatedDecryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
       val groupGetResult = sdk.groupGetMetadata(groupCreateResult.getId)
@@ -744,7 +704,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Document unmanaged encrypt/decrypt" should {
     "roundtrip through a user" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(sdk.advancedDocumentEncryptUnmanaged(data, new DocumentEncryptOpts())).toEither
       val result = maybeResult.value
@@ -762,7 +721,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "roundtrip through a group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
@@ -787,7 +745,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "grant to specified users" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
@@ -804,7 +761,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "grant to specified groups and INTERNAL/PII policy" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
@@ -833,7 +789,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "return failures for bad users and groups" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val notAUser = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
       val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID().toString())).toEither.value
@@ -863,7 +818,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Document update name" should {
     "successfully update to new name" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val newDocName = Try(DocumentName.validate("new name")).toEither.value
 
       val maybeUpdate = Try(sdk.documentUpdateName(validDocumentId, newDocName.clone)).toEither
@@ -875,8 +829,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "successfully clear name" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
-
       val maybeUpdate = Try(sdk.documentUpdateName(validDocumentId, null)).toEither
 
       val result = maybeUpdate.value
@@ -887,14 +839,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Document List" should {
     "Return previously created documents" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       sdk.documentList.getResult should have length 6
     }
   }
 
   "Document Get Metadata" should {
     "Return an error when retrieving a document that doesnt exist" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val docID = Try(DocumentId.validate("not-a-document-ID-that-exists=/")).toEither.value
       val resp = Try(sdk.documentGetMetadata(docID)).toEither
       resp.leftValue.getMessage should include("404")
@@ -902,7 +852,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "Return expected details about document" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val maybeDoc = Try(sdk.documentGetMetadata(validDocumentId)).toEither
 
       val doc = maybeDoc.value
@@ -918,8 +867,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Document update bytes" should {
     "Update encrypted bytes with existing AES key but still be decryptable" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
-
       val newData: Array[Byte] = List(10, 20, 30).map(_.toByte).toArray
       val maybeResult = Try(sdk.documentUpdateBytes(validDocumentId, newData)).toEither
       val updatedDoc = maybeResult.value
@@ -937,8 +884,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Document grant access" should {
     "succeed for good doc and user/group and fail for bad user/group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
-
       val badUserId = Try(UserId.validate("bad-user-id")).toEither.value
       val badGroupId = Try(GroupId.validate("bad-group-id")).toEither.value
 
@@ -961,7 +906,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Document revoke access" should {
     "succeed for good doc and user/group and fail for bad user/group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val badUserId = Try(UserId.validate("bad-user-id")).toEither.value
       val badGroupId = Try(GroupId.validate("bad-group-id")).toEither.value
 
@@ -985,14 +929,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   // group delete needs to be close to the bottom of these tests as previous tests depend on it still being available
   "Group Delete" should {
     "successfully delete valid group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       sdk.groupDelete(validGroupId) shouldBe validGroupId
 
       sdk.groupList.getResult.length shouldBe 2
     }
 
     "fail to delete non-existent group" in {
-      val sdk = IronOxide.initialize(createDeviceContext, defaultConfig)
       val badGroupId = Try(GroupId.validate("bad-group-id")).toEither.value
       val resp = Try(sdk.groupDelete(badGroupId)).toEither
       resp.leftValue.getMessage should include("404")
