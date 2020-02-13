@@ -860,14 +860,14 @@ mod ironoxide_config {
     ) -> IronOxideConfig {
         IronOxideConfig {
             policy_caching: policy_caching.clone(),
-            sdk_operation_timeout: sdk_operation_timeout.cloned(),
+            sdk_operation_timeout: sdk_operation_timeout.copied(),
         }
     }
 }
 
 //Java SDK wrapper functions for doing unnatural things with the JNI.
 fn user_verify(jwt: &str, timeout: Option<&Duration>) -> Result<Option<UserResult>, String> {
-    Ok(IronOxide::user_verify(jwt, timeout.cloned())?)
+    Ok(IronOxide::user_verify(jwt, timeout.copied())?)
 }
 fn user_create(
     jwt: &str,
@@ -879,7 +879,7 @@ fn user_create(
         jwt,
         password,
         opts,
-        timeout.cloned(),
+        timeout.copied(),
     )?)
 }
 fn initialize(init: &DeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String> {
@@ -891,7 +891,7 @@ fn initialize_and_rotate(
     config: &IronOxideConfig,
     timeout: Option<&Duration>,
 ) -> Result<IronOxide, String> {
-    let rotate_timeout = timeout.cloned().or(config.sdk_operation_timeout);
+    let rotate_timeout = timeout.copied().or(config.sdk_operation_timeout);
     Ok(
         match ironoxide::blocking::initialize_check_rotation(init, config)? {
             InitAndRotationCheck::RotationNeeded(ironoxide, rotation) => {
@@ -912,7 +912,7 @@ fn generate_new_device(
         jwt,
         password,
         opts,
-        timeout.cloned(),
+        timeout.copied(),
     )?)
 }
 fn user_list_devices(sdk: &IronOxide) -> Result<UserDeviceListResult, String> {
