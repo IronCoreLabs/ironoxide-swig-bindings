@@ -26,14 +26,14 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   var validGroupId: GroupId = null
   var validDocumentId: DocumentId = null
 
-  val defaultPolicyCaching = new PolicyCachingConfig(100)
+  val defaultPolicyCaching = new PolicyCachingConfig()
 
   val shortTimeout = Duration.from_millis(5)
   val defaultTimeout = Duration.from_secs(30)
   val longTimeout = Duration.from_secs(30)
 
   val shortConfig = new IronOxideConfig(defaultPolicyCaching, shortTimeout)
-  val defaultConfig = new IronOxideConfig(defaultPolicyCaching, defaultTimeout)
+  val defaultConfig = new IronOxideConfig()
 
   var deviceContext: DeviceContext = null
   var secondaryDeviceContext: DeviceContext = null

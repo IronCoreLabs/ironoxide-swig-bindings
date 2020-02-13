@@ -806,12 +806,14 @@ foreigner_class!(
     class PolicyCachingConfig{
         self_type PolicyCachingConfig;
         constructor policy_caching_config::create(max_entries: usize) -> PolicyCachingConfig;
+        constructor PolicyCachingConfig::default() -> PolicyCachingConfig;
     }
 );
 
 foreigner_class!(
     class IronOxideConfig{
         self_type IronOxideConfig;
+        constructor IronOxideConfig::default() -> IronOxideConfig;
         constructor ironoxide_config::create(policy_caching: &PolicyCachingConfig, sdk_operation_timeout: Option<&Duration>) -> IronOxideConfig;
     }
 );
