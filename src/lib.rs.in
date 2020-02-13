@@ -371,7 +371,7 @@ class DeviceContext {
     method device_context::device_private_key(&self) -> PrivateKey; alias getDevicePrivateKey;
     method device_context::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
     method device_context::to_json_string(&self) -> String; alias toJsonString;
-    static_method device_context::from_json_string(jsonString: String) -> Result<DeviceContext, String>; alias fromJsonString;
+    static_method device_context::from_json_string(jsonString: &str) -> Result<DeviceContext, String>; alias fromJsonString;
 });
 
 foreigner_class!(
@@ -444,7 +444,7 @@ foreigner_class!(class DeviceCreateOpts {
     self_type DeviceCreateOpts;
     //Construct the DeviceCreateOpts with `null` for name.
     constructor DeviceCreateOpts::default() -> DeviceCreateOpts;
-    static_method device_create_opts::create(_:Option<DeviceName>) -> DeviceCreateOpts;
+    static_method device_create_opts::create(_:Option<&DeviceName>) -> DeviceCreateOpts;
 });
 
 foreigner_class!(
@@ -572,7 +572,7 @@ class GroupCreateOpts {
     /// @param admins list of users to be added as admins of the group. This list takes priority over `addAsAdmin`, so the creating user will be added as an admin even if `addAsAdmin` is false.
     /// @param members list of users to be added as members of the group. This list takes priority over `addAsMember`, so the creating user will be added as a member even if `addAsMember` is false.
     /// @param needsRotation if true, the group will be marked as needing its private key rotated.
-    static_method group_create_opts::create(id: Option<GroupId>, name: Option<GroupName>, addAsAdmin: bool, addAsMember: bool, owner: Option<UserId>, admins: Vec<UserId>, members: Vec<UserId>, needsRotation: bool) -> GroupCreateOpts;
+    static_method group_create_opts::create(id: Option<&GroupId>, name: Option<&GroupName>, addAsAdmin: bool, addAsMember: bool, owner: Option<&UserId>, admins: Vec<UserId>, members: Vec<UserId>, needsRotation: bool) -> GroupCreateOpts;
 });
 
 foreigner_class!(
@@ -641,7 +641,7 @@ foreigner_class!(
 class PolicyGrant {
     self_type PolicyGrant;
     constructor PolicyGrant::default() -> PolicyGrant;
-    constructor policy_grant::create(_:Option<Category>, _:Option<Sensitivity>, _: Option<DataSubject>, _: Option<UserId>) -> PolicyGrant;
+    constructor policy_grant::create(_:Option<&Category>, _:Option<&Sensitivity>, _: Option<&DataSubject>, _: Option<&UserId>) -> PolicyGrant;
     method policy_grant::category(&self) -> Option<Category>;
     method policy_grant::sensitivity(&self) -> Option<Sensitivity>;
     method policy_grant::data_subject(&self) -> Option<DataSubject>; alias dataSubject;
@@ -659,7 +659,7 @@ class DocumentEncryptOpts {
     /// @param userGrants    list of user ids that will be granted access to the document
     /// @param groupGrants   list of group ids that will be granted access to the document
     /// @param policyGrant   The policy labels which will be evaluated to determine grants. 
-    static_method document_create_opt::create(id :Option<DocumentId>, name :Option<DocumentName>, grantToAuthor: bool, userGrants: Vec<UserId>, groupGrants: Vec<GroupId>, policyGrant:Option<PolicyGrant>) -> DocumentEncryptOpts;
+    static_method document_create_opt::create(id :Option<&DocumentId>, name :Option<&DocumentName>, grantToAuthor: bool, userGrants: Vec<UserId>, groupGrants: Vec<GroupId>, policyGrant:Option<&PolicyGrant>) -> DocumentEncryptOpts;
 });
 
 foreigner_class!(
@@ -900,7 +900,7 @@ class IronOxide {
     ///
     /// @param deviceId id of the device to delete. If `null`, delete the currently signed in device {@link #userListDevices()} to get ids
     /// @return id of deleted device
-    method user_delete_device(&self, deviceId: Option<DeviceId>) -> Result<DeviceId, String>; alias userDeleteDevice;
+    method user_delete_device(&self, deviceId: Option<&DeviceId>) -> Result<DeviceId, String>; alias userDeleteDevice;
     /// Rotate the current user's private key, but leave the public key the same.
     /// There's no black magic here! This is accomplished via multi-party computation with the
     /// IronCore webservice.
@@ -943,7 +943,7 @@ class IronOxide {
     /// @param id    id of the document to update
     /// @param name  new name for the document. Provide a {@link DocumentName} to update to a new name or `null` to clear the name field
     /// @return metadata about the document that was updated.
-    method document_update_name(&self, id: &DocumentId, name: Option<DocumentName>) -> Result<DocumentMetadataResult, String>; alias documentUpdateName;
+    method document_update_name(&self, id: &DocumentId, name: Option<&DocumentName>) -> Result<DocumentMetadataResult, String>; alias documentUpdateName;
     /// Grant access to a document. Recipients of document access can be either users or groups.
     ///
     /// @param documentId   id of the document whose access is is being modified
@@ -980,7 +980,7 @@ class IronOxide {
     /// @param id    id of the group to update
     /// @param name  new name for the group. Provide a {@link GroupName} to update to a new name or `null` to clear the name field
     /// @return metadata about the group that was updated
-    method group_update_name(&self, id: &GroupId, name: Option<GroupName>) -> Result<GroupMetaResult, String>; alias groupUpdateName;
+    method group_update_name(&self, id: &GroupId, name: Option<&GroupName>) -> Result<GroupMetaResult, String>; alias groupUpdateName;
     /// Delete the identified group.
     ///
     /// @param id unique id of group
