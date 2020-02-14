@@ -47,7 +47,6 @@ impl NullableBoolean {
 
 fn i8_conv(i8s: &[i8]) -> &[u8] {
     unsafe { core::slice::from_raw_parts(i8s.as_ptr() as *const u8, i8s.len()) }
-    //i8s.iter().map(|i| *i as u8).collect()
 }
 
 fn u8_conv(u8s: &[u8]) -> &[i8] {
