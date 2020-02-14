@@ -8,17 +8,16 @@ import scodec.bits.ByteVector
 
 class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   //Generates a random user ID and password to use for this full integration test
-  val primaryTestUserId = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
-  val primaryTestUserPassword = java.util.UUID.randomUUID().toString()
+  val primaryTestUserId = Try(UserId.validate(java.util.UUID.randomUUID.toString)).toEither.value
+  val primaryTestUserPassword = java.util.UUID.randomUUID.toString
 
-  //Stores record of integration test users device context parts that are then used to initialize the
-  //SDK for each test
+  //Stores record of integration test users device context parts that are then used to initialize the SDK
   var primaryTestUserSegmentId = 0L
   var primaryTestUserPrivateDeviceKeyBytes: Array[Byte] = null
   var primaryTestUserSigningKeysBytes: Array[Byte] = null
 
-  val secondaryTestUserId = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
-  val secondaryTestUserPassword = java.util.UUID.randomUUID().toString()
+  val secondaryTestUserId = Try(UserId.validate(java.util.UUID.randomUUID.toString)).toEither.value
+  val secondaryTestUserPassword = java.util.UUID.randomUUID.toString
   var secondaryTestUserSegmentId = 0L
   var secondaryTestUserPrivateDeviceKeyBytes: Array[Byte] = null
   var secondaryTestUserSigningKeysBytes: Array[Byte] = null
@@ -26,14 +25,14 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   var validGroupId: GroupId = null
   var validDocumentId: DocumentId = null
 
-  val defaultPolicyCaching = new PolicyCachingConfig()
+  val defaultPolicyCaching = new PolicyCachingConfig
 
   val shortTimeout = Duration.from_millis(5)
   val defaultTimeout = Duration.from_secs(30)
   val longTimeout = Duration.from_secs(30)
 
   val shortConfig = new IronOxideConfig(defaultPolicyCaching, shortTimeout)
-  val defaultConfig = new IronOxideConfig()
+  val defaultConfig = new IronOxideConfig
 
   var deviceContext: DeviceContext = null
   var secondaryDeviceContext: DeviceContext = null
@@ -97,7 +96,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "fail for bad user password" in {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
       val expectedException =
-        Try(IronOxide.generateNewDevice(jwt, "BAD PASSWORD", new DeviceCreateOpts(), null)).toEither
+        Try(IronOxide.generateNewDevice(jwt, "BAD PASSWORD", new DeviceCreateOpts, null)).toEither
       expectedException.leftValue.getMessage should include("AesError")
     }
 
@@ -203,7 +202,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       // a third device
       val deviceResp2 =
-        Try(IronOxide.generateNewDevice(jwt, primaryTestUserPassword, new DeviceCreateOpts(), null)).toEither
+        Try(IronOxide.generateNewDevice(jwt, primaryTestUserPassword, new DeviceCreateOpts, null)).toEither
       val dev3 = new DeviceContext(deviceResp2.value)
 
       val deviceList = Try(sdk.userListDevices).toEither.value.getResult
@@ -252,7 +251,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       // Need to use a new SDK object since I just deleted the device of the old one
       // confirm that the third device was deleted. Only primary should remain.
-      val deviceList = sdk.userListDevices().getResult()
+      val deviceList = sdk.userListDevices.getResult
       deviceList.length shouldBe 1
     }
   }
@@ -294,7 +293,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       validGroupId = groupCreateResult.getId
     }
     "Create default group" in {
-      val groupCreateResult = sdk.groupCreate(new GroupCreateOpts())
+      val groupCreateResult = sdk.groupCreate(new GroupCreateOpts)
 
       groupCreateResult.getId.getId.length shouldBe 32 //gooid
       groupCreateResult.isAdmin shouldBe true
@@ -341,7 +340,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Group List" should {
     "Return previously created group" in {
-      val groupResult = sdk.groupList().getResult()
+      val groupResult = sdk.groupList.getResult
 
       groupResult.length shouldBe 3
 
@@ -404,7 +403,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "provide public key to users out of the group" in {
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserId.getId)
       val secondaryUserDevice =
-        Try(IronOxide.generateNewDevice(jwt, secondaryTestUserPassword, new DeviceCreateOpts(), null)).toEither.value
+        Try(IronOxide.generateNewDevice(jwt, secondaryTestUserPassword, new DeviceCreateOpts, null)).toEither.value
 
       val sdk = IronOxide.initialize(secondaryDeviceContext, defaultConfig)
       val resp = Try(sdk.groupGetMetadata(validGroupId)).toEither
@@ -551,7 +550,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
     "roundtrip for single level transform for no name and good data" in {
       val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
-      val maybeResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither
+      val maybeResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts)).toEither
       val result = maybeResult.value
       result.getId.getId.length shouldBe 32
       result.getName.isPresent shouldBe false
@@ -615,8 +614,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
     "return failures for bad users and groups" in {
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
-      val notAUser = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
-      val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID().toString())).toEither.value
+      val notAUser = Try(UserId.validate(java.util.UUID.randomUUID.toString)).toEither.value
+      val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID.toString)).toEither.value
       val maybeResult = Try(
         sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, true, Array(notAUser), Array(notAGroup), null))
       ).toEither
@@ -641,7 +640,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "successfully rotate a private key for good password" in {
       val originalPublicKey = sdk.userGetPublicKey(Array(primaryTestUserId))(0).getPublicKey.asBytes
       val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
-      val encryptResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither.value
+      val encryptResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts)).toEither.value
       val decryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
       val rotateResult = Try(sdk.userRotatePrivateKey(primaryTestUserPassword)).toEither.value
       val rotatedPublicKey = sdk.userGetPublicKey(Array(primaryTestUserId))(0).getPublicKey.asBytes
@@ -674,7 +673,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, true, true, null, Array(), Array(), true))
       val originalPublicKey = sdk.userGetPublicKey(Array(secondaryTestUserId))(0).getPublicKey.asBytes
       val data: Array[Byte] = List(3, 1, 4).map(_.toByte).toArray
-      val encryptResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts())).toEither.value
+      val encryptResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts)).toEither.value
       val decryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
       // try to rotate everything within 5ms and fail
       val failedSdk = Try(
@@ -705,7 +704,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   "Document unmanaged encrypt/decrypt" should {
     "roundtrip through a user" in {
       val data: Array[Byte] = List(10, 2, 3).map(_.toByte).toArray
-      val maybeResult = Try(sdk.advancedDocumentEncryptUnmanaged(data, new DocumentEncryptOpts())).toEither
+      val maybeResult = Try(sdk.advancedDocumentEncryptUnmanaged(data, new DocumentEncryptOpts)).toEither
       val result = maybeResult.value
       result.getId.getId.length shouldBe 32
 
@@ -715,9 +714,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       decryptedResult.getId.getId shouldBe result.getId.getId
       decryptedResult.getDecryptedData shouldBe data
-      decryptedResult.getAccessViaUserOrGroup.getId() shouldBe primaryTestUserId.getId()
-      decryptedResult.getAccessViaUserOrGroup.isUser() shouldBe true
-      decryptedResult.getAccessViaUserOrGroup.isGroup() shouldBe false
+      decryptedResult.getAccessViaUserOrGroup.getId shouldBe primaryTestUserId.getId
+      decryptedResult.getAccessViaUserOrGroup.isUser shouldBe true
+      decryptedResult.getAccessViaUserOrGroup.isGroup shouldBe false
     }
 
     "roundtrip through a group" in {
@@ -739,9 +738,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       decryptedResult.getId.getId shouldBe result.getId.getId
       decryptedResult.getDecryptedData shouldBe data
-      decryptedResult.getAccessViaUserOrGroup.getId() shouldBe validGroupId.getId()
-      decryptedResult.getAccessViaUserOrGroup.isUser() shouldBe false
-      decryptedResult.getAccessViaUserOrGroup.isGroup() shouldBe true
+      decryptedResult.getAccessViaUserOrGroup.getId shouldBe validGroupId.getId
+      decryptedResult.getAccessViaUserOrGroup.isUser shouldBe false
+      decryptedResult.getAccessViaUserOrGroup.isGroup shouldBe true
     }
 
     "grant to specified users" in {
@@ -790,8 +789,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
     "return failures for bad users and groups" in {
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
-      val notAUser = Try(UserId.validate(java.util.UUID.randomUUID().toString())).toEither.value
-      val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID().toString())).toEither.value
+      val notAUser = Try(UserId.validate(java.util.UUID.randomUUID.toString)).toEither.value
+      val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID.toString)).toEither.value
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
           data,
