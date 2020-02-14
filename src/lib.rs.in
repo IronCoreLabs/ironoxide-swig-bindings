@@ -444,7 +444,7 @@ foreigner_class!(class DeviceCreateOpts {
     self_type DeviceCreateOpts;
     //Construct the DeviceCreateOpts with `null` for name.
     constructor DeviceCreateOpts::default() -> DeviceCreateOpts;
-    static_method device_create_opts::create(_:Option<&DeviceName>) -> DeviceCreateOpts;
+    static_method device_create_opts::create(name: Option<&DeviceName>) -> DeviceCreateOpts;
 });
 
 foreigner_class!(
@@ -453,7 +453,7 @@ foreigner_class!(
         self_type UserCreateOpts;
         //Construct the UserCreateOpts with a needs_rotation of false.
         constructor UserCreateOpts::default() -> UserCreateOpts;
-        static_method user_create_opts::create(_: bool) -> UserCreateOpts;
+        static_method user_create_opts::create(needsRotation: bool) -> UserCreateOpts;
     }
 );
 
@@ -641,7 +641,7 @@ foreigner_class!(
 class PolicyGrant {
     self_type PolicyGrant;
     constructor PolicyGrant::default() -> PolicyGrant;
-    constructor policy_grant::create(_:Option<&Category>, _:Option<&Sensitivity>, _: Option<&DataSubject>, _: Option<&UserId>) -> PolicyGrant;
+    constructor policy_grant::create(category:Option<&Category>,sensitivity:Option<&Sensitivity>,dataSubject:Option<&DataSubject>,substituteUser:Option<&UserId>) -> PolicyGrant;
     method policy_grant::category(&self) -> Option<Category>;
     method policy_grant::sensitivity(&self) -> Option<Sensitivity>;
     method policy_grant::data_subject(&self) -> Option<DataSubject>; alias dataSubject;

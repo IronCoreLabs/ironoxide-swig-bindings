@@ -329,7 +329,7 @@ mod device_context {
     }
 
     pub fn from_json_string(json_string: &str) -> Result<DeviceContext, String> {
-        serde_json::from_str(&json_string).map_err(|_| {
+        serde_json::from_str(json_string).map_err(|_| {
             "jsonString was not a valid JSON representation of a DeviceContext.".to_string()
         })
     }
