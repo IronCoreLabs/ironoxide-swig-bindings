@@ -807,6 +807,7 @@ foreigner_class!(
         self_type PolicyCachingConfig;
         constructor policy_caching_config::create(max_entries: usize) -> PolicyCachingConfig;
         constructor PolicyCachingConfig::default() -> PolicyCachingConfig;
+        method policy_caching_config::get_max_entries(&self) -> usize; alias getMaxEntries;
     }
 );
 
@@ -815,6 +816,8 @@ foreigner_class!(
         self_type IronOxideConfig;
         constructor IronOxideConfig::default() -> IronOxideConfig;
         constructor ironoxide_config::create(policy_caching: &PolicyCachingConfig, sdk_operation_timeout: Option<&Duration>) -> IronOxideConfig;
+        method ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig; 
+        method ironoxide_config::get_timeout(&self) -> Option<Duration>; alias getSdkOperationTimeout;
     }
 );
 
@@ -824,6 +827,8 @@ foreigner_class!(
         private constructor = empty;
         static_method Duration::from_millis(millis: u64) -> Duration;
         static_method Duration::from_secs(secs: u64) -> Duration;
+        method duration::get_millis(&self) -> u64; alias getMillis;
+        method duration::get_secs(&self) -> u64; alias getSecs;
     }
 );
 
@@ -890,7 +895,7 @@ class IronOxide {
     /// @return all devices for the current user, sorted by the device id
     method user_list_devices(&self) -> Result<UserDeviceListResult, String>; alias userListDevices;
     /// Get a list of user public keys given their IDs. Allows discovery of which user IDs have keys in the
-    /// IronCore system to determine of they can be added to groups or have documents shared with them.AsMut
+    /// IronCore system to determine of they can be added to groups or have documents shared with them.
     ///
     /// @param users list of user IDs to check
     /// @return map from user ID to users public key. Only users who have public keys will be returned in the map

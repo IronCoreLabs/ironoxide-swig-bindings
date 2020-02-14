@@ -849,6 +849,9 @@ mod policy_caching_config {
     pub fn create(max_entries: usize) -> PolicyCachingConfig {
         PolicyCachingConfig { max_entries }
     }
+    pub fn get_max_entries(pcc: &PolicyCachingConfig) -> usize {
+        pcc.max_entries
+    }
 }
 
 mod ironoxide_config {
@@ -861,6 +864,22 @@ mod ironoxide_config {
             policy_caching: policy_caching.clone(),
             sdk_operation_timeout: sdk_operation_timeout.copied(),
         }
+    }
+    pub fn get_policy_caching(ioc: &IronOxideConfig) -> PolicyCachingConfig {
+        ioc.policy_caching.clone()
+    }
+    pub fn get_timeout(ioc: &IronOxideConfig) -> Option<Duration> {
+        ioc.sdk_operation_timeout
+    }
+}
+
+mod duration {
+    use super::*;
+    pub fn get_millis(d: &Duration) -> u64 {
+        d.as_millis() as u64
+    }
+    pub fn get_secs(d: &Duration) -> u64 {
+        d.as_secs()
     }
 }
 
