@@ -40,7 +40,7 @@ impl UserWithKey {
 // This was created because Option<bool> cannot be converted to Java
 pub struct NullableBoolean(bool);
 impl NullableBoolean {
-    pub const fn boolean(&self) -> bool {
+    pub fn boolean(&self) -> bool {
         self.0
     }
 }
@@ -550,18 +550,18 @@ mod document_decrypt_unmanaged_result {
     }
 
     impl UserOrGroupJ {
-        pub const fn new(id: String, is_user: bool) -> UserOrGroupJ {
+        pub fn new(id: String, is_user: bool) -> UserOrGroupJ {
             UserOrGroupJ { id, is_user }
         }
         pub fn id(&self) -> String {
             self.id.clone()
         }
 
-        pub const fn is_user(&self) -> bool {
+        pub fn is_user(&self) -> bool {
             self.is_user
         }
 
-        pub const fn is_group(&self) -> bool {
+        pub fn is_group(&self) -> bool {
             !self.is_user
         }
     }
