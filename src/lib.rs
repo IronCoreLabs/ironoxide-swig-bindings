@@ -847,7 +847,7 @@ mod group_create_opts {
 
 mod policy_caching_config {
     use super::*;
-    pub const fn create(max_entries: usize) -> PolicyCachingConfig {
+    pub fn create(max_entries: usize) -> PolicyCachingConfig {
         PolicyCachingConfig { max_entries }
     }
 }
