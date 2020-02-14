@@ -1,6 +1,7 @@
 mod jni_c_header;
 use ironoxide::{
     blocking::BlockingIronOxide as IronOxide,
+    config::{IronOxideConfig, PolicyCachingConfig},
     document::{
         advanced::{DocumentDecryptUnmanagedResult, DocumentEncryptUnmanagedResult},
         AssociationType, DocAccessEditErr, DocumentAccessResult, DocumentDecryptResult,
@@ -21,7 +22,7 @@ use ironoxide::{
     PublicKey,
 };
 use serde_json;
-use std::convert::TryInto;
+use std::{convert::TryInto, time::Duration};
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
 
@@ -839,25 +840,57 @@ mod group_create_opts {
     }
 }
 
+mod policy_caching_config {
+    use super::*;
+    pub fn create(max_entries: usize) -> PolicyCachingConfig {
+        PolicyCachingConfig { max_entries }
+    }
+}
+
+mod ironoxide_config {
+    use super::*;
+    pub fn create(
+        policy_caching: &PolicyCachingConfig,
+        sdk_operation_timeout: Option<&Duration>,
+    ) -> IronOxideConfig {
+        IronOxideConfig {
+            policy_caching: policy_caching.clone(),
+            sdk_operation_timeout: sdk_operation_timeout.copied(),
+        }
+    }
+}
+
 //Java SDK wrapper functions for doing unnatural things with the JNI.
-fn user_verify(jwt: &str) -> Result<Option<UserResult>, String> {
-    Ok(IronOxide::user_verify(jwt)?)
+fn user_verify(jwt: &str, timeout: Option<&Duration>) -> Result<Option<UserResult>, String> {
+    Ok(IronOxide::user_verify(jwt, timeout.copied())?)
 }
 fn user_create(
     jwt: &str,
     password: &str,
     opts: &UserCreateOpts,
+    timeout: Option<&Duration>,
 ) -> Result<UserCreateResult, String> {
-    Ok(IronOxide::user_create(jwt, password, opts)?)
+    Ok(IronOxide::user_create(
+        jwt,
+        password,
+        opts,
+        timeout.copied(),
+    )?)
 }
-fn initialize(init: &DeviceContext) -> Result<IronOxide, String> {
-    Ok(ironoxide::blocking::initialize(init)?)
+fn initialize(init: &DeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String> {
+    Ok(ironoxide::blocking::initialize(init, config)?)
 }
-fn initialize_and_rotate(init: &DeviceContext, password: &str) -> Result<IronOxide, String> {
+fn initialize_and_rotate(
+    init: &DeviceContext,
+    password: &str,
+    config: &IronOxideConfig,
+    timeout: Option<&Duration>,
+) -> Result<IronOxide, String> {
+    let rotate_timeout = timeout.copied().or(config.sdk_operation_timeout);
     Ok(
-        match ironoxide::blocking::initialize_check_rotation(init)? {
+        match ironoxide::blocking::initialize_check_rotation(init, config)? {
             InitAndRotationCheck::RotationNeeded(ironoxide, rotation) => {
-                ironoxide.rotate_all(&rotation, password)?;
+                ironoxide.rotate_all(&rotation, password, rotate_timeout)?;
                 ironoxide
             }
             InitAndRotationCheck::NoRotationNeeded(ironoxide) => ironoxide,
@@ -868,8 +901,14 @@ fn generate_new_device(
     jwt: &str,
     password: &str,
     opts: &DeviceCreateOpts,
+    timeout: Option<&Duration>,
 ) -> Result<DeviceAddResult, String> {
-    Ok(IronOxide::generate_new_device(jwt, password, opts)?)
+    Ok(IronOxide::generate_new_device(
+        jwt,
+        password,
+        opts,
+        timeout.copied(),
+    )?)
 }
 fn user_list_devices(sdk: &IronOxide) -> Result<UserDeviceListResult, String> {
     Ok(sdk.user_list_devices()?)
