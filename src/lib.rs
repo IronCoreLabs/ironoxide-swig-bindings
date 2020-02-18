@@ -21,7 +21,6 @@ use ironoxide::{
     DeviceAddResult, DeviceContext, DeviceSigningKeyPair, InitAndRotationCheck, PrivateKey,
     PublicKey,
 };
-use serde_json;
 use std::{convert::TryInto, time::Duration};
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
@@ -133,7 +132,7 @@ mod device_id {
     pub fn id(d: &DeviceId) -> i64 {
         //By construction, DeviceIds are validated to be at most i64 max so this value won't
         //wrap over to be negative
-        d.id().clone() as i64
+        *d.id() as i64
     }
     pub fn validate(s: i64) -> Result<DeviceId, String> {
         Ok((s as u64).try_into()?)
@@ -186,8 +185,8 @@ mod device_signing_keys {
 
 mod device_create_opts {
     use super::*;
-    pub fn create(name: Option<DeviceName>) -> DeviceCreateOpts {
-        DeviceCreateOpts::new(name)
+    pub fn create(name: Option<&DeviceName>) -> DeviceCreateOpts {
+        DeviceCreateOpts::new(name.cloned())
     }
 }
 
@@ -201,12 +200,17 @@ mod user_create_opts {
 mod policy_grant {
     use super::*;
     pub fn create(
-        category: Option<Category>,
-        sensitivity: Option<Sensitivity>,
-        data_subject: Option<DataSubject>,
-        sub_id: Option<UserId>,
+        category: Option<&Category>,
+        sensitivity: Option<&Sensitivity>,
+        data_subject: Option<&DataSubject>,
+        sub_id: Option<&UserId>,
     ) -> PolicyGrant {
-        PolicyGrant::new(category, sensitivity, data_subject, sub_id)
+        PolicyGrant::new(
+            category.cloned(),
+            sensitivity.cloned(),
+            data_subject.cloned(),
+            sub_id.cloned(),
+        )
     }
     pub fn category(p: &PolicyGrant) -> Option<Category> {
         p.category().cloned()
@@ -260,12 +264,12 @@ mod document_create_opt {
     use ironoxide::document::{DocumentEncryptOpts, ExplicitGrant};
     use itertools::EitherOrBoth;
     pub fn create(
-        id: Option<DocumentId>,
-        name: Option<DocumentName>,
+        id: Option<&DocumentId>,
+        name: Option<&DocumentName>,
         grant_to_author: bool,
         user_grants: Vec<UserId>,
         group_grants: Vec<GroupId>,
-        policy_grant: Option<PolicyGrant>,
+        policy_grant: Option<&PolicyGrant>,
     ) -> DocumentEncryptOpts {
         let users_and_groups: Vec<UserOrGroup> = user_grants
             .into_iter()
@@ -278,11 +282,11 @@ mod document_create_opt {
             .collect();
 
         let explicit = ExplicitGrant::new(grant_to_author, &users_and_groups);
-        let grants = match policy_grant {
+        let grants = match policy_grant.cloned() {
             Some(policy) => EitherOrBoth::Both(explicit, policy),
             None => EitherOrBoth::Left(explicit),
         };
-        DocumentEncryptOpts::new(id, name, grants)
+        DocumentEncryptOpts::new(id.cloned(), name.cloned(), grants)
     }
 }
 
@@ -324,8 +328,8 @@ mod device_context {
         serde_json::to_string(d).expect("DeviceContext should always serialize to JSON")
     }
 
-    pub fn from_json_string(json_string: String) -> Result<DeviceContext, String> {
-        serde_json::from_str(&json_string).map_err(|_| {
+    pub fn from_json_string(json_string: &str) -> Result<DeviceContext, String> {
+        serde_json::from_str(json_string).map_err(|_| {
             "jsonString was not a valid JSON representation of a DeviceContext.".to_string()
         })
     }
@@ -352,10 +356,10 @@ mod device_add_result {
         d.name().cloned()
     }
     pub fn created(d: &DeviceAddResult) -> DateTime<Utc> {
-        d.created().clone()
+        *d.created()
     }
     pub fn last_updated(d: &DeviceAddResult) -> DateTime<Utc> {
-        d.last_updated().clone()
+        *d.last_updated()
     }
 }
 
@@ -409,11 +413,11 @@ mod user_device {
     }
 
     pub fn created(u: &UserDevice) -> DateTime<Utc> {
-        u.created().clone()
+        *u.created()
     }
 
     pub fn last_updated(u: &UserDevice) -> DateTime<Utc> {
-        u.last_updated().clone()
+        *u.last_updated()
     }
 }
 
@@ -427,7 +431,7 @@ mod user_device_list_result {
 mod document_list_result {
     use super::*;
     pub fn result(d: &DocumentListResult) -> Vec<DocumentListMeta> {
-        d.result().iter().map(|a| a.clone()).collect()
+        d.result().to_vec()
     }
 }
 
@@ -443,10 +447,10 @@ mod document_list_meta {
         d.association_type().clone()
     }
     pub fn created(d: &DocumentListMeta) -> DateTime<Utc> {
-        d.created().clone()
+        *d.created()
     }
     pub fn last_updated(d: &DocumentListMeta) -> DateTime<Utc> {
-        d.last_updated().clone()
+        *d.last_updated()
     }
 }
 
@@ -459,10 +463,10 @@ mod document_metadata_result {
         d.name().cloned()
     }
     pub fn created(d: &DocumentMetadataResult) -> DateTime<Utc> {
-        d.created().clone()
+        *d.created()
     }
     pub fn last_updated(d: &DocumentMetadataResult) -> DateTime<Utc> {
-        d.last_updated().clone()
+        *d.last_updated()
     }
     pub fn association_type(d: &DocumentMetadataResult) -> AssociationType {
         d.association_type().clone()
@@ -485,10 +489,10 @@ mod document_encrypt_result {
         d.name().cloned()
     }
     pub fn created(d: &DocumentEncryptResult) -> DateTime<Utc> {
-        d.created().clone()
+        *d.created()
     }
     pub fn last_updated(d: &DocumentEncryptResult) -> DateTime<Utc> {
-        d.last_updated().clone()
+        *d.last_updated()
     }
     pub fn encrypted_data(d: &DocumentEncryptResult) -> Vec<i8> {
         u8_conv(d.encrypted_data()).to_vec()
@@ -526,10 +530,10 @@ mod document_decrypt_result {
         d.name().cloned()
     }
     pub fn created(d: &DocumentDecryptResult) -> DateTime<Utc> {
-        d.created().clone()
+        *d.created()
     }
     pub fn last_updated(d: &DocumentDecryptResult) -> DateTime<Utc> {
-        d.last_updated().clone()
+        *d.last_updated()
     }
     pub fn decrypted_data(d: &DocumentDecryptResult) -> Vec<i8> {
         u8_conv(d.decrypted_data()).to_vec()
@@ -548,8 +552,8 @@ mod document_decrypt_unmanaged_result {
         pub fn new(id: String, is_user: bool) -> UserOrGroupJ {
             UserOrGroupJ { id, is_user }
         }
-        pub fn id(via: &UserOrGroupJ) -> String {
-            via.id.clone()
+        pub fn id(&self) -> String {
+            self.id.clone()
         }
 
         pub fn is_user(&self) -> bool {
@@ -683,7 +687,7 @@ mod document_access_change_result {
 
     impl DocumentAccessChange for DocumentEncryptUnmanagedResult {
         fn changed(&self) -> SucceededResult {
-            to_succeeded_result(&self.grants())
+            to_succeeded_result(self.grants())
         }
 
         fn errors(&self) -> FailedResult {
@@ -709,11 +713,11 @@ mod document_access_change_result {
                     DocAccessEditErr {
                         user_or_group: UserOrGroup::User { id },
                         err,
-                    } => Either::Left(UserAccessErr { id: id, err: err }),
+                    } => Either::Left(UserAccessErr { id, err }),
                     DocAccessEditErr {
                         user_or_group: UserOrGroup::Group { id },
                         err,
-                    } => Either::Right(GroupAccessErr { id: id, err: err }),
+                    } => Either::Right(GroupAccessErr { id, err }),
                 });
 
         FailedResult { users, groups }
@@ -729,13 +733,13 @@ mod group_meta_result {
         g.name().cloned()
     }
     pub fn created(g: &GroupMetaResult) -> DateTime<Utc> {
-        g.created().clone()
+        *g.created()
     }
     pub fn last_updated(g: &GroupMetaResult) -> DateTime<Utc> {
-        g.last_updated().clone()
+        *g.last_updated()
     }
     pub fn needs_rotation(g: &GroupMetaResult) -> Option<NullableBoolean> {
-        g.needs_rotation().map(|rotation| NullableBoolean(rotation))
+        g.needs_rotation().map(NullableBoolean)
     }
 }
 
@@ -760,13 +764,13 @@ mod group_create_result {
         GroupUserList(g.members().clone())
     }
     pub fn created(g: &GroupCreateResult) -> DateTime<Utc> {
-        g.created().clone()
+        *g.created()
     }
     pub fn last_updated(g: &GroupCreateResult) -> DateTime<Utc> {
-        g.last_updated().clone()
+        *g.last_updated()
     }
     pub fn needs_rotation(g: &GroupCreateResult) -> Option<NullableBoolean> {
-        g.needs_rotation().map(|rotation| NullableBoolean(rotation))
+        g.needs_rotation().map(NullableBoolean)
     }
 }
 
@@ -795,13 +799,13 @@ mod group_get_result {
         result.member_list().cloned().map(GroupUserList)
     }
     pub fn created(g: &GroupGetResult) -> DateTime<Utc> {
-        g.created().clone()
+        *g.created()
     }
     pub fn last_updated(g: &GroupGetResult) -> DateTime<Utc> {
-        g.last_updated().clone()
+        *g.last_updated()
     }
     pub fn needs_rotation(g: &GroupGetResult) -> Option<NullableBoolean> {
-        g.needs_rotation().map(|rotation| NullableBoolean(rotation))
+        g.needs_rotation().map(NullableBoolean)
     }
 }
 
@@ -818,21 +822,21 @@ mod group_update_private_key_result {
 mod group_create_opts {
     use super::*;
     pub fn create(
-        id: Option<GroupId>,
-        name: Option<GroupName>,
+        id: Option<&GroupId>,
+        name: Option<&GroupName>,
         add_as_admin: bool,
         add_as_member: bool,
-        owner: Option<UserId>,
+        owner: Option<&UserId>,
         admins: Vec<UserId>,
         members: Vec<UserId>,
         needs_rotation: bool,
     ) -> GroupCreateOpts {
         GroupCreateOpts::new(
-            id,
-            name,
+            id.cloned(),
+            name.cloned(),
             add_as_admin,
             add_as_member,
-            owner,
+            owner.cloned(),
             admins,
             members,
             needs_rotation,
@@ -844,6 +848,9 @@ mod policy_caching_config {
     use super::*;
     pub fn create(max_entries: usize) -> PolicyCachingConfig {
         PolicyCachingConfig { max_entries }
+    }
+    pub fn get_max_entries(pcc: &PolicyCachingConfig) -> usize {
+        pcc.max_entries
     }
 }
 
@@ -857,6 +864,22 @@ mod ironoxide_config {
             policy_caching: policy_caching.clone(),
             sdk_operation_timeout: sdk_operation_timeout.copied(),
         }
+    }
+    pub fn get_policy_caching(ioc: &IronOxideConfig) -> PolicyCachingConfig {
+        ioc.policy_caching.clone()
+    }
+    pub fn get_timeout(ioc: &IronOxideConfig) -> Option<Duration> {
+        ioc.sdk_operation_timeout
+    }
+}
+
+mod duration {
+    use super::*;
+    pub fn get_millis(d: &Duration) -> u64 {
+        d.as_millis() as u64
+    }
+    pub fn get_secs(d: &Duration) -> u64 {
+        d.as_secs()
     }
 }
 
@@ -914,12 +937,11 @@ fn user_list_devices(sdk: &IronOxide) -> Result<UserDeviceListResult, String> {
     Ok(sdk.user_list_devices()?)
 }
 fn user_get_public_key(sdk: &IronOxide, users: Vec<UserId>) -> Result<Vec<UserWithKey>, String> {
-    let users = &users.into_iter().map(|s| s.into()).collect::<Vec<_>>();
-    let mut result = sdk.user_get_public_key(users)?;
-    Ok(result.drain().into_iter().map(UserWithKey).collect())
+    let result = sdk.user_get_public_key(&users)?;
+    Ok(result.into_iter().map(UserWithKey).collect())
 }
-fn user_delete_device(sdk: &IronOxide, device_id: Option<DeviceId>) -> Result<DeviceId, String> {
-    Ok(sdk.user_delete_device(device_id.as_ref())?)
+fn user_delete_device(sdk: &IronOxide, device_id: Option<&DeviceId>) -> Result<DeviceId, String> {
+    Ok(sdk.user_delete_device(device_id)?)
 }
 fn user_rotate_private_key(
     sdk: &IronOxide,
@@ -959,9 +981,9 @@ fn document_decrypt(sdk: &IronOxide, data: &[i8]) -> Result<DocumentDecryptResul
 fn document_update_name(
     sdk: &IronOxide,
     document_id: &DocumentId,
-    name: Option<DocumentName>,
+    name: Option<&DocumentName>,
 ) -> Result<DocumentMetadataResult, String> {
-    Ok(sdk.document_update_name(document_id, name.as_ref())?)
+    Ok(sdk.document_update_name(document_id, name)?)
 }
 
 fn document_grant_access(
@@ -1013,9 +1035,9 @@ fn group_create(sdk: &IronOxide, opts: &GroupCreateOpts) -> Result<GroupCreateRe
 fn group_update_name(
     sdk: &IronOxide,
     id: &GroupId,
-    name: Option<GroupName>,
+    name: Option<&GroupName>,
 ) -> Result<GroupMetaResult, String> {
-    Ok(sdk.group_update_name(id, name.as_ref())?)
+    Ok(sdk.group_update_name(id, name)?)
 }
 fn group_delete(sdk: &IronOxide, id: &GroupId) -> Result<GroupId, String> {
     Ok(sdk.group_delete(id)?)
