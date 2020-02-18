@@ -937,8 +937,8 @@ fn user_list_devices(sdk: &IronOxide) -> Result<UserDeviceListResult, String> {
     Ok(sdk.user_list_devices()?)
 }
 fn user_get_public_key(sdk: &IronOxide, users: Vec<UserId>) -> Result<Vec<UserWithKey>, String> {
-    let mut result = sdk.user_get_public_key(&users)?;
-    Ok(result.drain().map(UserWithKey).collect())
+    let result = sdk.user_get_public_key(&users)?;
+    Ok(result.into_iter().map(UserWithKey).collect())
 }
 fn user_delete_device(sdk: &IronOxide, device_id: Option<&DeviceId>) -> Result<DeviceId, String> {
     Ok(sdk.user_delete_device(device_id)?)
