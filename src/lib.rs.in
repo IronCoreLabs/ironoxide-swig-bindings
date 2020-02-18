@@ -809,9 +809,9 @@ foreigner_class!(
 /// up encrypting a document with a PolicyGrant.
     class PolicyCachingConfig{
         self_type PolicyCachingConfig;
-        /// @param max_entries  maximum number of policy evaluations that will be cached by the SDK.
-        ///                     If the maximum number is exceeded, the cache will be cleared prior to storing the next entry.
-        constructor policy_caching_config::create(max_entries: usize) -> PolicyCachingConfig;
+        /// @param maxEntries  maximum number of policy evaluations that will be cached by the SDK.
+        ///                    If the maximum number is exceeded, the cache will be cleared prior to storing the next entry.
+        constructor policy_caching_config::create(maxEntries: usize) -> PolicyCachingConfig;
         constructor PolicyCachingConfig::default() -> PolicyCachingConfig;
         method policy_caching_config::get_max_entries(&self) -> usize; alias getMaxEntries;
     }
@@ -822,9 +822,9 @@ foreigner_class!(
     class IronOxideConfig{
         self_type IronOxideConfig;
         constructor IronOxideConfig::default() -> IronOxideConfig;
-        /// @param policy_caching         policy caching configuration for IronOxide
-        /// @param sdk_operation_timeout  timeout for all SDK methods
-        constructor ironoxide_config::create(policy_caching: &PolicyCachingConfig, sdk_operation_timeout: Option<&Duration>) -> IronOxideConfig;
+        /// @param policyCaching        policy caching configuration for IronOxide
+        /// @param sdkOperationTimeout  timeout for all SDK methods
+        constructor ironoxide_config::create(policyCaching: &PolicyCachingConfig, sdkOperationTimeout: Option<&Duration>) -> IronOxideConfig;
         method ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig; 
         method ironoxide_config::get_timeout(&self) -> Option<Duration>; alias getSdkOperationTimeout;
     }
