@@ -818,7 +818,7 @@ foreigner_class!(
 );
 
 foreigner_class!(
-///Top-level configuration object for IronOxide
+/// Top-level configuration object for IronOxide
     class IronOxideConfig{
         self_type IronOxideConfig;
         constructor IronOxideConfig::default() -> IronOxideConfig;
