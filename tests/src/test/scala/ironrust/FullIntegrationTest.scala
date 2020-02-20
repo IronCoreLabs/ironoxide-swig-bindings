@@ -48,6 +48,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       createResult.getUserPublicKey.asBytes should have length 64
       createResult.getNeedsRotation shouldBe true
+      createResult.getUserPublicKey.equals(createResult.getUserPublicKey) shouldBe true
     }
 
     "successfully create a 2nd new user" in {

@@ -17,6 +17,22 @@ class PublicKey {
     private constructor = empty;
     static_method public_key::validate(bytes: &[i8]) -> Result<PublicKey, String>;
     method public_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.asBytes().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof PublicKey){
+            PublicKey key = (PublicKey) obj;
+            return java.util.Arrays.equals(key.asBytes(), this.asBytes());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -27,6 +43,22 @@ class PrivateKey {
     private constructor = empty;
     static_method private_key::validate(bytes: &[i8]) -> Result<PrivateKey, String>;
     method private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.asBytes().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof PrivateKey){
+            PrivateKey key = (PrivateKey) obj;
+            return java.util.Arrays.equals(key.asBytes(), this.asBytes());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -37,6 +69,22 @@ class DeviceSigningKeyPair {
     private constructor = empty;
     static_method device_signing_keys::validate(bytes: &[i8]) -> Result<DeviceSigningKeyPair, String>;
     method device_signing_keys::as_bytes(&self) -> Vec<i8>; alias asBytes;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.asBytes().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DeviceSigningKeyPair){
+            DeviceSigningKeyPair key = (DeviceSigningKeyPair) obj;
+            return java.util.Arrays.equals(key.asBytes(), this.asBytes());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -148,12 +196,27 @@ class GroupName {
 });
 
 foreigner_class!(
-    class NullableBoolean{
-        self_type NullableBoolean;
-        private constructor = empty;
-        method NullableBoolean::boolean(&self) -> bool; alias getBoolean;
+class NullableBoolean{
+    self_type NullableBoolean;
+    private constructor = empty;
+    method NullableBoolean::boolean(&self) -> bool; alias getBoolean;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return Boolean.hashCode(this.getBoolean());
     }
-);
+    public boolean equals(Object obj) {
+        if(obj instanceof NullableBoolean){
+            NullableBoolean b = (NullableBoolean) obj;
+            return b.getBoolean() == this.getBoolean();
+        }
+        return false;
+    }
+"#;
+});
 
 foreigner_class!(
 /// ID of a document. Unique within the segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`.
@@ -314,6 +377,22 @@ class VisibleUser {
     self_type VisibleUser;
     private constructor = empty;
     method visible_user::id(&self) -> UserId; alias getId;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof VisibleUser){
+            VisibleUser user = (VisibleUser) obj;
+            return user.getId().equals(this.getId());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -323,6 +402,23 @@ class VisibleGroup {
     private constructor = empty;
     method visible_group::id(&self) -> GroupId; alias getId;
     method visible_group::name(&self) -> Option<GroupName>; alias getName;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode() * this.getName().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof VisibleGroup){
+            VisibleGroup group = (VisibleGroup) obj;
+            return group.getId().equals(this.getId()) && 
+            group.getName().equals(this.getName());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -332,6 +428,23 @@ class UserAccessErr {
     private constructor = empty;
     method UserAccessErr::id(&self) -> UserId; alias getId;
     method UserAccessErr::err(&self) -> String; alias getErr;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode() * this.getErr().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof UserAccessErr){
+            UserAccessErr uae = (UserAccessErr) obj;
+            return uae.getId().equals(this.getId()) && 
+            uae.getErr().equals(this.getErr());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -341,6 +454,23 @@ class GroupAccessErr {
     private constructor = empty;
     method GroupAccessErr::id(&self) -> GroupId; alias getId;
     method GroupAccessErr::err(&self) -> String; alias getErr;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode() * this.getErr().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof GroupAccessErr){
+            GroupAccessErr gae = (GroupAccessErr) obj;
+            return gae.getId().equals(this.getId()) && 
+            gae.getErr().equals(this.getErr());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(class UserWithKey {
@@ -348,12 +478,45 @@ foreigner_class!(class UserWithKey {
     private constructor = empty;
     method UserWithKey::user(&self) -> UserId; alias getUser;
     method UserWithKey::public_key(&self) -> PublicKey; alias getPublicKey;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getUser().hashCode() * this.getPublicKey().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof UserWithKey){
+            UserWithKey uwk = (UserWithKey) obj;
+            return uwk.getUser().equals(this.getUser()) && 
+            uwk.getPublicKey().equals(this.getPublicKey());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(class GroupUserList {
     self_type GroupUserList;
     private constructor = empty;
     method GroupUserList::list(&self) -> Vec<UserId>; alias getList;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getList().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof GroupUserList){
+            GroupUserList gul = (GroupUserList) obj;
+            return java.util.Arrays.equals(gul.getList(), this.getList());
+        }
+        return false;
+    }
+"#;
 });
 
 ///
@@ -372,6 +535,26 @@ class DeviceContext {
     method device_context::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
     method device_context::to_json_string(&self) -> String; alias toJsonString;
     static_method device_context::from_json_string(jsonString: &str) -> Result<DeviceContext, String>; alias fromJsonString;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getAccountId().hashCode() * Long.hashCode(this.getSegmentId()) * 
+        this.getDevicePrivateKey().hashCode() * this.getSigningPrivateKey().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DeviceContext){
+            DeviceContext device = (DeviceContext) obj;
+            return device.getAccountId().equals(this.getAccountId()) && 
+            device.getSegmentId() == this.getSegmentId() && 
+            device.getDevicePrivateKey().equals(this.getDevicePrivateKey()) && 
+            device.getSigningPrivateKey().equals(this.getSigningPrivateKey());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -395,6 +578,32 @@ class DeviceAddResult {
     method device_add_result::created(&self) -> DateTime<Utc>; alias getCreated;
     /// The date and time that the device was last updated
     method device_add_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getAccountId().hashCode() * Long.hashCode(this.getSegmentId()) * 
+        this.getDevicePrivateKey().hashCode() * this.getSigningPrivateKey().hashCode() *
+        this.getDeviceId().hashCode() * this.getName().hashCode() * this.getCreated().hashCode() *
+        this.getLastUpdated().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DeviceAddResult){
+            DeviceAddResult device = (DeviceAddResult) obj;
+            return device.getAccountId().equals(this.getAccountId()) && 
+            device.getSegmentId() == this.getSegmentId() && 
+            device.getDevicePrivateKey().equals(this.getDevicePrivateKey()) && 
+            device.getSigningPrivateKey().equals(this.getSigningPrivateKey()) &&
+            device.getDeviceId().equals(this.getDeviceId()) && 
+            device.getName().equals(this.getName()) && 
+            device.getCreated().equals(this.getCreated()) && 
+            device.getLastUpdated().equals(this.getLastUpdated());
+        }
+        return false;
+    }
+"#;
 });
 
 ///
@@ -409,6 +618,23 @@ class UserCreateResult {
     method user_create_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
     /// True if the private key of the user's keypair needs to be rotated, else false.
     method user_create_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getUserPublicKey().hashCode() * Boolean.hashCode(this.getNeedsRotation());
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof UserCreateResult){
+            UserCreateResult ucr = (UserCreateResult) obj;
+            return ucr.getUserPublicKey().equals(this.getUserPublicKey()) && 
+            ucr.getNeedsRotation() == this.getNeedsRotation();
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -420,6 +646,26 @@ class UserResult {
     method user_result::segment_id(&self) -> usize; alias getSegmentId;
     method user_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
     method user_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getAccountId().hashCode() * Long.hashCode(this.getSegmentId()) *
+        this.getUserPublicKey().hashCode() * Boolean.hashCode(this.getNeedsRotation());
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof UserResult){
+            UserResult ur = (UserResult) obj;
+            return ur.getAccountId().equals(this.getAccountId()) && 
+            ur.getSegmentId() == this.getSegmentId() &&
+            ur.getUserPublicKey().equals(this.getUserPublicKey()) &&
+            ur.getNeedsRotation() == this.getNeedsRotation();
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -438,6 +684,28 @@ class UserDevice {
     /// True if this device instance is the one that was used to make
     /// the API request
     method UserDevice::is_current_device(&self) -> bool; alias isCurrentDevice;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode() * this.getName().hashCode() *
+        this.getLastUpdated().hashCode() * this.getCreated().hashCode() *
+        Boolean.hashCode(this.isCurrentDevice());
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof UserDevice){
+            UserDevice ud = (UserDevice) obj;
+            return ud.getId().equals(this.getId()) && 
+            ud.getName().equals(this.getName()) &&
+            ud.getLastUpdated().equals(this.getLastUpdated()) &&
+            ud.getCreated().equals(this.getCreated()) &&
+            ud.isCurrentDevice() == this.isCurrentDevice();
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(class DeviceCreateOpts {
