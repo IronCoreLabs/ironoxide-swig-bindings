@@ -144,7 +144,6 @@ foreigner_class!(
 class UserOrGroupId {
     self_type UserOrGroupJ;
     private constructor = empty;
-
     method UserOrGroupJ::id(&self) -> String; alias getId;
     method UserOrGroupJ::is_user(&self) -> bool; alias isUser;
     method UserOrGroupJ::is_group(&self) -> bool; alias isGroup;
@@ -166,7 +165,6 @@ foreigner_code r#"
         return false;
     }
 "#;
-
 });
 
 foreigner_class!(
@@ -176,7 +174,6 @@ class GroupName {
     private constructor = empty;
     static_method group_name::validate(s: &str) -> Result<GroupName, String>;
     method group_name::name(&self) -> String; alias getName;
-    method GroupName::clone(&self) -> GroupName;
     foreigner_code r#"
     /**
      * This implementation calls native code, which means it's relatively slow.
@@ -250,7 +247,6 @@ class DocumentName {
     private constructor = empty;
     static_method document_name::validate(s: &str) -> Result<DocumentName, String>;
     method document_name::name(&self) -> String; alias getName;
-    method DocumentName::clone(&self) -> DocumentName;
     foreigner_code r#"
     /**
      * This implementation calls native code, which means it's relatively slow.
@@ -276,7 +272,6 @@ class DeviceId {
     private constructor = empty;
     static_method device_id::validate(s: i64) -> Result<DeviceId, String>;
     method device_id::id(&self) -> i64; alias getId;
-    method DeviceId::clone(&self) -> DeviceId;
     foreigner_code r#"
     /**
      * This implementation calls native code, which means it's relatively slow.
@@ -352,7 +347,6 @@ class DeviceName {
     private constructor = empty;
     static_method device_name::validate(s: &str) -> Result<DeviceName, String>;
     method device_name::name(&self) -> String; alias getName;
-    method DeviceName::clone(&self) -> DeviceName;
     foreigner_code r#"
     /**
      * This implementation calls native code, which means it's relatively slow.
@@ -915,18 +909,18 @@ foreigner_class!(class GroupGetResult{
         this.getNeedsRotation().hashCode();
     }
     public boolean equals(Object obj) {
-        if(obj instanceof GroupCreateResult){
-            GroupCreateResult gcr = (GroupCreateResult) obj;
-            return gcr.getId().equals(this.getId()) && 
-            gcr.getName().equals(this.getName()) &&
-            gcr.getGroupMasterPublicKey().equals(this.getGroupMasterPublicKey()) &&
-            gcr.isAdmin() == this.isAdmin() &&
-            gcr.isMember() == this.isMember() &&
-            gcr.getCreated().equals(this.getCreated()) &&
-            gcr.getLastUpdated().equals(this.getLastUpdated()) &&
-            gcr.getAdminList().equals(this.getAdminList()) &&
-            gcr.getMemberList().equals(this.getMemberList()) &&
-            gcr.getNeedsRotation().equals(this.getNeedsRotation());
+        if(obj instanceof GroupGetResult){
+            GroupGetResult ggr = (GroupGetResult) obj;
+            return ggr.getId().equals(this.getId()) && 
+            ggr.getName().equals(this.getName()) &&
+            ggr.getGroupMasterPublicKey().equals(this.getGroupMasterPublicKey()) &&
+            ggr.isAdmin() == this.isAdmin() &&
+            ggr.isMember() == this.isMember() &&
+            ggr.getCreated().equals(this.getCreated()) &&
+            ggr.getLastUpdated().equals(this.getLastUpdated()) &&
+            ggr.getAdminList().equals(this.getAdminList()) &&
+            ggr.getMemberList().equals(this.getMemberList()) &&
+            ggr.getNeedsRotation().equals(this.getNeedsRotation());
         }
         return false;
     }
@@ -1563,8 +1557,8 @@ foreigner_class!(
 class Duration{
     self_type Duration;
     private constructor = empty;
-    static_method Duration::from_millis(millis: u64) -> Duration;
-    static_method Duration::from_secs(secs: u64) -> Duration;
+    static_method Duration::from_millis(millis: u64) -> Duration; alias fromMillis;
+    static_method Duration::from_secs(secs: u64) -> Duration; alias fromSecs;
     method duration::get_millis(&self) -> u64; alias getMillis;
     method duration::get_secs(&self) -> u64; alias getSecs;
     foreigner_code r#"
