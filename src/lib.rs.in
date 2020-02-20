@@ -716,14 +716,13 @@ foreigner_class!(class DeviceCreateOpts {
 });
 
 foreigner_class!(
-    /// Options that can be specified creating a user.
-    class UserCreateOpts {
-        self_type UserCreateOpts;
-        //Construct the UserCreateOpts with a needs_rotation of false.
-        constructor UserCreateOpts::default() -> UserCreateOpts;
-        static_method user_create_opts::create(needsRotation: bool) -> UserCreateOpts;
-    }
-);
+/// Options that can be specified creating a user.
+class UserCreateOpts {
+    self_type UserCreateOpts;
+    //Construct the UserCreateOpts with a needs_rotation of false.
+    constructor UserCreateOpts::default() -> UserCreateOpts;
+    static_method user_create_opts::create(needsRotation: bool) -> UserCreateOpts;
+});
 
 foreigner_class!(
 /// Devices for a user, sorted by the device id.
@@ -731,6 +730,22 @@ class UserDeviceListResult {
     self_type UserDeviceListResult;
     private constructor = empty;
     method user_device_list_result::result(&self) -> Vec<UserDevice>; alias getResult;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getResult().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof UserDeviceListResult){
+            UserDeviceListResult udlr = (UserDeviceListResult) obj;
+            return java.util.Arrays.equals(udlr.getResult(), this.getResult());
+        }
+        return false;
+    }
+"#;
 });
 
 ///
@@ -756,41 +771,112 @@ class GroupMetaResult{
     method group_meta_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
     method group_meta_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode() * this.getName().hashCode() *
+        Boolean.hashCode(this.isAdmin()) * Boolean.hashCode(this.isMember()) *
+        this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
+        this.getNeedsRotation().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof GroupMetaResult){
+            GroupMetaResult gmr = (GroupMetaResult) obj;
+            return gmr.getId().equals(this.getId()) && 
+            gmr.getName().equals(this.getName()) &&
+            gmr.isAdmin() == this.isAdmin() &&
+            gmr.isMember() == this.isMember() &&
+            gmr.getCreated().equals(this.getCreated()) &&
+            gmr.getLastUpdated().equals(this.getLastUpdated()) &&
+            gmr.getNeedsRotation().equals(this.getNeedsRotation());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
-    /// Group information from creation.
-    class GroupCreateResult{
-        self_type GroupCreateResult;
-        private constructor = empty;
-        /// get the unique id of the group 
-        method group_create_result::id(&self) -> GroupId; alias getId;
-        /// null if the group has no name, else the group's name
-        method group_create_result::name(&self) -> Option<GroupName>; alias getName;
-        /// public key for encrypting to the group
-        method group_create_result::group_master_public_key(&self) -> PublicKey; alias getGroupMasterPublicKey;
-        /// true if the calling user is a group admin
-        method GroupCreateResult::is_admin(&self) -> bool; alias isAdmin;
-        /// true if the calling user is a group member
-        method GroupCreateResult::is_member(&self) -> bool; alias isMember;
-        /// owner of the group
-        method group_create_result::owner(&self) -> UserId; alias getOwner; 
-        /// a GroupUserList of group admins. Group admins can change group membership.
-        method group_create_result::admin_list(&self) -> GroupUserList; alias getAdminList;
-        /// a GroupUserList of group members. Members of a group can decrypt values encrypted to the group.
-        method group_create_result::member_list(&self) -> GroupUserList; alias getMemberList;
-        /// date and time that the group was created
-        method group_create_result::created(&self) -> DateTime<Utc>; alias getCreated;
-        /// date and time that the group was last updated
-        method group_create_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
-        /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
-        method group_create_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
-    });
+/// Group information from creation.
+class GroupCreateResult{
+    self_type GroupCreateResult;
+    private constructor = empty;
+    /// get the unique id of the group 
+    method group_create_result::id(&self) -> GroupId; alias getId;
+    /// null if the group has no name, else the group's name
+    method group_create_result::name(&self) -> Option<GroupName>; alias getName;
+    /// public key for encrypting to the group
+    method group_create_result::group_master_public_key(&self) -> PublicKey; alias getGroupMasterPublicKey;
+    /// true if the calling user is a group admin
+    method GroupCreateResult::is_admin(&self) -> bool; alias isAdmin;
+    /// true if the calling user is a group member
+    method GroupCreateResult::is_member(&self) -> bool; alias isMember;
+    /// owner of the group
+    method group_create_result::owner(&self) -> UserId; alias getOwner; 
+    /// a GroupUserList of group admins. Group admins can change group membership.
+    method group_create_result::admin_list(&self) -> GroupUserList; alias getAdminList;
+    /// a GroupUserList of group members. Members of a group can decrypt values encrypted to the group.
+    method group_create_result::member_list(&self) -> GroupUserList; alias getMemberList;
+    /// date and time that the group was created
+    method group_create_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    /// date and time that the group was last updated
+    method group_create_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
+    method group_create_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode() * this.getName().hashCode() * this.getGroupMasterPublicKey().hashCode() *
+        Boolean.hashCode(this.isAdmin()) * Boolean.hashCode(this.isMember()) * this.getOwner().hashCode() *
+        this.getAdminList().hashCode() * this.getMemberList().hashCode() *
+        this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
+        this.getNeedsRotation().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof GroupCreateResult){
+            GroupCreateResult gcr = (GroupCreateResult) obj;
+            return gcr.getId().equals(this.getId()) && 
+            gcr.getName().equals(this.getName()) &&
+            gcr.getGroupMasterPublicKey().equals(this.getGroupMasterPublicKey()) &&
+            gcr.isAdmin() == this.isAdmin() &&
+            gcr.isMember() == this.isMember() &&
+            gcr.getOwner().equals(this.getOwner()) &&
+            gcr.getAdminList().equals(this.getAdminList()) &&
+            gcr.getMemberList().equals(this.getMemberList()) &&
+            gcr.getCreated().equals(this.getCreated()) &&
+            gcr.getLastUpdated().equals(this.getLastUpdated()) &&
+            gcr.getNeedsRotation().equals(this.getNeedsRotation());
+        }
+        return false;
+    }
+"#;
+});
 
 foreigner_class!(class GroupListResult{
     self_type GroupListResult;
     private constructor = empty;
     method group_list_result::result(&self) -> Vec<GroupMetaResult>; alias getResult;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getResult().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof GroupListResult){
+            GroupListResult glr = (GroupListResult) obj;
+            return java.util.Arrays.equals(glr.getResult(), this.getResult());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(class GroupGetResult{
@@ -816,6 +902,35 @@ foreigner_class!(class GroupGetResult{
     method group_get_result::member_list(&self) -> Option<GroupUserList>; alias getMemberList;
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
     method group_get_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
+    foreigner_code r#"
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode() * this.getName().hashCode() * this.getGroupMasterPublicKey().hashCode() *
+        Boolean.hashCode(this.isAdmin()) * Boolean.hashCode(this.isMember()) *
+        this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
+        this.getAdminList().hashCode() * this.getMemberList().hashCode() *
+        this.getNeedsRotation().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof GroupCreateResult){
+            GroupCreateResult gcr = (GroupCreateResult) obj;
+            return gcr.getId().equals(this.getId()) && 
+            gcr.getName().equals(this.getName()) &&
+            gcr.getGroupMasterPublicKey().equals(this.getGroupMasterPublicKey()) &&
+            gcr.isAdmin() == this.isAdmin() &&
+            gcr.isMember() == this.isMember() &&
+            gcr.getCreated().equals(this.getCreated()) &&
+            gcr.getLastUpdated().equals(this.getLastUpdated()) &&
+            gcr.getAdminList().equals(this.getAdminList()) &&
+            gcr.getMemberList().equals(this.getMemberList()) &&
+            gcr.getNeedsRotation().equals(this.getNeedsRotation());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(class GroupUpdatePrivateKeyResult{
@@ -825,6 +940,23 @@ foreigner_class!(class GroupUpdatePrivateKeyResult{
     method group_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
     /// the id of the group whose private key was rotated
     method group_update_private_key_result::id(&self) -> GroupId; alias getId;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getId().hashCode() * Boolean.hashCode(this.getNeedsRotation());
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof GroupUpdatePrivateKeyResult){
+            GroupUpdatePrivateKeyResult gupkr = (GroupUpdatePrivateKeyResult) obj;
+            return gupkr.getId().equals(this.getId()) && 
+            gupkr.getNeedsRotation() == this.getNeedsRotation();
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -852,6 +984,23 @@ class GroupAccessEditErr{
     method access_edit_failure::user(&self) -> UserId; alias getUser;
     /// Get the reason for grant/revoke failure
     method access_edit_failure::error(&self) -> String; alias getError;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getUser().hashCode() * this.getError().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof GroupAccessEditErr){
+            GroupAccessEditErr gaee = (GroupAccessEditErr) obj;
+            return gaee.getUser().equals(this.getUser()) && 
+            gaee.getError().equals(this.getError());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -863,6 +1012,23 @@ class GroupAccessEditResult{
     method group_access_edit_result::succeeded(&self) -> Vec<UserId>; alias getSucceeded;
     /// Get the users whose access could not be modified
     method group_access_edit_result::failed(&self) -> Vec<GroupAccessEditErr>; alias getFailed;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getSucceeded().hashCode() * this.getFailed().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof GroupAccessEditResult){
+            GroupAccessEditResult gaer = (GroupAccessEditResult) obj;
+            return java.util.Arrays.equals(gaer.getSucceeded(), this.getSucceeded()) && 
+            java.util.Arrays.equals(gaer.getFailed(), this.getFailed());
+        }
+        return false;
+    }
+"#;
 });
 
 ///
@@ -886,7 +1052,23 @@ class Category {
     self_type Category;
     private constructor = empty;
     static_method category::validate(s: &str) -> Result<Category, String>;
-    method category::value(&self) -> String;
+    method category::value(&self) -> String; alias getValue;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getValue().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof Category){
+            Category cat = (Category) obj;
+            return cat.getValue().equals(this.getValue());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -894,7 +1076,23 @@ class Sensitivity {
     self_type Sensitivity;
     private constructor = empty;
     static_method sensitivity::validate(s: &str) -> Result<Sensitivity, String>;
-    method sensitivity::value(&self) -> String;
+    method sensitivity::value(&self) -> String; alias getValue;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getValue().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof Sensitivity){
+            Sensitivity sen = (Sensitivity) obj;
+            return sen.getValue().equals(this.getValue());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -902,7 +1100,23 @@ class DataSubject {
     self_type DataSubject;
     private constructor = empty;
     static_method data_subject::validate(s: &str) -> Result<DataSubject, String>;
-    method data_subject::value(&self) -> String;
+    method data_subject::value(&self) -> String; alias getValue;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getValue().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DataSubject){
+            DataSubject sub = (DataSubject) obj;
+            return sub.getValue().equals(this.getValue());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -910,10 +1124,30 @@ class PolicyGrant {
     self_type PolicyGrant;
     constructor PolicyGrant::default() -> PolicyGrant;
     constructor policy_grant::create(category:Option<&Category>,sensitivity:Option<&Sensitivity>,dataSubject:Option<&DataSubject>,substituteUser:Option<&UserId>) -> PolicyGrant;
-    method policy_grant::category(&self) -> Option<Category>;
-    method policy_grant::sensitivity(&self) -> Option<Sensitivity>;
-    method policy_grant::data_subject(&self) -> Option<DataSubject>; alias dataSubject;
-    method policy_grant::substitute_id(&self) -> Option<UserId>; alias substituteId;
+    method policy_grant::category(&self) -> Option<Category>; alias getCategory;
+    method policy_grant::sensitivity(&self) -> Option<Sensitivity>; alias getSensitivity;
+    method policy_grant::data_subject(&self) -> Option<DataSubject>; alias getDataSubject;
+    method policy_grant::substitute_id(&self) -> Option<UserId>; alias getSubstituteId;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getCategory().hashCode() * this.getSensitivity().hashCode() *
+        this.getDataSubject().hashCode() * this.getSubstituteId().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof PolicyGrant){
+            PolicyGrant pg = (PolicyGrant) obj;
+            return pg.getCategory().equals(this.getCategory()) &&
+            pg.getSensitivity().equals(this.getSensitivity()) &&
+            pg.getDataSubject().equals(this.getDataSubject()) &&
+            pg.getSubstituteId().equals(this.getSubstituteId());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -942,6 +1176,28 @@ class DocumentListMeta{
     method document_list_meta::association_type(&self) -> AssociationType; alias getAssociationType;
     method document_list_meta::created(&self) -> DateTime<Utc>; alias getCreated;
     method document_list_meta::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getId().hashCode() * this.getName().hashCode() *
+        this.getAssociationType().hashCode() * this.getCreated().hashCode() *
+        this.getLastUpdated().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DocumentListMeta){
+            DocumentListMeta dlm = (DocumentListMeta) obj;
+            return dlm.getId().equals(this.getId()) &&
+            dlm.getName().equals(this.getName()) &&
+            dlm.getAssociationType().equals(this.getAssociationType()) &&
+            dlm.getCreated().equals(this.getCreated()) &&
+            dlm.getLastUpdated().equals(this.getLastUpdated());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -950,6 +1206,22 @@ class DocumentListResult{
     self_type DocumentListResult;
     private constructor = empty;
     method document_list_result::result(&self) -> Vec<DocumentListMeta>; alias getResult;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getResult().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DocumentListResult){
+            DocumentListResult dlr = (DocumentListResult) obj;
+            return java.util.Arrays.equals(dlr.getResult(), this.getResult());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -964,6 +1236,31 @@ class DocumentMetadataResult{
     method document_metadata_result::association_type(&self) -> AssociationType; alias getAssociationType;
     method document_metadata_result::visible_to_users(&self) -> Vec<VisibleUser>; alias getVisibleToUsers;
     method document_metadata_result::visible_to_groups(&self) -> Vec<VisibleGroup>; alias getVisibleToGroups;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getId().hashCode() * this.getName().hashCode() *
+        this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
+        this.getAssociationType().hashCode() * this.getVisibleToUsers().hashCode() *
+        this.getVisibleToGroups().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DocumentMetadataResult){
+            DocumentMetadataResult dmr = (DocumentMetadataResult) obj;
+            return dmr.getId().equals(this.getId()) &&
+            dmr.getName().equals(this.getName()) &&
+            dmr.getCreated().equals(this.getCreated()) &&
+            dmr.getLastUpdated().equals(this.getLastUpdated()) &&
+            dmr.getAssociationType().equals(this.getAssociationType()) &&
+            java.util.Arrays.equals(dmr.getVisibleToUsers(), this.getVisibleToUsers()) &&
+            java.util.Arrays.equals(dmr.getVisibleToGroups(), this.getVisibleToGroups());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -985,6 +1282,30 @@ class DocumentEncryptResult{
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getId().hashCode() * this.getName().hashCode() * this.getEncryptedData().hashCode() * 
+        this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
+        this.getChanged().hashCode() * this.getErrors().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DocumentEncryptResult){
+            DocumentEncryptResult der = (DocumentEncryptResult) obj;
+            return der.getId().equals(this.getId()) &&
+            der.getName().equals(this.getName()) &&
+            java.util.Arrays.equals(der.getEncryptedData(), this.getEncryptedData()) &&
+            der.getCreated().equals(this.getCreated()) &&
+            der.getLastUpdated().equals(this.getLastUpdated()) &&
+            der.getChanged().equals(this.getChanged()) &&
+            der.getErrors().equals(this.getErrors());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -1001,8 +1322,28 @@ class DocumentEncryptUnmanagedResult {
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged; 
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
-}
-);
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getId().hashCode() * this.getEncryptedData().hashCode() * this.getEncryptedDeks().hashCode() *
+        this.getChanged().hashCode() * this.getErrors().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DocumentEncryptUnmanagedResult){
+            DocumentEncryptUnmanagedResult deur = (DocumentEncryptUnmanagedResult) obj;
+            return deur.getId().equals(this.getId()) &&
+            java.util.Arrays.equals(deur.getEncryptedData(), this.getEncryptedData()) &&
+            java.util.Arrays.equals(deur.getEncryptedDeks(), this.getEncryptedDeks()) &&
+            deur.getChanged().equals(this.getChanged()) &&
+            deur.getErrors().equals(this.getErrors());
+        }
+        return false;
+    }
+"#;
+});
 
 foreigner_class!(
 /// Result of decrypting a document. Includes minimal metadata as well as the decrypted bytes.
@@ -1014,6 +1355,27 @@ class DocumentDecryptResult{
     method document_decrypt_result::decrypted_data(&self) -> Vec<i8>; alias getDecryptedData;
     method document_decrypt_result::created(&self) -> DateTime<Utc>; alias getCreated;
     method document_decrypt_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getId().hashCode() * this.getName().hashCode() * this.getDecryptedData().hashCode() *
+        this.getCreated().hashCode() * this.getLastUpdated().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DocumentDecryptResult){
+            DocumentDecryptResult ddr = (DocumentDecryptResult) obj;
+            return ddr.getId().equals(this.getId()) &&
+            ddr.getName().equals(this.getName()) &&
+            java.util.Arrays.equals(ddr.getDecryptedData(), this.getDecryptedData()) &&
+            ddr.getCreated().equals(this.getCreated()) &&
+            ddr.getLastUpdated().equals(this.getLastUpdated());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -1028,6 +1390,25 @@ class DocumentDecryptUnmanagedResult{
     /// User/Group that granted access to the encrypted data. More specifically,
     /// this is the user/group associated with the edek that was chosen and transformed by the webservice.
     method document_decrypt_unmanaged_result::access_via(&self) -> UserOrGroupJ; alias getAccessViaUserOrGroup;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getId().hashCode() * this.getDecryptedData().hashCode() *
+        this.getAccessViaUserOrGroup().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DocumentDecryptUnmanagedResult){
+            DocumentDecryptUnmanagedResult ddur = (DocumentDecryptUnmanagedResult) obj;
+            return ddur.getId().equals(this.getId()) &&
+            java.util.Arrays.equals(ddur.getDecryptedData(), this.getDecryptedData()) &&
+            ddur.getAccessViaUserOrGroup().equals(this.getAccessViaUserOrGroup());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -1035,11 +1416,27 @@ foreigner_class!(
 class SucceededResult {
     self_type SucceededResult;
     private constructor = empty;
-
     /// Get list of users whose access was granted/revoked
     method document_access_change_result::SucceededResult::users(&self) -> Vec<UserId>; alias getUsers;
     /// Get list of groups whose access was granted/revoked
     method document_access_change_result::SucceededResult::groups(&self) -> Vec<GroupId>; alias getGroups;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getUsers().hashCode() * this.getGroups().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof SucceededResult){
+            SucceededResult sr = (SucceededResult) obj;
+            return java.util.Arrays.equals(sr.getUsers(), this.getUsers()) &&
+            java.util.Arrays.equals(sr.getGroups(), this.getGroups());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -1047,14 +1444,31 @@ foreigner_class!(
 class FailedResult {
     self_type FailedResult;
     private constructor = empty;
-
     /// Get list of users whose access was to be granted/revoked
     method document_access_change_result::FailedResult::users(&self) -> Vec<UserAccessErr>; alias getUsers;
     /// Get list of groups whose access was to be granted/revoked
     method document_access_change_result::FailedResult::groups(&self) -> Vec<GroupAccessErr>; alias getGroups;
     /// Utility method to check if the list of failures is empty
     method document_access_change_result::FailedResult::is_empty(&self) -> bool; alias isEmpty;
-
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getUsers().hashCode() * this.getGroups().hashCode() *
+        Boolean.hashCode(this.isEmpty());
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof FailedResult){
+            FailedResult fr = (FailedResult) obj;
+            return java.util.Arrays.equals(fr.getUsers(), this.getUsers()) &&
+            java.util.Arrays.equals(fr.getGroups(), this.getGroups()) &&
+            fr.isEmpty() == this.isEmpty();
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -1063,11 +1477,27 @@ foreigner_class!(
 class DocumentAccessResult {
     self_type DocumentAccessResult;
     private constructor = empty;
-
     /// Get the users and groups whose access was successfully changed
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getChanged().hashCode() * this.getErrors().hashCode();
+    }
+    public boolean equals(Object obj) {
+        if(obj instanceof DocumentAccessResult){
+            DocumentAccessResult dar = (DocumentAccessResult) obj;
+            return dar.getChanged().equals(this.getChanged()) &&
+            dar.getErrors().equals(this.getErrors());
+        }
+        return false;
+    }
+"#;
 });
 
 foreigner_class!(
@@ -1075,39 +1505,85 @@ foreigner_class!(
 /// 
 /// Since policies are evaluated by the webservice, caching the result can greatly speed
 /// up encrypting a document with a PolicyGrant.
-    class PolicyCachingConfig{
-        self_type PolicyCachingConfig;
-        /// @param maxEntries  maximum number of policy evaluations that will be cached by the SDK.
-        ///                    If the maximum number is exceeded, the cache will be cleared prior to storing the next entry.
-        constructor policy_caching_config::create(maxEntries: usize) -> PolicyCachingConfig;
-        constructor PolicyCachingConfig::default() -> PolicyCachingConfig;
-        method policy_caching_config::get_max_entries(&self) -> usize; alias getMaxEntries;
+class PolicyCachingConfig{
+    self_type PolicyCachingConfig;
+    /// @param maxEntries  maximum number of policy evaluations that will be cached by the SDK.
+    ///                    If the maximum number is exceeded, the cache will be cleared prior to storing the next entry.
+    constructor policy_caching_config::create(maxEntries: usize) -> PolicyCachingConfig;
+    constructor PolicyCachingConfig::default() -> PolicyCachingConfig;
+    method policy_caching_config::get_max_entries(&self) -> usize; alias getMaxEntries;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return Long.hashCode(this.getMaxEntries());
     }
-);
+    public boolean equals(Object obj) {
+        if(obj instanceof PolicyCachingConfig){
+            PolicyCachingConfig pcc = (PolicyCachingConfig) obj;
+            return pcc.getMaxEntries() == this.getMaxEntries();
+        }
+        return false;
+    }
+"#;
+});
 
 foreigner_class!(
 /// Top-level configuration object for IronOxide
-    class IronOxideConfig{
-        self_type IronOxideConfig;
-        constructor IronOxideConfig::default() -> IronOxideConfig;
-        /// @param policyCaching        policy caching configuration for IronOxide
-        /// @param sdkOperationTimeout  timeout for all SDK methods
-        constructor ironoxide_config::create(policyCaching: &PolicyCachingConfig, sdkOperationTimeout: Option<&Duration>) -> IronOxideConfig;
-        method ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig; 
-        method ironoxide_config::get_timeout(&self) -> Option<Duration>; alias getSdkOperationTimeout;
+class IronOxideConfig{
+    self_type IronOxideConfig;
+    constructor IronOxideConfig::default() -> IronOxideConfig;
+    /// @param policyCaching        policy caching configuration for IronOxide
+    /// @param sdkOperationTimeout  timeout for all SDK methods
+    constructor ironoxide_config::create(policyCaching: &PolicyCachingConfig, sdkOperationTimeout: Option<&Duration>) -> IronOxideConfig;
+    method ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig; 
+    method ironoxide_config::get_timeout(&self) -> Option<Duration>; alias getSdkOperationTimeout;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return this.getPolicyCachingConfig().hashCode() * this.getSdkOperationTimeout().hashCode();
     }
-);
+    public boolean equals(Object obj) {
+        if(obj instanceof IronOxideConfig){
+            IronOxideConfig ioc = (IronOxideConfig) obj;
+            return ioc.getPolicyCachingConfig().equals(this.getPolicyCachingConfig()) &&
+            ioc.getSdkOperationTimeout().equals(this.getSdkOperationTimeout());
+        }
+        return false;
+    }
+"#;
+});
 
 foreigner_class!(
-    class Duration{
-        self_type Duration;
-        private constructor = empty;
-        static_method Duration::from_millis(millis: u64) -> Duration;
-        static_method Duration::from_secs(secs: u64) -> Duration;
-        method duration::get_millis(&self) -> u64; alias getMillis;
-        method duration::get_secs(&self) -> u64; alias getSecs;
+class Duration{
+    self_type Duration;
+    private constructor = empty;
+    static_method Duration::from_millis(millis: u64) -> Duration;
+    static_method Duration::from_secs(secs: u64) -> Duration;
+    method duration::get_millis(&self) -> u64; alias getMillis;
+    method duration::get_secs(&self) -> u64; alias getSecs;
+    foreigner_code r#"
+    @Override
+    /**
+     * This implementation calls native code, which means it's relatively slow.
+     */
+    public int hashCode() {
+        return Long.hashCode(this.getMillis());
     }
-);
+    public boolean equals(Object obj) {
+        if(obj instanceof Duration){
+            Duration d = (Duration) obj;
+            return d.getMillis() == this.getMillis();
+        }
+        return false;
+    }
+"#;
+});
 
 ///
 /// Full SDK Class Structure
