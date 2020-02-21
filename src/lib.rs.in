@@ -23,7 +23,7 @@ class PublicKey {
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.asBytes().hashCode();
+        return java.util.Arrays.hashCode(this.asBytes());
     }
     public boolean equals(Object obj) {
         if(obj instanceof PublicKey){
@@ -49,7 +49,7 @@ class PrivateKey {
      */
     @Override
     public int hashCode() {
-        return this.asBytes().hashCode();
+        return java.util.Arrays.hashCode(this.asBytes());
     }
     public boolean equals(Object obj) {
         if(obj instanceof PrivateKey){
@@ -75,7 +75,7 @@ class DeviceSigningKeyPair {
      */
     @Override
     public int hashCode() {
-        return this.asBytes().hashCode();
+        return java.util.Arrays.hashCode(this.asBytes());
     }
     public boolean equals(Object obj) {
         if(obj instanceof DeviceSigningKeyPair){
@@ -95,18 +95,17 @@ class UserId {
     private constructor = empty;
     static_method user_id::validate(s: &str) -> Result<UserId, String>;
     method user_id::id(&self) -> String; alias getId;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
+    
+    private fn hash(&self) -> i16; alias rustHash;
+    private fn eq(&self, o: &UserId) -> bool; alias rustEq;
+    foreign_code r#"
     public int hashCode() {
-        return this.getId().hashCode();
+        return this.rustHash();
     }
     public boolean equals(Object obj) {
         if(obj instanceof UserId){
-            UserId id = (UserId) obj;
-            return id.getId().equals(this.getId());
+            UserId other = (UserId) obj;
+            return other.rustEq(this);
         }
         return false;
     }
@@ -121,18 +120,17 @@ class GroupId {
     private constructor = empty;
     static_method group_id::validate(s: &str) -> Result<GroupId, String>;
     method group_id::id(&self) -> String; alias getId;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
+
+    private fn hash(&self) -> i16; alias rustHash;
+    private fn eq(&self, o: &GroupId) -> bool; alias rustEq;
+    foreign_code r#"
     public int hashCode() {
-        return this.getId().hashCode();
+        return this.rustHash();
     }
     public boolean equals(Object obj) {
         if(obj instanceof GroupId){
-            GroupId id = (GroupId) obj;
-            return id.getId().equals(this.getId());
+            GroupId other = (GroupId) obj;
+            return other.rustEq(this);
         }
         return false;
     }
@@ -328,7 +326,7 @@ foreigner_class!(
      */
     @Override
     public int hashCode() {
-        return this.asBytes().hashCode();
+        return java.util.Arrays.hashCode(this.asBytes());
     }
     public boolean equals(Object obj) {
         if(obj instanceof EncryptedPrivateKey){
@@ -501,7 +499,7 @@ foreigner_class!(class GroupUserList {
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.getList().hashCode();
+        return java.util.Arrays.hashCode(this.getList());
     }
     public boolean equals(Object obj) {
         if(obj instanceof GroupUserList){
@@ -730,7 +728,7 @@ class UserDeviceListResult {
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.getResult().hashCode();
+        return java.util.Arrays.hashCode(this.getResult());
     }
     public boolean equals(Object obj) {
         if(obj instanceof UserDeviceListResult){
@@ -861,7 +859,7 @@ foreigner_class!(class GroupListResult{
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.getResult().hashCode();
+        return java.util.Arrays.hashCode(this.getResult());
     }
     public boolean equals(Object obj) {
         if(obj instanceof GroupListResult){
@@ -1012,7 +1010,8 @@ class GroupAccessEditResult{
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.getSucceeded().hashCode() * this.getFailed().hashCode();
+        return java.util.Arrays.hashCode(this.getSucceeded()) * 
+        java.util.Arrays.hashCode(this.getFailed());
     }
     public boolean equals(Object obj) {
         if(obj instanceof GroupAccessEditResult){
@@ -1047,18 +1046,17 @@ class Category {
     private constructor = empty;
     static_method category::validate(s: &str) -> Result<Category, String>;
     method category::value(&self) -> String; alias getValue;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
+    
+    private fn hash(&self) -> i16; alias rustHash;
+    private fn eq(&self, o: &Category) -> bool; alias rustEq;
+    foreign_code r#"
     public int hashCode() {
-        return this.getValue().hashCode();
+        return this.rustHash();
     }
     public boolean equals(Object obj) {
         if(obj instanceof Category){
-            Category cat = (Category) obj;
-            return cat.getValue().equals(this.getValue());
+            Category other = (Category) obj;
+            return other.rustEq(this);
         }
         return false;
     }
@@ -1071,18 +1069,17 @@ class Sensitivity {
     private constructor = empty;
     static_method sensitivity::validate(s: &str) -> Result<Sensitivity, String>;
     method sensitivity::value(&self) -> String; alias getValue;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
+    
+    private fn hash(&self) -> i16; alias rustHash;
+    private fn eq(&self, o: &Sensitivity) -> bool; alias rustEq;
+    foreign_code r#"
     public int hashCode() {
-        return this.getValue().hashCode();
+        return this.rustHash();
     }
     public boolean equals(Object obj) {
         if(obj instanceof Sensitivity){
-            Sensitivity sen = (Sensitivity) obj;
-            return sen.getValue().equals(this.getValue());
+            Sensitivity other = (Sensitivity) obj;
+            return other.rustEq(this);
         }
         return false;
     }
@@ -1095,18 +1092,17 @@ class DataSubject {
     private constructor = empty;
     static_method data_subject::validate(s: &str) -> Result<DataSubject, String>;
     method data_subject::value(&self) -> String; alias getValue;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
+    
+    private fn hash(&self) -> i16; alias rustHash;
+    private fn eq(&self, o: &DataSubject) -> bool; alias rustEq;
+    foreign_code r#"
     public int hashCode() {
-        return this.getValue().hashCode();
+        return this.rustHash();
     }
     public boolean equals(Object obj) {
         if(obj instanceof DataSubject){
-            DataSubject sub = (DataSubject) obj;
-            return sub.getValue().equals(this.getValue());
+            DataSubject other = (DataSubject) obj;
+            return other.rustEq(this);
         }
         return false;
     }
@@ -1122,22 +1118,17 @@ class PolicyGrant {
     method policy_grant::sensitivity(&self) -> Option<Sensitivity>; alias getSensitivity;
     method policy_grant::data_subject(&self) -> Option<DataSubject>; alias getDataSubject;
     method policy_grant::substitute_id(&self) -> Option<UserId>; alias getSubstituteId;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
+    
+    private fn hash(&self) -> i16; alias rustHash;
+    private fn eq(&self, o: &PolicyGrant) -> bool; alias rustEq;
+    foreign_code r#"
     public int hashCode() {
-        return this.getCategory().hashCode() * this.getSensitivity().hashCode() *
-        this.getDataSubject().hashCode() * this.getSubstituteId().hashCode();
+        return this.rustHash();
     }
     public boolean equals(Object obj) {
         if(obj instanceof PolicyGrant){
-            PolicyGrant pg = (PolicyGrant) obj;
-            return pg.getCategory().equals(this.getCategory()) &&
-            pg.getSensitivity().equals(this.getSensitivity()) &&
-            pg.getDataSubject().equals(this.getDataSubject()) &&
-            pg.getSubstituteId().equals(this.getSubstituteId());
+            PolicyGrant other = (PolicyGrant) obj;
+            return other.rustEq(this);
         }
         return false;
     }
@@ -1206,7 +1197,7 @@ class DocumentListResult{
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.getResult().hashCode();
+        return java.util.Arrays.hashCode(this.getResult());
     }
     public boolean equals(Object obj) {
         if(obj instanceof DocumentListResult){
@@ -1238,8 +1229,8 @@ class DocumentMetadataResult{
     public int hashCode() {
         return this.getId().hashCode() * this.getName().hashCode() *
         this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
-        this.getAssociationType().hashCode() * this.getVisibleToUsers().hashCode() *
-        this.getVisibleToGroups().hashCode();
+        this.getAssociationType().hashCode() * java.util.Arrays.hashCode(this.getVisibleToUsers()) *
+        java.util.Arrays.hashCode(this.getVisibleToGroups());
     }
     public boolean equals(Object obj) {
         if(obj instanceof DocumentMetadataResult){
@@ -1282,7 +1273,7 @@ class DocumentEncryptResult{
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.getId().hashCode() * this.getName().hashCode() * this.getEncryptedData().hashCode() * 
+        return this.getId().hashCode() * this.getName().hashCode() * java.util.Arrays.hashCode(this.getEncryptedData()) * 
         this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
         this.getChanged().hashCode() * this.getErrors().hashCode();
     }
@@ -1322,8 +1313,8 @@ class DocumentEncryptUnmanagedResult {
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.getId().hashCode() * this.getEncryptedData().hashCode() * this.getEncryptedDeks().hashCode() *
-        this.getChanged().hashCode() * this.getErrors().hashCode();
+        return this.getId().hashCode() * java.util.Arrays.hashCode(this.getEncryptedData()) * 
+        java.util.Arrays.hashCode(this.getEncryptedDeks()) * this.getChanged().hashCode() * this.getErrors().hashCode();
     }
     public boolean equals(Object obj) {
         if(obj instanceof DocumentEncryptUnmanagedResult){
@@ -1355,7 +1346,7 @@ class DocumentDecryptResult{
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.getId().hashCode() * this.getName().hashCode() * this.getDecryptedData().hashCode() *
+        return this.getId().hashCode() * this.getName().hashCode() * java.util.Arrays.hashCode(this.getDecryptedData()) *
         this.getCreated().hashCode() * this.getLastUpdated().hashCode();
     }
     public boolean equals(Object obj) {
@@ -1390,7 +1381,7 @@ class DocumentDecryptUnmanagedResult{
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.getId().hashCode() * this.getDecryptedData().hashCode() *
+        return this.getId().hashCode() * java.util.Arrays.hashCode(this.getDecryptedData()) *
         this.getAccessViaUserOrGroup().hashCode();
     }
     public boolean equals(Object obj) {
@@ -1420,7 +1411,7 @@ class SucceededResult {
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.getUsers().hashCode() * this.getGroups().hashCode();
+        return java.util.Arrays.hashCode(this.getUsers()) * java.util.Arrays.hashCode(this.getGroups());
     }
     public boolean equals(Object obj) {
         if(obj instanceof SucceededResult){
@@ -1450,7 +1441,7 @@ class FailedResult {
      * This implementation calls native code, which means it's relatively slow.
      */
     public int hashCode() {
-        return this.getUsers().hashCode() * this.getGroups().hashCode() *
+        return java.util.Arrays.hashCode(this.getUsers()) * java.util.Arrays.hashCode(this.getGroups()) *
         Boolean.hashCode(this.isEmpty());
     }
     public boolean equals(Object obj) {
@@ -1506,18 +1497,17 @@ class PolicyCachingConfig{
     constructor policy_caching_config::create(maxEntries: usize) -> PolicyCachingConfig;
     constructor PolicyCachingConfig::default() -> PolicyCachingConfig;
     method policy_caching_config::get_max_entries(&self) -> usize; alias getMaxEntries;
+    
+    private fn hash(&self) -> i16; alias rustHash;
+    private fn eq(&self, o: &PolicyCachingConfig) -> bool; alias rustEq;
     foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
     public int hashCode() {
-        return Long.hashCode(this.getMaxEntries());
+        return this.rustHash();
     }
     public boolean equals(Object obj) {
         if(obj instanceof PolicyCachingConfig){
-            PolicyCachingConfig pcc = (PolicyCachingConfig) obj;
-            return pcc.getMaxEntries() == this.getMaxEntries();
+            PolicyCachingConfig other = (PolicyCachingConfig) obj;
+            return other.rustEq(this);
         }
         return false;
     }
@@ -1534,19 +1524,17 @@ class IronOxideConfig{
     constructor ironoxide_config::create(policyCaching: &PolicyCachingConfig, sdkOperationTimeout: Option<&Duration>) -> IronOxideConfig;
     method ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig; 
     method ironoxide_config::get_timeout(&self) -> Option<Duration>; alias getSdkOperationTimeout;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
+
+    private fn hash(&self) -> i16; alias rustHash;
+    private fn eq(&self, o: &IronOxideConfig) -> bool; alias rustEq;
+    foreign_code r#"
     public int hashCode() {
-        return this.getPolicyCachingConfig().hashCode() * this.getSdkOperationTimeout().hashCode();
+        return this.rustHash();
     }
     public boolean equals(Object obj) {
         if(obj instanceof IronOxideConfig){
-            IronOxideConfig ioc = (IronOxideConfig) obj;
-            return ioc.getPolicyCachingConfig().equals(this.getPolicyCachingConfig()) &&
-            ioc.getSdkOperationTimeout().equals(this.getSdkOperationTimeout());
+            IronOxideConfig other = (IronOxideConfig) obj;
+            return other.rustEq(this);
         }
         return false;
     }
@@ -1561,18 +1549,17 @@ class Duration{
     static_method Duration::from_secs(secs: u64) -> Duration; alias fromSecs;
     method duration::get_millis(&self) -> u64; alias getMillis;
     method duration::get_secs(&self) -> u64; alias getSecs;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
+
+    private fn hash(&self) -> i16; alias rustHash;
+    private fn eq(&self, o: &Duration) -> bool; alias rustEq;
+    foreign_code r#"
     public int hashCode() {
-        return Long.hashCode(this.getMillis());
+        return this.rustHash();
     }
     public boolean equals(Object obj) {
         if(obj instanceof Duration){
-            Duration d = (Duration) obj;
-            return d.getMillis() == this.getMillis();
+            Duration other = (Duration) obj;
+            return other.rustEq(this);
         }
         return false;
     }

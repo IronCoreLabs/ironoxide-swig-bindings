@@ -21,9 +21,24 @@ use ironoxide::{
     DeviceAddResult, DeviceContext, DeviceSigningKeyPair, InitAndRotationCheck, PrivateKey,
     PublicKey,
 };
-use std::{convert::TryInto, time::Duration};
+use std::{
+    collections::hash_map::DefaultHasher,
+    convert::TryInto,
+    hash::{Hash, Hasher},
+    time::Duration,
+};
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
+
+pub fn hash<T: Hash>(t: &T) -> i16 {
+    let mut s = DefaultHasher::new();
+    t.hash(&mut s);
+    s.finish() as i16
+}
+
+pub fn eq<T: PartialEq>(t: &T, other: &T) -> bool {
+    t.eq(other)
+}
 
 #[derive(Clone)]
 pub struct UserWithKey((UserId, PublicKey));
