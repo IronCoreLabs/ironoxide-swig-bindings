@@ -43,7 +43,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "successfully create a new user" in {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
       val resp =
-        Try(IronOxide.userCreate(jwt, primaryTestUserPassword, UserCreateOpts.create(true), defaultTimeout)).toEither
+        Try(IronOxide.userCreate(jwt, primaryTestUserPassword, new UserCreateOpts(true), defaultTimeout)).toEither
       val createResult = resp.value
 
       createResult.getUserPublicKey.asBytes should have length 64
@@ -52,7 +52,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
     "successfully create a 2nd new user" in {
       val jwt = JwtHelper.generateValidJwt(secondaryTestUserId.getId)
-      val resp = Try(IronOxide.userCreate(jwt, secondaryTestUserPassword, UserCreateOpts.create(true), null)).toEither
+      val resp = Try(IronOxide.userCreate(jwt, secondaryTestUserPassword, new UserCreateOpts(true), null)).toEither
       val createResult = resp.value
 
       createResult.getUserPublicKey.asBytes should have length 64
@@ -62,7 +62,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "fail with short timeout" in {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
       val resp =
-        Try(IronOxide.userCreate(jwt, primaryTestUserPassword, UserCreateOpts.create(true), shortTimeout)).toEither
+        Try(IronOxide.userCreate(jwt, primaryTestUserPassword, new UserCreateOpts(true), shortTimeout)).toEither
 
       resp.isLeft shouldBe true
     }
@@ -105,10 +105,10 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val jwt2 = JwtHelper.generateValidJwt(secondaryTestUserId.getId)
       val deviceName = Try(DeviceName.validate("myDevice")).toEither.value
       val newDeviceResult = Try(
-        IronOxide.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone), null)
+        IronOxide.generateNewDevice(jwt, primaryTestUserPassword, new DeviceCreateOpts(deviceName), null)
       ).toEither.value
       val secondDeviceResult = Try(
-        IronOxide.generateNewDevice(jwt2, secondaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone), null)
+        IronOxide.generateNewDevice(jwt2, secondaryTestUserPassword, new DeviceCreateOpts(deviceName), null)
       ).toEither.value
 
       newDeviceResult.getCreated shouldBe newDeviceResult.getLastUpdated
@@ -165,7 +165,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val deviceName = DeviceName.validate("device")
       val deviceContext =
         new DeviceContext(
-          IronOxide.generateNewDevice(jwt, secondaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone), null)
+          IronOxide.generateNewDevice(jwt, secondaryTestUserPassword, new DeviceCreateOpts(deviceName), null)
         )
       val json = deviceContext.toJsonString
       val accountId = deviceContext.getAccountId.getId
@@ -198,7 +198,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
 
       // a second device
-      Try(IronOxide.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(null), null)).toEither
+      Try(IronOxide.generateNewDevice(jwt, primaryTestUserPassword, new DeviceCreateOpts(null), null)).toEither
 
       // a third device
       val deviceResp2 =
@@ -228,7 +228,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "Delete valid device" in {
-      val result = Try(sdk.userDeleteDevice(secondaryDeviceId.clone)).toEither
+      val result = Try(sdk.userDeleteDevice(secondaryDeviceId)).toEither
 
       result.value shouldBe secondaryDeviceId
 
@@ -276,7 +276,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "Create valid group" in {
       val groupName = Try(GroupName.validate("a name")).toEither.value
       val groupCreateResult =
-        sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, true, true, null, Array(), Array(), true))
+        sdk.groupCreate(new GroupCreateOpts(null, groupName, true, true, null, Array(), Array(), true))
 
       groupCreateResult.getId.getId.length shouldBe 32 //gooid
       groupCreateResult.getName.get shouldBe groupName
@@ -306,7 +306,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val groupName = Try(GroupName.validate("no member")).toEither.value
       val groupCreateResult =
         sdk.groupCreate(
-          GroupCreateOpts.create(null, groupName.clone, true, false, null, Array(), Array(), false)
+          new GroupCreateOpts(null, groupName, true, false, null, Array(), Array(), false)
         )
 
       groupCreateResult.getId.getId.length shouldBe 32 //gooid
@@ -426,7 +426,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "change name of group" in {
       val newGroupName = Try(GroupName.validate("new name")).toEither.value
 
-      val updateResp = Try(sdk.groupUpdateName(validGroupId, newGroupName.clone)).toEither
+      val updateResp = Try(sdk.groupUpdateName(validGroupId, newGroupName)).toEither
 
       val updatedGroup = updateResp.value
       updatedGroup.getId shouldBe validGroupId
@@ -542,7 +542,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
       val docName = Try(DocumentName.validate("name")).toEither.value
       val maybeResult =
-        Try(sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, docName.clone, true, Array(), Array(), null))).toEither
+        Try(sdk.documentEncrypt(data, new DocumentEncryptOpts(null, docName, true, Array(), Array(), null))).toEither
       val result = maybeResult.value
       result.getName.get shouldBe docName
       result.getId.getId.length shouldBe 32
@@ -574,7 +574,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val maybeResult = Try(
         sdk.documentEncrypt(
           data,
-          DocumentEncryptOpts.create(null, null, true, Array(secondaryTestUserId), Array(), null)
+          new DocumentEncryptOpts(null, null, true, Array(secondaryTestUserId), Array(), null)
         )
       ).toEither
       val result = maybeResult.value
@@ -589,7 +589,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val maybeResult = Try(
         sdk.documentEncrypt(
           data,
-          DocumentEncryptOpts.create(
+          new DocumentEncryptOpts(
             null,
             null,
             true,
@@ -617,7 +617,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val notAUser = Try(UserId.validate(java.util.UUID.randomUUID.toString)).toEither.value
       val notAGroup = Try(GroupId.validate(java.util.UUID.randomUUID.toString)).toEither.value
       val maybeResult = Try(
-        sdk.documentEncrypt(data, DocumentEncryptOpts.create(null, null, true, Array(notAUser), Array(notAGroup), null))
+        sdk.documentEncrypt(data, new DocumentEncryptOpts(null, null, true, Array(notAUser), Array(notAGroup), null))
       ).toEither
       val result = maybeResult.value
 
@@ -657,7 +657,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
       val deviceName = Try(DeviceName.validate("newdevice")).toEither.value
       val newDeviceResult = Try(
-        IronOxide.generateNewDevice(jwt, primaryTestUserPassword, DeviceCreateOpts.create(deviceName.clone), null)
+        IronOxide.generateNewDevice(jwt, primaryTestUserPassword, new DeviceCreateOpts(deviceName), null)
       ).toEither.value
       newDeviceResult.getAccountId.getId shouldBe primaryTestUserId.getId
     }
@@ -670,7 +670,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val sdk = IronOxide.initialize(secondaryDeviceContext, defaultConfig)
       val groupName = Try(GroupName.validate("a name")).toEither.value
       val groupCreateResult =
-        sdk.groupCreate(GroupCreateOpts.create(null, groupName.clone, true, true, null, Array(), Array(), true))
+        sdk.groupCreate(new GroupCreateOpts(null, groupName, true, true, null, Array(), Array(), true))
       val originalPublicKey = sdk.userGetPublicKey(Array(secondaryTestUserId))(0).getPublicKey.asBytes
       val data: Array[Byte] = List(3, 1, 4).map(_.toByte).toArray
       val encryptResult = Try(sdk.documentEncrypt(data, new DocumentEncryptOpts)).toEither.value
@@ -724,7 +724,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
           data,
-          DocumentEncryptOpts.create(null, null, false, Array(), Array(validGroupId), null)
+          new DocumentEncryptOpts(null, null, false, Array(), Array(validGroupId), null)
         )
       ).toEither
       val result = maybeResult.value
@@ -748,7 +748,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
           data,
-          DocumentEncryptOpts.create(null, null, true, Array(secondaryTestUserId), Array(), null)
+          new DocumentEncryptOpts(null, null, true, Array(secondaryTestUserId), Array(), null)
         )
       ).toEither
       val result = maybeResult.value
@@ -764,7 +764,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
           data,
-          DocumentEncryptOpts.create(
+          new DocumentEncryptOpts(
             null,
             null,
             true,
@@ -794,7 +794,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val maybeResult = Try(
         sdk.advancedDocumentEncryptUnmanaged(
           data,
-          DocumentEncryptOpts.create(null, null, true, Array(notAUser), Array(notAGroup), null)
+          new DocumentEncryptOpts(null, null, true, Array(notAUser), Array(notAGroup), null)
         )
       ).toEither
       val result = maybeResult.value
@@ -819,7 +819,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "successfully update to new name" in {
       val newDocName = Try(DocumentName.validate("new name")).toEither.value
 
-      val maybeUpdate = Try(sdk.documentUpdateName(validDocumentId, newDocName.clone)).toEither
+      val maybeUpdate = Try(sdk.documentUpdateName(validDocumentId, newDocName)).toEither
 
       val result = maybeUpdate.value
 

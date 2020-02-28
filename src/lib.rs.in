@@ -444,7 +444,7 @@ foreigner_class!(class DeviceCreateOpts {
     self_type DeviceCreateOpts;
     //Construct the DeviceCreateOpts with `null` for name.
     constructor DeviceCreateOpts::default() -> DeviceCreateOpts;
-    static_method device_create_opts::create(name: Option<&DeviceName>) -> DeviceCreateOpts;
+    constructor device_create_opts::create(name: Option<&DeviceName>) -> DeviceCreateOpts;
 });
 
 foreigner_class!(
@@ -453,7 +453,7 @@ foreigner_class!(
         self_type UserCreateOpts;
         //Construct the UserCreateOpts with a needs_rotation of false.
         constructor UserCreateOpts::default() -> UserCreateOpts;
-        static_method user_create_opts::create(needsRotation: bool) -> UserCreateOpts;
+        constructor user_create_opts::create(needsRotation: bool) -> UserCreateOpts;
     }
 );
 
@@ -572,7 +572,7 @@ class GroupCreateOpts {
     /// @param admins list of users to be added as admins of the group. This list takes priority over `addAsAdmin`, so the creating user will be added as an admin even if `addAsAdmin` is false.
     /// @param members list of users to be added as members of the group. This list takes priority over `addAsMember`, so the creating user will be added as a member even if `addAsMember` is false.
     /// @param needsRotation if true, the group will be marked as needing its private key rotated.
-    static_method group_create_opts::create(id: Option<&GroupId>, name: Option<&GroupName>, addAsAdmin: bool, addAsMember: bool, owner: Option<&UserId>, admins: Vec<UserId>, members: Vec<UserId>, needsRotation: bool) -> GroupCreateOpts;
+    constructor group_create_opts::create(id: Option<&GroupId>, name: Option<&GroupName>, addAsAdmin: bool, addAsMember: bool, owner: Option<&UserId>, admins: Vec<UserId>, members: Vec<UserId>, needsRotation: bool) -> GroupCreateOpts;
 });
 
 foreigner_class!(
@@ -659,7 +659,7 @@ class DocumentEncryptOpts {
     /// @param userGrants    list of user ids that will be granted access to the document
     /// @param groupGrants   list of group ids that will be granted access to the document
     /// @param policyGrant   The policy labels which will be evaluated to determine grants. 
-    static_method document_create_opt::create(id :Option<&DocumentId>, name :Option<&DocumentName>, grantToAuthor: bool, userGrants: Vec<UserId>, groupGrants: Vec<GroupId>, policyGrant:Option<&PolicyGrant>) -> DocumentEncryptOpts;
+    constructor document_create_opt::create(id :Option<&DocumentId>, name :Option<&DocumentName>, grantToAuthor: bool, userGrants: Vec<UserId>, groupGrants: Vec<GroupId>, policyGrant:Option<&PolicyGrant>) -> DocumentEncryptOpts;
 });
 
 foreigner_class!(
