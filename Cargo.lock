@@ -693,6 +693,7 @@ dependencies = [
  "ironoxide 0.19.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "regex 1.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "rust_swig 0.5.0-pre (git+https://github.com/Dushistov/rust_swig.git?rev=cfd12fb7406f9f2774832c051ce7b4e6c2e193d7)",
  "serde_json 1.0.47 (registry+https://github.com/rust-lang/crates.io-index)",
 ]

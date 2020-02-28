@@ -39,15 +39,16 @@ fn main() {
 
     let now = Instant::now();
     let gen_path = Path::new(&out_dir).join("lib.rs");
-    rust_swig_expand(Path::new("src/lib.rs.in"), &gen_path);
+    let lib_rs_out = out_dir + "lib.rs.out";
+    expand_equality_macro(&lib_rs_out);
+    rust_swig_expand(Path::new(&lib_rs_out), &gen_path);
     let expand_time = now.elapsed();
     println!(
         "rust swig expand time: {}",
         expand_time.as_secs() as f64 + (expand_time.subsec_nanos() as f64) / 1_000_000_000.
     );
-    println!("cargo:rerun-if-changed=src");
-    //rebuild if user removes generated code
-    println!("cargo:rerun-if-changed={}", gen_path.display());
+    println!("cargo:rerun-if-changed=src/lib.rs.in");
+    println!("cargo:rerun-if-changed=src/lib.rs");
 }
 
 fn search_file_in_directory<P: AsRef<Path>>(dirs: &[P], file: &str) -> Result<PathBuf, ()> {
@@ -87,7 +88,9 @@ fn rust_swig_expand(from: &Path, out: &Path) {
         get_java_codegen_output_directory(),
         "com.ironcorelabs.sdk".into(),
     )))
-    .merge_type_map("chrono_support", include_str!("src/chrono-include.rs"));
+    .merge_type_map("chrono_support", include_str!("src/chrono-include.rs"))
+    .rustfmt_bindings(true)
+    .remove_not_generated_files_from_output_directory(true); //remove outdated *.java files
     swig_gen.expand("rust_swig_test_jni", from, out);
 }
 
@@ -101,4 +104,27 @@ fn get_java_codegen_output_directory() -> PathBuf {
             .expect("Couldn't create codegen output directory at java/com/ironcorelabs/sdk.");
     }
     path.to_path_buf()
+}
+
+fn expand_equality_macro(out: &str) {
+    let file =
+        std::fs::read_to_string("src/lib.rs.in").expect("unable to read source file lib.rs.in");
+    let re = regex::Regex::new(r"pre_build_generate_equality (.*);")
+        .expect("unable to parse regex expression");
+    let replaced = re
+        .replace_all(
+            &file,
+            r##"private fn eq(&self, o: &$1) -> bool; alias rustEq;
+            foreign_code r#"
+            public boolean equals(Object obj) {
+                if(obj instanceof $1){
+                    $1 other = ($1) obj;
+                    return other.rustEq(this);
+                }
+            return false;
+        }
+        "#;"##,
+        )
+        .to_string();
+    std::fs::write(out, replaced).expect("unable to output file");
 }

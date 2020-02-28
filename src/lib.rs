@@ -30,10 +30,10 @@ use std::{
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
 
-pub fn hash<T: Hash>(t: &T) -> i16 {
+pub fn hash<T: Hash>(t: &T) -> i32 {
     let mut s = DefaultHasher::new();
     t.hash(&mut s);
-    s.finish() as i16
+    s.finish() as i32
 }
 
 pub fn eq<T: PartialEq>(t: &T, other: &T) -> bool {

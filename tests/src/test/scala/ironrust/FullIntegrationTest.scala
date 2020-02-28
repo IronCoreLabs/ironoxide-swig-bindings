@@ -160,72 +160,86 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "work for Category" in {
       val cat1 = Category.validate("test")
       val cat2 = Category.validate("test")
-      cat1.equals(cat2) shouldBe true
+      cat1 shouldBe cat2
+      cat1.hashCode shouldBe cat2.hashCode
     }
     "work for DataSubject" in {
       val ds1 = DataSubject.validate("test")
       val ds2 = DataSubject.validate("test")
-      ds1.equals(ds2) shouldBe true
+      ds1 shouldBe ds2
+      ds1.hashCode shouldBe ds2.hashCode
     }
     "work for DeviceId" in {
       val id1 = DeviceId.validate(42)
       val id2 = DeviceId.validate(42)
-      id1.equals(id2) shouldBe true
+      id1 shouldBe id2
+      id1.hashCode shouldBe id2.hashCode
     }
     "work for DeviceName" in {
       val name1 = DeviceName.validate("test")
       val name2 = DeviceName.validate("test")
-      name1.equals(name2) shouldBe true
+      name1 shouldBe name2
+      name1.hashCode shouldBe name2.hashCode
     }
     "work for DeviceSigningKeyPair" in {
       val key1 = DeviceSigningKeyPair.validate(primaryTestUserSigningKeysBytes)
       val key2 = DeviceSigningKeyPair.validate(primaryTestUserSigningKeysBytes)
-      key1.equals(key2) shouldBe true
+      key1 shouldBe key2
+      key1.hashCode shouldBe key2.hashCode
     }
     "work for DocumentId" in {
       val id1 = DocumentId.validate("test")
       val id2 = DocumentId.validate("test")
-      id1.equals(id2) shouldBe true
+      id1 shouldBe id2
+      id1.hashCode shouldBe id2.hashCode
     }
     "work for DocumentName" in {
       val name1 = DocumentName.validate("test")
       val name2 = DocumentName.validate("test")
-      name1.equals(name2) shouldBe true
+      name1 shouldBe name2
+      name1.hashCode shouldBe name2.hashCode
     }
     "work for Duration" in {
       val d1 = Duration.fromSecs(5)
       val d2 = Duration.fromMillis(5000)
-      d1.equals(d2) shouldBe true
+      d1 shouldBe d2
+      d1.hashCode shouldBe d2.hashCode
     }
     "work for GroupId" in {
       val id1 = GroupId.validate("test")
       val id2 = GroupId.validate("test")
-      id1.equals(id2) shouldBe true
+      id1 shouldBe id2
+      id1.hashCode shouldBe id2.hashCode
     }
     "work for GroupName" in {
       val name1 = GroupName.validate("test")
       val name2 = GroupName.validate("test")
-      name1.equals(name2) shouldBe true
+      name1 shouldBe name2
+      name1.hashCode shouldBe name2.hashCode
     }
     "work for IronOxideConfig" in {
       val config1 = new IronOxideConfig(defaultPolicyCaching, defaultTimeout)
       val config2 = new IronOxideConfig(defaultPolicyCaching, defaultTimeout)
-      config1.equals(config2) shouldBe true
+      config1 shouldBe config2
+      config1.hashCode shouldBe config2.hashCode
     }
     "work for PolicyCachingConfig" in {
       val policy1 = new PolicyCachingConfig(123)
       val policy2 = new PolicyCachingConfig(123)
-      policy1.equals(policy2) shouldBe true
+      policy1 shouldBe policy2
+      policy1.hashCode shouldBe policy2.hashCode
     }
     "work for Sensitivity" in {
       val sen1 = Sensitivity.validate("test")
       val sen2 = Sensitivity.validate("test")
-      sen1.equals(sen2) shouldBe true
+      sen1 shouldBe sen2
+      sen1.hashCode shouldBe sen2.hashCode
     }
     "work for UserId" in {
       val id1 = UserId.validate("test")
       val id2 = UserId.validate("test")
-      id1.equals(id2) shouldBe true
+      id1 shouldBe id2
+      id1.hashCode shouldBe id2.hashCode
     }
   }
 

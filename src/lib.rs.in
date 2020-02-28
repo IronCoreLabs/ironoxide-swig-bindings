@@ -95,21 +95,8 @@ class UserId {
     private constructor = empty;
     static_method user_id::validate(s: &str) -> Result<UserId, String>;
     method user_id::id(&self) -> String; alias getId;
-    
-    private fn hash(&self) -> i16; alias rustHash;
-    private fn eq(&self, o: &UserId) -> bool; alias rustEq;
-    foreign_code r#"
-    public int hashCode() {
-        return this.rustHash();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof UserId){
-            UserId other = (UserId) obj;
-            return other.rustEq(this);
-        }
-        return false;
-    }
-"#;
+    fn hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality UserId;
 });
 
 foreigner_class!(
@@ -121,20 +108,8 @@ class GroupId {
     static_method group_id::validate(s: &str) -> Result<GroupId, String>;
     method group_id::id(&self) -> String; alias getId;
 
-    private fn hash(&self) -> i16; alias rustHash;
-    private fn eq(&self, o: &GroupId) -> bool; alias rustEq;
-    foreign_code r#"
-    public int hashCode() {
-        return this.rustHash();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof GroupId){
-            GroupId other = (GroupId) obj;
-            return other.rustEq(this);
-        }
-        return false;
-    }
-"#;
+    fn hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupId;
 });
 
 foreigner_class!(
@@ -1047,20 +1022,8 @@ class Category {
     static_method category::validate(s: &str) -> Result<Category, String>;
     method category::value(&self) -> String; alias getValue;
     
-    private fn hash(&self) -> i16; alias rustHash;
-    private fn eq(&self, o: &Category) -> bool; alias rustEq;
-    foreign_code r#"
-    public int hashCode() {
-        return this.rustHash();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof Category){
-            Category other = (Category) obj;
-            return other.rustEq(this);
-        }
-        return false;
-    }
-"#;
+    fn hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality Category;
 });
 
 foreigner_class!(
@@ -1070,20 +1033,8 @@ class Sensitivity {
     static_method sensitivity::validate(s: &str) -> Result<Sensitivity, String>;
     method sensitivity::value(&self) -> String; alias getValue;
     
-    private fn hash(&self) -> i16; alias rustHash;
-    private fn eq(&self, o: &Sensitivity) -> bool; alias rustEq;
-    foreign_code r#"
-    public int hashCode() {
-        return this.rustHash();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof Sensitivity){
-            Sensitivity other = (Sensitivity) obj;
-            return other.rustEq(this);
-        }
-        return false;
-    }
-"#;
+    fn hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality Sensitivity;
 });
 
 foreigner_class!(
@@ -1093,20 +1044,8 @@ class DataSubject {
     static_method data_subject::validate(s: &str) -> Result<DataSubject, String>;
     method data_subject::value(&self) -> String; alias getValue;
     
-    private fn hash(&self) -> i16; alias rustHash;
-    private fn eq(&self, o: &DataSubject) -> bool; alias rustEq;
-    foreign_code r#"
-    public int hashCode() {
-        return this.rustHash();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DataSubject){
-            DataSubject other = (DataSubject) obj;
-            return other.rustEq(this);
-        }
-        return false;
-    }
-"#;
+    fn hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DataSubject;
 });
 
 foreigner_class!(
@@ -1119,20 +1058,8 @@ class PolicyGrant {
     method policy_grant::data_subject(&self) -> Option<DataSubject>; alias getDataSubject;
     method policy_grant::substitute_id(&self) -> Option<UserId>; alias getSubstituteId;
     
-    private fn hash(&self) -> i16; alias rustHash;
-    private fn eq(&self, o: &PolicyGrant) -> bool; alias rustEq;
-    foreign_code r#"
-    public int hashCode() {
-        return this.rustHash();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof PolicyGrant){
-            PolicyGrant other = (PolicyGrant) obj;
-            return other.rustEq(this);
-        }
-        return false;
-    }
-"#;
+    fn hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality PolicyGrant;
 });
 
 foreigner_class!(
@@ -1498,20 +1425,8 @@ class PolicyCachingConfig{
     constructor PolicyCachingConfig::default() -> PolicyCachingConfig;
     method policy_caching_config::get_max_entries(&self) -> usize; alias getMaxEntries;
     
-    private fn hash(&self) -> i16; alias rustHash;
-    private fn eq(&self, o: &PolicyCachingConfig) -> bool; alias rustEq;
-    foreigner_code r#"
-    public int hashCode() {
-        return this.rustHash();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof PolicyCachingConfig){
-            PolicyCachingConfig other = (PolicyCachingConfig) obj;
-            return other.rustEq(this);
-        }
-        return false;
-    }
-"#;
+    fn hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality PolicyCachingConfig;
 });
 
 foreigner_class!(
@@ -1525,20 +1440,8 @@ class IronOxideConfig{
     method ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig; 
     method ironoxide_config::get_timeout(&self) -> Option<Duration>; alias getSdkOperationTimeout;
 
-    private fn hash(&self) -> i16; alias rustHash;
-    private fn eq(&self, o: &IronOxideConfig) -> bool; alias rustEq;
-    foreign_code r#"
-    public int hashCode() {
-        return this.rustHash();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof IronOxideConfig){
-            IronOxideConfig other = (IronOxideConfig) obj;
-            return other.rustEq(this);
-        }
-        return false;
-    }
-"#;
+    fn hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality IronOxideConfig;
 });
 
 foreigner_class!(
@@ -1550,20 +1453,8 @@ class Duration{
     method duration::get_millis(&self) -> u64; alias getMillis;
     method duration::get_secs(&self) -> u64; alias getSecs;
 
-    private fn hash(&self) -> i16; alias rustHash;
-    private fn eq(&self, o: &Duration) -> bool; alias rustEq;
-    foreign_code r#"
-    public int hashCode() {
-        return this.rustHash();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof Duration){
-            Duration other = (Duration) obj;
-            return other.rustEq(this);
-        }
-        return false;
-    }
-"#;
+    fn hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality Duration;
 });
 
 ///
