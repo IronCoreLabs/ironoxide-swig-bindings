@@ -12,12 +12,12 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.8"
-ironoxide = {version = "0.19.0", features = ["blocking"]}
+ironoxide = {git = "https://github.com/IronCoreLabs/ironoxide", branch="58-public-derives", features = ["blocking"]}
 chrono = "0.4"
 serde_json = "~1.0"
 
 [build-dependencies]
 env_logger = "0.7"
 rust_swig = { git = "https://github.com/Dushistov/rust_swig.git", rev = "cfd12fb7406f9f2774832c051ce7b4e6c2e193d7"}
-bindgen = "0.52"
+bindgen = "0.53"
 regex = "~1.3"

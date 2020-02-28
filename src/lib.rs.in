@@ -1,6 +1,6 @@
 use crate::{
     document_access_change_result::{DocumentAccessChange, FailedResult, SucceededResult},
-    document_decrypt_unmanaged_result::UserOrGroupJ,
+    document_decrypt_unmanaged_result::UserOrGroupId,
     jni_c_header::*,
 };
 use chrono::{DateTime, Utc};
@@ -17,22 +17,8 @@ class PublicKey {
     private constructor = empty;
     static_method public_key::validate(bytes: &[i8]) -> Result<PublicKey, String>;
     method public_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return java.util.Arrays.hashCode(this.asBytes());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof PublicKey){
-            PublicKey key = (PublicKey) obj;
-            return java.util.Arrays.equals(key.asBytes(), this.asBytes());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality PublicKey;
 });
 
 foreigner_class!(
@@ -43,22 +29,8 @@ class PrivateKey {
     private constructor = empty;
     static_method private_key::validate(bytes: &[i8]) -> Result<PrivateKey, String>;
     method private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return java.util.Arrays.hashCode(this.asBytes());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof PrivateKey){
-            PrivateKey key = (PrivateKey) obj;
-            return java.util.Arrays.equals(key.asBytes(), this.asBytes());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality PrivateKey;
 });
 
 foreigner_class!(
@@ -69,22 +41,8 @@ class DeviceSigningKeyPair {
     private constructor = empty;
     static_method device_signing_keys::validate(bytes: &[i8]) -> Result<DeviceSigningKeyPair, String>;
     method device_signing_keys::as_bytes(&self) -> Vec<i8>; alias asBytes;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return java.util.Arrays.hashCode(this.asBytes());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DeviceSigningKeyPair){
-            DeviceSigningKeyPair key = (DeviceSigningKeyPair) obj;
-            return java.util.Arrays.equals(key.asBytes(), this.asBytes());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DeviceSigningKeyPair;
 });
 
 foreigner_class!(
@@ -95,7 +53,7 @@ class UserId {
     private constructor = empty;
     static_method user_id::validate(s: &str) -> Result<UserId, String>;
     method user_id::id(&self) -> String; alias getId;
-    fn hash(&self) -> i32; alias hashCode;
+    method hash(&self) -> i32; alias hashCode;
     pre_build_generate_equality UserId;
 });
 
@@ -107,37 +65,20 @@ class GroupId {
     private constructor = empty;
     static_method group_id::validate(s: &str) -> Result<GroupId, String>;
     method group_id::id(&self) -> String; alias getId;
-
-    fn hash(&self) -> i32; alias hashCode;
+    method hash(&self) -> i32; alias hashCode;
     pre_build_generate_equality GroupId;
 });
 
 foreigner_class!(
 /// Either a user id or a group id
 class UserOrGroupId {
-    self_type UserOrGroupJ;
+    self_type UserOrGroupId;
     private constructor = empty;
-    method UserOrGroupJ::id(&self) -> String; alias getId;
-    method UserOrGroupJ::is_user(&self) -> bool; alias isUser;
-    method UserOrGroupJ::is_group(&self) -> bool; alias isGroup;
-
-foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getId().hashCode() * Boolean.hashCode(this.isUser());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof UserOrGroupId){
-            UserOrGroupId uog = (UserOrGroupId) obj;
-            return uog.getId().equals(this.getId()) &&
-            uog.isUser() == this.isUser();
-        }
-        return false;
-    }
-"#;
+    method UserOrGroupId::id(&self) -> String; alias getId;
+    method UserOrGroupId::is_user(&self) -> bool; alias isUser;
+    method UserOrGroupId::is_group(&self) -> bool; alias isGroup;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality UserOrGroupId;
 });
 
 foreigner_class!(
@@ -147,22 +88,8 @@ class GroupName {
     private constructor = empty;
     static_method group_name::validate(s: &str) -> Result<GroupName, String>;
     method group_name::name(&self) -> String; alias getName;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getName().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof GroupName){
-            GroupName name = (GroupName) obj;
-            return name.getName().equals(this.getName());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupName;
 });
 
 foreigner_class!(
@@ -170,22 +97,8 @@ class NullableBoolean{
     self_type NullableBoolean;
     private constructor = empty;
     method NullableBoolean::boolean(&self) -> bool; alias getBoolean;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return Boolean.hashCode(this.getBoolean());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof NullableBoolean){
-            NullableBoolean b = (NullableBoolean) obj;
-            return b.getBoolean() == this.getBoolean();
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality NullableBoolean;
 });
 
 foreigner_class!(
@@ -195,22 +108,8 @@ class DocumentId {
     private constructor = empty;
     static_method document_id::validate(s: &str) -> Result<DocumentId, String>;
     method document_id::id(&self) -> String; alias getId;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getId().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DocumentId){
-            DocumentId id = (DocumentId) obj;
-            return id.getId().equals(this.getId());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DocumentId;
 });
 
 foreigner_class!(
@@ -220,22 +119,8 @@ class DocumentName {
     private constructor = empty;
     static_method document_name::validate(s: &str) -> Result<DocumentName, String>;
     method document_name::name(&self) -> String; alias getName;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getName().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DocumentName){
-            DocumentName name = (DocumentName) obj;
-            return name.getName().equals(this.getName());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DocumentName;
 });
 
 foreigner_class!(
@@ -245,22 +130,8 @@ class DeviceId {
     private constructor = empty;
     static_method device_id::validate(s: i64) -> Result<DeviceId, String>;
     method device_id::id(&self) -> i64; alias getId;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return Long.hashCode(this.getId());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DeviceId){
-            DeviceId id = (DeviceId) obj;
-            return id.getId() == this.getId();
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DeviceId;
 });
 
 foreigner_class!(
@@ -271,23 +142,8 @@ foreigner_class!(
         method user_update_private_key_result::user_master_private_key(&self) -> EncryptedPrivateKey; alias getUserMasterPrivateKey;
         /// True if this user's master key requires rotation
         method user_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
-        foreigner_code r#"
-        /**
-         * This implementation calls native code, which means it's relatively slow.
-         */
-        @Override
-        public int hashCode() {
-            return this.getUserMasterPrivateKey().hashCode() * Boolean.hashCode(this.getNeedsRotation());
-        }
-        public boolean equals(Object obj) {
-            if(obj instanceof UserUpdatePrivateKeyResult){
-                UserUpdatePrivateKeyResult uupkr = (UserUpdatePrivateKeyResult) obj;
-                return (uupkr.getUserMasterPrivateKey().equals(this.getUserMasterPrivateKey()) && 
-                uupkr.getNeedsRotation() == this.getNeedsRotation());
-            }
-            return false;
-        }
-    "#;
+        method hash(&self) -> i32; alias hashCode;
+        pre_build_generate_equality UserUpdatePrivateKeyResult;
 });
 
 foreigner_class!(
@@ -295,22 +151,9 @@ foreigner_class!(
     self_type EncryptedPrivateKey;
     private constructor = empty;
     method encrypted_private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return java.util.Arrays.hashCode(this.asBytes());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof EncryptedPrivateKey){
-            EncryptedPrivateKey epk = (EncryptedPrivateKey) obj;
-            return java.util.Arrays.equals(epk.asBytes(), this.asBytes());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality EncryptedPrivateKey;
+
 });
 
 foreigner_class!(
@@ -320,22 +163,8 @@ class DeviceName {
     private constructor = empty;
     static_method device_name::validate(s: &str) -> Result<DeviceName, String>;
     method device_name::name(&self) -> String; alias getName;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getName().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DeviceName){
-            DeviceName name = (DeviceName) obj;
-            return name.getName().equals(this.getName());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DeviceName;
 });
 
 foreigner_class!(
@@ -344,22 +173,8 @@ class VisibleUser {
     self_type VisibleUser;
     private constructor = empty;
     method visible_user::id(&self) -> UserId; alias getId;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getId().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof VisibleUser){
-            VisibleUser user = (VisibleUser) obj;
-            return user.getId().equals(this.getId());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality VisibleUser;
 });
 
 foreigner_class!(
@@ -369,23 +184,8 @@ class VisibleGroup {
     private constructor = empty;
     method visible_group::id(&self) -> GroupId; alias getId;
     method visible_group::name(&self) -> Option<GroupName>; alias getName;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getId().hashCode() * this.getName().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof VisibleGroup){
-            VisibleGroup group = (VisibleGroup) obj;
-            return group.getId().equals(this.getId()) && 
-            group.getName().equals(this.getName());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality VisibleGroup;
 });
 
 foreigner_class!(
@@ -395,23 +195,9 @@ class UserAccessErr {
     private constructor = empty;
     method UserAccessErr::id(&self) -> UserId; alias getId;
     method UserAccessErr::err(&self) -> String; alias getErr;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getId().hashCode() * this.getErr().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof UserAccessErr){
-            UserAccessErr uae = (UserAccessErr) obj;
-            return uae.getId().equals(this.getId()) && 
-            uae.getErr().equals(this.getErr());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality UserAccessErr;
+
 });
 
 foreigner_class!(
@@ -421,23 +207,9 @@ class GroupAccessErr {
     private constructor = empty;
     method GroupAccessErr::id(&self) -> GroupId; alias getId;
     method GroupAccessErr::err(&self) -> String; alias getErr;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getId().hashCode() * this.getErr().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof GroupAccessErr){
-            GroupAccessErr gae = (GroupAccessErr) obj;
-            return gae.getId().equals(this.getId()) && 
-            gae.getErr().equals(this.getErr());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupAccessErr;
+
 });
 
 foreigner_class!(class UserWithKey {
@@ -445,45 +217,18 @@ foreigner_class!(class UserWithKey {
     private constructor = empty;
     method UserWithKey::user(&self) -> UserId; alias getUser;
     method UserWithKey::public_key(&self) -> PublicKey; alias getPublicKey;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getUser().hashCode() * this.getPublicKey().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof UserWithKey){
-            UserWithKey uwk = (UserWithKey) obj;
-            return uwk.getUser().equals(this.getUser()) && 
-            uwk.getPublicKey().equals(this.getPublicKey());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality UserWithKey;
+
 });
 
 foreigner_class!(class GroupUserList {
     self_type GroupUserList;
     private constructor = empty;
     method GroupUserList::list(&self) -> Vec<UserId>; alias getList;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return java.util.Arrays.hashCode(this.getList());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof GroupUserList){
-            GroupUserList gul = (GroupUserList) obj;
-            return java.util.Arrays.equals(gul.getList(), this.getList());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupUserList;
+
 });
 
 ///
@@ -502,26 +247,8 @@ class DeviceContext {
     method device_context::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
     method device_context::to_json_string(&self) -> String; alias toJsonString;
     static_method device_context::from_json_string(jsonString: &str) -> Result<DeviceContext, String>; alias fromJsonString;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getAccountId().hashCode() * Long.hashCode(this.getSegmentId()) * 
-        this.getDevicePrivateKey().hashCode() * this.getSigningPrivateKey().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DeviceContext){
-            DeviceContext device = (DeviceContext) obj;
-            return device.getAccountId().equals(this.getAccountId()) && 
-            device.getSegmentId() == this.getSegmentId() && 
-            device.getDevicePrivateKey().equals(this.getDevicePrivateKey()) && 
-            device.getSigningPrivateKey().equals(this.getSigningPrivateKey());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DeviceContext;
 });
 
 foreigner_class!(
@@ -545,32 +272,8 @@ class DeviceAddResult {
     method device_add_result::created(&self) -> DateTime<Utc>; alias getCreated;
     /// The date and time that the device was last updated
     method device_add_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getAccountId().hashCode() * Long.hashCode(this.getSegmentId()) * 
-        this.getDevicePrivateKey().hashCode() * this.getSigningPrivateKey().hashCode() *
-        this.getDeviceId().hashCode() * this.getName().hashCode() * this.getCreated().hashCode() *
-        this.getLastUpdated().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DeviceAddResult){
-            DeviceAddResult device = (DeviceAddResult) obj;
-            return device.getAccountId().equals(this.getAccountId()) && 
-            device.getSegmentId() == this.getSegmentId() && 
-            device.getDevicePrivateKey().equals(this.getDevicePrivateKey()) && 
-            device.getSigningPrivateKey().equals(this.getSigningPrivateKey()) &&
-            device.getDeviceId().equals(this.getDeviceId()) && 
-            device.getName().equals(this.getName()) && 
-            device.getCreated().equals(this.getCreated()) && 
-            device.getLastUpdated().equals(this.getLastUpdated());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DeviceAddResult;
 });
 
 ///
@@ -585,23 +288,9 @@ class UserCreateResult {
     method user_create_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
     /// True if the private key of the user's keypair needs to be rotated, else false.
     method user_create_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getUserPublicKey().hashCode() * Boolean.hashCode(this.getNeedsRotation());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof UserCreateResult){
-            UserCreateResult ucr = (UserCreateResult) obj;
-            return ucr.getUserPublicKey().equals(this.getUserPublicKey()) && 
-            ucr.getNeedsRotation() == this.getNeedsRotation();
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality UserCreateResult;
+
 });
 
 foreigner_class!(
@@ -613,26 +302,9 @@ class UserResult {
     method user_result::segment_id(&self) -> usize; alias getSegmentId;
     method user_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
     method user_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getAccountId().hashCode() * Long.hashCode(this.getSegmentId()) *
-        this.getUserPublicKey().hashCode() * Boolean.hashCode(this.getNeedsRotation());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof UserResult){
-            UserResult ur = (UserResult) obj;
-            return ur.getAccountId().equals(this.getAccountId()) && 
-            ur.getSegmentId() == this.getSegmentId() &&
-            ur.getUserPublicKey().equals(this.getUserPublicKey()) &&
-            ur.getNeedsRotation() == this.getNeedsRotation();
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality UserResult;
+
 });
 
 foreigner_class!(
@@ -651,28 +323,9 @@ class UserDevice {
     /// True if this device instance is the one that was used to make
     /// the API request
     method UserDevice::is_current_device(&self) -> bool; alias isCurrentDevice;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getId().hashCode() * this.getName().hashCode() *
-        this.getLastUpdated().hashCode() * this.getCreated().hashCode() *
-        Boolean.hashCode(this.isCurrentDevice());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof UserDevice){
-            UserDevice ud = (UserDevice) obj;
-            return ud.getId().equals(this.getId()) && 
-            ud.getName().equals(this.getName()) &&
-            ud.getLastUpdated().equals(this.getLastUpdated()) &&
-            ud.getCreated().equals(this.getCreated()) &&
-            ud.isCurrentDevice() == this.isCurrentDevice();
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality UserDevice;
+
 });
 
 foreigner_class!(class DeviceCreateOpts {
@@ -680,6 +333,8 @@ foreigner_class!(class DeviceCreateOpts {
     //Construct the DeviceCreateOpts with `null` for name.
     constructor DeviceCreateOpts::default() -> DeviceCreateOpts;
     static_method device_create_opts::create(name: Option<&DeviceName>) -> DeviceCreateOpts;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DeviceCreateOpts;
 });
 
 foreigner_class!(
@@ -689,6 +344,8 @@ class UserCreateOpts {
     //Construct the UserCreateOpts with a needs_rotation of false.
     constructor UserCreateOpts::default() -> UserCreateOpts;
     static_method user_create_opts::create(needsRotation: bool) -> UserCreateOpts;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality UserCreateOpts;
 });
 
 foreigner_class!(
@@ -697,22 +354,9 @@ class UserDeviceListResult {
     self_type UserDeviceListResult;
     private constructor = empty;
     method user_device_list_result::result(&self) -> Vec<UserDevice>; alias getResult;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return java.util.Arrays.hashCode(this.getResult());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof UserDeviceListResult){
-            UserDeviceListResult udlr = (UserDeviceListResult) obj;
-            return java.util.Arrays.equals(udlr.getResult(), this.getResult());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality UserDeviceListResult;
+
 });
 
 ///
@@ -738,31 +382,9 @@ class GroupMetaResult{
     method group_meta_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
     method group_meta_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getId().hashCode() * this.getName().hashCode() *
-        Boolean.hashCode(this.isAdmin()) * Boolean.hashCode(this.isMember()) *
-        this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
-        this.getNeedsRotation().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof GroupMetaResult){
-            GroupMetaResult gmr = (GroupMetaResult) obj;
-            return gmr.getId().equals(this.getId()) && 
-            gmr.getName().equals(this.getName()) &&
-            gmr.isAdmin() == this.isAdmin() &&
-            gmr.isMember() == this.isMember() &&
-            gmr.getCreated().equals(this.getCreated()) &&
-            gmr.getLastUpdated().equals(this.getLastUpdated()) &&
-            gmr.getNeedsRotation().equals(this.getNeedsRotation());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupMetaResult;
+
 });
 
 foreigner_class!(
@@ -792,58 +414,18 @@ class GroupCreateResult{
     method group_create_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
     method group_create_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getId().hashCode() * this.getName().hashCode() * this.getGroupMasterPublicKey().hashCode() *
-        Boolean.hashCode(this.isAdmin()) * Boolean.hashCode(this.isMember()) * this.getOwner().hashCode() *
-        this.getAdminList().hashCode() * this.getMemberList().hashCode() *
-        this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
-        this.getNeedsRotation().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof GroupCreateResult){
-            GroupCreateResult gcr = (GroupCreateResult) obj;
-            return gcr.getId().equals(this.getId()) && 
-            gcr.getName().equals(this.getName()) &&
-            gcr.getGroupMasterPublicKey().equals(this.getGroupMasterPublicKey()) &&
-            gcr.isAdmin() == this.isAdmin() &&
-            gcr.isMember() == this.isMember() &&
-            gcr.getOwner().equals(this.getOwner()) &&
-            gcr.getAdminList().equals(this.getAdminList()) &&
-            gcr.getMemberList().equals(this.getMemberList()) &&
-            gcr.getCreated().equals(this.getCreated()) &&
-            gcr.getLastUpdated().equals(this.getLastUpdated()) &&
-            gcr.getNeedsRotation().equals(this.getNeedsRotation());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupCreateResult;
+
 });
 
 foreigner_class!(class GroupListResult{
     self_type GroupListResult;
     private constructor = empty;
     method group_list_result::result(&self) -> Vec<GroupMetaResult>; alias getResult;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return java.util.Arrays.hashCode(this.getResult());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof GroupListResult){
-            GroupListResult glr = (GroupListResult) obj;
-            return java.util.Arrays.equals(glr.getResult(), this.getResult());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupListResult;
+
 });
 
 foreigner_class!(class GroupGetResult{
@@ -869,61 +451,23 @@ foreigner_class!(class GroupGetResult{
     method group_get_result::member_list(&self) -> Option<GroupUserList>; alias getMemberList;
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
     method group_get_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
-    foreigner_code r#"
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    @Override
-    public int hashCode() {
-        return this.getId().hashCode() * this.getName().hashCode() * this.getGroupMasterPublicKey().hashCode() *
-        Boolean.hashCode(this.isAdmin()) * Boolean.hashCode(this.isMember()) *
-        this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
-        this.getAdminList().hashCode() * this.getMemberList().hashCode() *
-        this.getNeedsRotation().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof GroupGetResult){
-            GroupGetResult ggr = (GroupGetResult) obj;
-            return ggr.getId().equals(this.getId()) && 
-            ggr.getName().equals(this.getName()) &&
-            ggr.getGroupMasterPublicKey().equals(this.getGroupMasterPublicKey()) &&
-            ggr.isAdmin() == this.isAdmin() &&
-            ggr.isMember() == this.isMember() &&
-            ggr.getCreated().equals(this.getCreated()) &&
-            ggr.getLastUpdated().equals(this.getLastUpdated()) &&
-            ggr.getAdminList().equals(this.getAdminList()) &&
-            ggr.getMemberList().equals(this.getMemberList()) &&
-            ggr.getNeedsRotation().equals(this.getNeedsRotation());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupGetResult;
+
 });
 
-foreigner_class!(class GroupUpdatePrivateKeyResult{
+foreigner_class!(
+/// Result of rotating group private key.
+class GroupUpdatePrivateKeyResult{
     self_type GroupUpdatePrivateKeyResult;
     private constructor = empty;
     /// true if the group still needs rotation, else false
     method group_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
     /// the id of the group whose private key was rotated
     method group_update_private_key_result::id(&self) -> GroupId; alias getId;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return this.getId().hashCode() * Boolean.hashCode(this.getNeedsRotation());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof GroupUpdatePrivateKeyResult){
-            GroupUpdatePrivateKeyResult gupkr = (GroupUpdatePrivateKeyResult) obj;
-            return gupkr.getId().equals(this.getId()) && 
-            gupkr.getNeedsRotation() == this.getNeedsRotation();
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupUpdatePrivateKeyResult;
+
 });
 
 foreigner_class!(
@@ -940,6 +484,8 @@ class GroupCreateOpts {
     /// @param members list of users to be added as members of the group. This list takes priority over `addAsMember`, so the creating user will be added as a member even if `addAsMember` is false.
     /// @param needsRotation if true, the group will be marked as needing its private key rotated.
     static_method group_create_opts::create(id: Option<&GroupId>, name: Option<&GroupName>, addAsAdmin: bool, addAsMember: bool, owner: Option<&UserId>, admins: Vec<UserId>, members: Vec<UserId>, needsRotation: bool) -> GroupCreateOpts;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupCreateOpts;
 });
 
 foreigner_class!(
@@ -951,23 +497,9 @@ class GroupAccessEditErr{
     method access_edit_failure::user(&self) -> UserId; alias getUser;
     /// Get the reason for grant/revoke failure
     method access_edit_failure::error(&self) -> String; alias getError;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return this.getUser().hashCode() * this.getError().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof GroupAccessEditErr){
-            GroupAccessEditErr gaee = (GroupAccessEditErr) obj;
-            return gaee.getUser().equals(this.getUser()) && 
-            gaee.getError().equals(this.getError());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupAccessEditErr;
+
 });
 
 foreigner_class!(
@@ -979,24 +511,9 @@ class GroupAccessEditResult{
     method group_access_edit_result::succeeded(&self) -> Vec<UserId>; alias getSucceeded;
     /// Get the users whose access could not be modified
     method group_access_edit_result::failed(&self) -> Vec<GroupAccessEditErr>; alias getFailed;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return java.util.Arrays.hashCode(this.getSucceeded()) * 
-        java.util.Arrays.hashCode(this.getFailed());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof GroupAccessEditResult){
-            GroupAccessEditResult gaer = (GroupAccessEditResult) obj;
-            return java.util.Arrays.equals(gaer.getSucceeded(), this.getSucceeded()) && 
-            java.util.Arrays.equals(gaer.getFailed(), this.getFailed());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality GroupAccessEditResult;
+
 });
 
 ///
@@ -1021,7 +538,6 @@ class Category {
     private constructor = empty;
     static_method category::validate(s: &str) -> Result<Category, String>;
     method category::value(&self) -> String; alias getValue;
-    
     fn hash(&self) -> i32; alias hashCode;
     pre_build_generate_equality Category;
 });
@@ -1032,7 +548,6 @@ class Sensitivity {
     private constructor = empty;
     static_method sensitivity::validate(s: &str) -> Result<Sensitivity, String>;
     method sensitivity::value(&self) -> String; alias getValue;
-    
     fn hash(&self) -> i32; alias hashCode;
     pre_build_generate_equality Sensitivity;
 });
@@ -1043,7 +558,6 @@ class DataSubject {
     private constructor = empty;
     static_method data_subject::validate(s: &str) -> Result<DataSubject, String>;
     method data_subject::value(&self) -> String; alias getValue;
-    
     fn hash(&self) -> i32; alias hashCode;
     pre_build_generate_equality DataSubject;
 });
@@ -1057,7 +571,6 @@ class PolicyGrant {
     method policy_grant::sensitivity(&self) -> Option<Sensitivity>; alias getSensitivity;
     method policy_grant::data_subject(&self) -> Option<DataSubject>; alias getDataSubject;
     method policy_grant::substitute_id(&self) -> Option<UserId>; alias getSubstituteId;
-    
     fn hash(&self) -> i32; alias hashCode;
     pre_build_generate_equality PolicyGrant;
 });
@@ -1074,6 +587,8 @@ class DocumentEncryptOpts {
     /// @param groupGrants   list of group ids that will be granted access to the document
     /// @param policyGrant   The policy labels which will be evaluated to determine grants. 
     static_method document_create_opt::create(id :Option<&DocumentId>, name :Option<&DocumentName>, grantToAuthor: bool, userGrants: Vec<UserId>, groupGrants: Vec<GroupId>, policyGrant:Option<&PolicyGrant>) -> DocumentEncryptOpts;
+    fn hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DocumentEncryptOpts;
 });
 
 foreigner_class!(
@@ -1088,28 +603,8 @@ class DocumentListMeta{
     method document_list_meta::association_type(&self) -> AssociationType; alias getAssociationType;
     method document_list_meta::created(&self) -> DateTime<Utc>; alias getCreated;
     method document_list_meta::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return this.getId().hashCode() * this.getName().hashCode() *
-        this.getAssociationType().hashCode() * this.getCreated().hashCode() *
-        this.getLastUpdated().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DocumentListMeta){
-            DocumentListMeta dlm = (DocumentListMeta) obj;
-            return dlm.getId().equals(this.getId()) &&
-            dlm.getName().equals(this.getName()) &&
-            dlm.getAssociationType().equals(this.getAssociationType()) &&
-            dlm.getCreated().equals(this.getCreated()) &&
-            dlm.getLastUpdated().equals(this.getLastUpdated());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DocumentListMeta;
 });
 
 foreigner_class!(
@@ -1118,22 +613,8 @@ class DocumentListResult{
     self_type DocumentListResult;
     private constructor = empty;
     method document_list_result::result(&self) -> Vec<DocumentListMeta>; alias getResult;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return java.util.Arrays.hashCode(this.getResult());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DocumentListResult){
-            DocumentListResult dlr = (DocumentListResult) obj;
-            return java.util.Arrays.equals(dlr.getResult(), this.getResult());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DocumentListResult;
 });
 
 foreigner_class!(
@@ -1148,31 +629,8 @@ class DocumentMetadataResult{
     method document_metadata_result::association_type(&self) -> AssociationType; alias getAssociationType;
     method document_metadata_result::visible_to_users(&self) -> Vec<VisibleUser>; alias getVisibleToUsers;
     method document_metadata_result::visible_to_groups(&self) -> Vec<VisibleGroup>; alias getVisibleToGroups;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return this.getId().hashCode() * this.getName().hashCode() *
-        this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
-        this.getAssociationType().hashCode() * java.util.Arrays.hashCode(this.getVisibleToUsers()) *
-        java.util.Arrays.hashCode(this.getVisibleToGroups());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DocumentMetadataResult){
-            DocumentMetadataResult dmr = (DocumentMetadataResult) obj;
-            return dmr.getId().equals(this.getId()) &&
-            dmr.getName().equals(this.getName()) &&
-            dmr.getCreated().equals(this.getCreated()) &&
-            dmr.getLastUpdated().equals(this.getLastUpdated()) &&
-            dmr.getAssociationType().equals(this.getAssociationType()) &&
-            java.util.Arrays.equals(dmr.getVisibleToUsers(), this.getVisibleToUsers()) &&
-            java.util.Arrays.equals(dmr.getVisibleToGroups(), this.getVisibleToGroups());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DocumentMetadataResult;
 });
 
 foreigner_class!(
@@ -1194,30 +652,8 @@ class DocumentEncryptResult{
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return this.getId().hashCode() * this.getName().hashCode() * java.util.Arrays.hashCode(this.getEncryptedData()) * 
-        this.getCreated().hashCode() * this.getLastUpdated().hashCode() *
-        this.getChanged().hashCode() * this.getErrors().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DocumentEncryptResult){
-            DocumentEncryptResult der = (DocumentEncryptResult) obj;
-            return der.getId().equals(this.getId()) &&
-            der.getName().equals(this.getName()) &&
-            java.util.Arrays.equals(der.getEncryptedData(), this.getEncryptedData()) &&
-            der.getCreated().equals(this.getCreated()) &&
-            der.getLastUpdated().equals(this.getLastUpdated()) &&
-            der.getChanged().equals(this.getChanged()) &&
-            der.getErrors().equals(this.getErrors());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DocumentEncryptResult;
 });
 
 foreigner_class!(
@@ -1234,27 +670,8 @@ class DocumentEncryptUnmanagedResult {
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged; 
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return this.getId().hashCode() * java.util.Arrays.hashCode(this.getEncryptedData()) * 
-        java.util.Arrays.hashCode(this.getEncryptedDeks()) * this.getChanged().hashCode() * this.getErrors().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DocumentEncryptUnmanagedResult){
-            DocumentEncryptUnmanagedResult deur = (DocumentEncryptUnmanagedResult) obj;
-            return deur.getId().equals(this.getId()) &&
-            java.util.Arrays.equals(deur.getEncryptedData(), this.getEncryptedData()) &&
-            java.util.Arrays.equals(deur.getEncryptedDeks(), this.getEncryptedDeks()) &&
-            deur.getChanged().equals(this.getChanged()) &&
-            deur.getErrors().equals(this.getErrors());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DocumentEncryptUnmanagedResult;
 });
 
 foreigner_class!(
@@ -1267,27 +684,8 @@ class DocumentDecryptResult{
     method document_decrypt_result::decrypted_data(&self) -> Vec<i8>; alias getDecryptedData;
     method document_decrypt_result::created(&self) -> DateTime<Utc>; alias getCreated;
     method document_decrypt_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return this.getId().hashCode() * this.getName().hashCode() * java.util.Arrays.hashCode(this.getDecryptedData()) *
-        this.getCreated().hashCode() * this.getLastUpdated().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DocumentDecryptResult){
-            DocumentDecryptResult ddr = (DocumentDecryptResult) obj;
-            return ddr.getId().equals(this.getId()) &&
-            ddr.getName().equals(this.getName()) &&
-            java.util.Arrays.equals(ddr.getDecryptedData(), this.getDecryptedData()) &&
-            ddr.getCreated().equals(this.getCreated()) &&
-            ddr.getLastUpdated().equals(this.getLastUpdated());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DocumentDecryptResult;
 });
 
 foreigner_class!(
@@ -1301,26 +699,9 @@ class DocumentDecryptUnmanagedResult{
     method document_decrypt_unmanaged_result::decrypted_data(&self) -> Vec<i8>; alias getDecryptedData;
     /// User/Group that granted access to the encrypted data. More specifically,
     /// this is the user/group associated with the edek that was chosen and transformed by the webservice.
-    method document_decrypt_unmanaged_result::access_via(&self) -> UserOrGroupJ; alias getAccessViaUserOrGroup;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return this.getId().hashCode() * java.util.Arrays.hashCode(this.getDecryptedData()) *
-        this.getAccessViaUserOrGroup().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DocumentDecryptUnmanagedResult){
-            DocumentDecryptUnmanagedResult ddur = (DocumentDecryptUnmanagedResult) obj;
-            return ddur.getId().equals(this.getId()) &&
-            java.util.Arrays.equals(ddur.getDecryptedData(), this.getDecryptedData()) &&
-            ddur.getAccessViaUserOrGroup().equals(this.getAccessViaUserOrGroup());
-        }
-        return false;
-    }
-"#;
+    method document_decrypt_unmanaged_result::access_via(&self) -> UserOrGroupId; alias getAccessViaUserOrGroup;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DocumentDecryptUnmanagedResult;
 });
 
 foreigner_class!(
@@ -1332,23 +713,9 @@ class SucceededResult {
     method document_access_change_result::SucceededResult::users(&self) -> Vec<UserId>; alias getUsers;
     /// Get list of groups whose access was granted/revoked
     method document_access_change_result::SucceededResult::groups(&self) -> Vec<GroupId>; alias getGroups;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return java.util.Arrays.hashCode(this.getUsers()) * java.util.Arrays.hashCode(this.getGroups());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof SucceededResult){
-            SucceededResult sr = (SucceededResult) obj;
-            return java.util.Arrays.equals(sr.getUsers(), this.getUsers()) &&
-            java.util.Arrays.equals(sr.getGroups(), this.getGroups());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality SucceededResult;
+
 });
 
 foreigner_class!(
@@ -1362,25 +729,9 @@ class FailedResult {
     method document_access_change_result::FailedResult::groups(&self) -> Vec<GroupAccessErr>; alias getGroups;
     /// Utility method to check if the list of failures is empty
     method document_access_change_result::FailedResult::is_empty(&self) -> bool; alias isEmpty;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return java.util.Arrays.hashCode(this.getUsers()) * java.util.Arrays.hashCode(this.getGroups()) *
-        Boolean.hashCode(this.isEmpty());
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof FailedResult){
-            FailedResult fr = (FailedResult) obj;
-            return java.util.Arrays.equals(fr.getUsers(), this.getUsers()) &&
-            java.util.Arrays.equals(fr.getGroups(), this.getGroups()) &&
-            fr.isEmpty() == this.isEmpty();
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality FailedResult;
+
 });
 
 foreigner_class!(
@@ -1393,23 +744,8 @@ class DocumentAccessResult {
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
-    foreigner_code r#"
-    @Override
-    /**
-     * This implementation calls native code, which means it's relatively slow.
-     */
-    public int hashCode() {
-        return this.getChanged().hashCode() * this.getErrors().hashCode();
-    }
-    public boolean equals(Object obj) {
-        if(obj instanceof DocumentAccessResult){
-            DocumentAccessResult dar = (DocumentAccessResult) obj;
-            return dar.getChanged().equals(this.getChanged()) &&
-            dar.getErrors().equals(this.getErrors());
-        }
-        return false;
-    }
-"#;
+    method hash(&self) -> i32; alias hashCode;
+    pre_build_generate_equality DocumentAccessResult;
 });
 
 foreigner_class!(
@@ -1424,8 +760,7 @@ class PolicyCachingConfig{
     constructor policy_caching_config::create(maxEntries: usize) -> PolicyCachingConfig;
     constructor PolicyCachingConfig::default() -> PolicyCachingConfig;
     method policy_caching_config::get_max_entries(&self) -> usize; alias getMaxEntries;
-    
-    fn hash(&self) -> i32; alias hashCode;
+    method hash(&self) -> i32; alias hashCode;
     pre_build_generate_equality PolicyCachingConfig;
 });
 
@@ -1439,8 +774,7 @@ class IronOxideConfig{
     constructor ironoxide_config::create(policyCaching: &PolicyCachingConfig, sdkOperationTimeout: Option<&Duration>) -> IronOxideConfig;
     method ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig; 
     method ironoxide_config::get_timeout(&self) -> Option<Duration>; alias getSdkOperationTimeout;
-
-    fn hash(&self) -> i32; alias hashCode;
+    method hash(&self) -> i32; alias hashCode;
     pre_build_generate_equality IronOxideConfig;
 });
 
@@ -1452,8 +786,7 @@ class Duration{
     static_method Duration::from_secs(secs: u64) -> Duration; alias fromSecs;
     method duration::get_millis(&self) -> u64; alias getMillis;
     method duration::get_secs(&self) -> u64; alias getSecs;
-
-    fn hash(&self) -> i32; alias hashCode;
+    method hash(&self) -> i32; alias hashCode;
     pre_build_generate_equality Duration;
 });
 

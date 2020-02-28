@@ -40,7 +40,7 @@ pub fn eq<T: PartialEq>(t: &T, other: &T) -> bool {
     t.eq(other)
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct UserWithKey((UserId, PublicKey));
 impl UserWithKey {
     pub fn user(&self) -> UserId {
@@ -53,6 +53,7 @@ impl UserWithKey {
 }
 
 // This was created because Option<bool> cannot be converted to Java
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct NullableBoolean(bool);
 impl NullableBoolean {
     pub fn boolean(&self) -> bool {
@@ -558,14 +559,15 @@ mod document_decrypt_result {
 mod document_decrypt_unmanaged_result {
     use super::*;
     /// Generic translation of ironoxide's UserOrGroup enum
-    pub struct UserOrGroupJ {
+    #[derive(Hash, PartialEq, Eq)]
+    pub struct UserOrGroupId {
         id: String,
         is_user: bool,
     }
 
-    impl UserOrGroupJ {
-        pub fn new(id: String, is_user: bool) -> UserOrGroupJ {
-            UserOrGroupJ { id, is_user }
+    impl UserOrGroupId {
+        pub fn new(id: String, is_user: bool) -> UserOrGroupId {
+            UserOrGroupId { id, is_user }
         }
         pub fn id(&self) -> String {
             self.id.clone()
@@ -585,19 +587,19 @@ mod document_decrypt_unmanaged_result {
     pub fn decrypted_data(d: &DocumentDecryptUnmanagedResult) -> Vec<i8> {
         u8_conv(d.decrypted_data()).to_vec()
     }
-    pub fn access_via(d: &DocumentDecryptUnmanagedResult) -> UserOrGroupJ {
+    pub fn access_via(d: &DocumentDecryptUnmanagedResult) -> UserOrGroupId {
         let (id, is_user) = match d.access_via() {
             UserOrGroup::User { id } => (id.id().to_string(), true),
             UserOrGroup::Group { id } => (id.id().to_string(), false),
         };
-        UserOrGroupJ::new(id, is_user)
+        UserOrGroupId::new(id, is_user)
     }
 }
 
 // UserAccessErr and GroupAccessErr are a Java-compatible representation of IronOxide's
 // DocAccessEditErr. They are encoded this this because this seemed like the most
 // straightforward way to represent a error for both a user or group (like UserOrGroup)
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct UserAccessErr {
     id: UserId,
     err: String,
@@ -615,6 +617,7 @@ impl UserAccessErr {
 
 /// Wrap the Vec<UserId> type in a newtype because swig can't handle
 /// passing through an Option<Vec<*>> for GroupGetResult
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct GroupUserList(Vec<UserId>);
 impl GroupUserList {
     pub fn list(&self) -> Vec<UserId> {
@@ -622,7 +625,7 @@ impl GroupUserList {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct GroupAccessErr {
     id: GroupId,
     err: String,
@@ -642,6 +645,7 @@ mod document_access_change_result {
     use super::*;
     use itertools::{Either, Itertools};
 
+    #[derive(Hash, PartialEq)]
     pub struct SucceededResult {
         users: Vec<UserId>,
         groups: Vec<GroupId>,
@@ -656,6 +660,7 @@ mod document_access_change_result {
         }
     }
 
+    #[derive(Hash, PartialEq)]
     pub struct FailedResult {
         users: Vec<UserAccessErr>,
         groups: Vec<GroupAccessErr>,
