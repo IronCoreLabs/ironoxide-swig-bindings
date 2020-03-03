@@ -39,9 +39,11 @@ fn main() {
 
     let now = Instant::now();
     let gen_path = Path::new(&out_dir).join("lib.rs");
-    let lib_rs_out = out_dir + "lib.rs.out";
-    expand_equality_macro(&lib_rs_out);
-    rust_swig_expand(Path::new(&lib_rs_out), &gen_path);
+    let icl_expanded_lib_rs = out_dir + "icl-expanded-lib.rs.in";
+    // Just before rust_swig expands "lib.rs.in", we do our own expansion
+    // This takes in "lib.rs.in" and outputs "icl-expanded-lib.rs.in", which is then fed to rust_swig.
+    expand_equality_macro(&icl_expanded_lib_rs);
+    rust_swig_expand(Path::new(&icl_expanded_lib_rs), &gen_path);
     let expand_time = now.elapsed();
     println!(
         "rust swig expand time: {}",
