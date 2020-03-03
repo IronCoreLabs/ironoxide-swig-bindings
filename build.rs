@@ -42,7 +42,7 @@ fn main() {
     let icl_expanded_lib_rs = out_dir + "icl-expanded-lib.rs.in";
     // Just before rust_swig expands "lib.rs.in", we do our own expansion
     // This takes in "lib.rs.in" and outputs "icl-expanded-lib.rs.in", which is then fed to rust_swig.
-    expand_equality_macro(&icl_expanded_lib_rs);
+    expand_equals_and_hashcode_macro(&icl_expanded_lib_rs);
     rust_swig_expand(Path::new(&icl_expanded_lib_rs), &gen_path);
     let expand_time = now.elapsed();
     println!(
@@ -108,25 +108,22 @@ fn get_java_codegen_output_directory() -> PathBuf {
     path.to_path_buf()
 }
 
-fn expand_equality_macro(out: &str) {
+fn expand_equals_and_hashcode_macro(out: &str) {
+    let equals_and_hashcode = r##"method hash(&self) -> i32; alias hashCode;
+    private method eq(&self, o: &$1) -> bool; alias rustEq;
+    foreign_code r#"
+    public boolean equals(Object obj) {
+        if(obj instanceof $1){
+            $1 other = ($1) obj;
+            return other.rustEq(this);
+        }
+        return false;
+    }
+    "#;"##;
     let file =
         std::fs::read_to_string("src/lib.rs.in").expect("unable to read source file lib.rs.in");
-    let re = regex::Regex::new(r"pre_build_generate_equality (.*);")
+    let re = regex::Regex::new(r"pre_build_generate_equals_and_hashcode (.*);")
         .expect("unable to parse regex expression");
-    let replaced = re
-        .replace_all(
-            &file,
-            r##"private fn eq(&self, o: &$1) -> bool; alias rustEq;
-            foreign_code r#"
-            public boolean equals(Object obj) {
-                if(obj instanceof $1){
-                    $1 other = ($1) obj;
-                    return other.rustEq(this);
-                }
-            return false;
-        }
-        "#;"##,
-        )
-        .to_string();
+    let replaced = re.replace_all(&file, equals_and_hashcode).to_string();
     std::fs::write(out, replaced).expect("unable to output file");
 }

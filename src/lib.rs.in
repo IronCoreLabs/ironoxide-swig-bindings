@@ -17,8 +17,7 @@ class PublicKey {
     private constructor = empty;
     static_method public_key::validate(bytes: &[i8]) -> Result<PublicKey, String>;
     method public_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality PublicKey;
+    pre_build_generate_equals_and_hashcode PublicKey;
 });
 
 foreigner_class!(
@@ -29,8 +28,7 @@ class PrivateKey {
     private constructor = empty;
     static_method private_key::validate(bytes: &[i8]) -> Result<PrivateKey, String>;
     method private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality PrivateKey;
+    pre_build_generate_equals_and_hashcode PrivateKey;
 });
 
 foreigner_class!(
@@ -41,8 +39,7 @@ class DeviceSigningKeyPair {
     private constructor = empty;
     static_method device_signing_keys::validate(bytes: &[i8]) -> Result<DeviceSigningKeyPair, String>;
     method device_signing_keys::as_bytes(&self) -> Vec<i8>; alias asBytes;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DeviceSigningKeyPair;
+    pre_build_generate_equals_and_hashcode DeviceSigningKeyPair;
 });
 
 foreigner_class!(
@@ -53,8 +50,7 @@ class UserId {
     private constructor = empty;
     static_method user_id::validate(s: &str) -> Result<UserId, String>;
     method user_id::id(&self) -> String; alias getId;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality UserId;
+    pre_build_generate_equals_and_hashcode UserId;
 });
 
 foreigner_class!(
@@ -65,8 +61,7 @@ class GroupId {
     private constructor = empty;
     static_method group_id::validate(s: &str) -> Result<GroupId, String>;
     method group_id::id(&self) -> String; alias getId;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupId;
+    pre_build_generate_equals_and_hashcode GroupId;
 });
 
 foreigner_class!(
@@ -77,8 +72,7 @@ class UserOrGroupId {
     method UserOrGroupId::id(&self) -> String; alias getId;
     method UserOrGroupId::is_user(&self) -> bool; alias isUser;
     method UserOrGroupId::is_group(&self) -> bool; alias isGroup;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality UserOrGroupId;
+    pre_build_generate_equals_and_hashcode UserOrGroupId;
 });
 
 foreigner_class!(
@@ -88,8 +82,7 @@ class GroupName {
     private constructor = empty;
     static_method group_name::validate(s: &str) -> Result<GroupName, String>;
     method group_name::name(&self) -> String; alias getName;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupName;
+    pre_build_generate_equals_and_hashcode GroupName;
 });
 
 foreigner_class!(
@@ -97,8 +90,7 @@ class NullableBoolean{
     self_type NullableBoolean;
     private constructor = empty;
     method NullableBoolean::boolean(&self) -> bool; alias getBoolean;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality NullableBoolean;
+    pre_build_generate_equals_and_hashcode NullableBoolean;
 });
 
 foreigner_class!(
@@ -108,8 +100,7 @@ class DocumentId {
     private constructor = empty;
     static_method document_id::validate(s: &str) -> Result<DocumentId, String>;
     method document_id::id(&self) -> String; alias getId;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DocumentId;
+    pre_build_generate_equals_and_hashcode DocumentId;
 });
 
 foreigner_class!(
@@ -119,8 +110,7 @@ class DocumentName {
     private constructor = empty;
     static_method document_name::validate(s: &str) -> Result<DocumentName, String>;
     method document_name::name(&self) -> String; alias getName;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DocumentName;
+    pre_build_generate_equals_and_hashcode DocumentName;
 });
 
 foreigner_class!(
@@ -130,8 +120,7 @@ class DeviceId {
     private constructor = empty;
     static_method device_id::validate(s: i64) -> Result<DeviceId, String>;
     method device_id::id(&self) -> i64; alias getId;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DeviceId;
+    pre_build_generate_equals_and_hashcode DeviceId;
 });
 
 foreigner_class!(
@@ -142,8 +131,7 @@ foreigner_class!(
         method user_update_private_key_result::user_master_private_key(&self) -> EncryptedPrivateKey; alias getUserMasterPrivateKey;
         /// True if this user's master key requires rotation
         method user_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
-        method hash(&self) -> i32; alias hashCode;
-        pre_build_generate_equality UserUpdatePrivateKeyResult;
+        pre_build_generate_equals_and_hashcode UserUpdatePrivateKeyResult;
 });
 
 foreigner_class!(
@@ -151,8 +139,7 @@ foreigner_class!(
     self_type EncryptedPrivateKey;
     private constructor = empty;
     method encrypted_private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality EncryptedPrivateKey;
+    pre_build_generate_equals_and_hashcode EncryptedPrivateKey;
 
 });
 
@@ -163,8 +150,7 @@ class DeviceName {
     private constructor = empty;
     static_method device_name::validate(s: &str) -> Result<DeviceName, String>;
     method device_name::name(&self) -> String; alias getName;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DeviceName;
+    pre_build_generate_equals_and_hashcode DeviceName;
 });
 
 foreigner_class!(
@@ -173,8 +159,7 @@ class VisibleUser {
     self_type VisibleUser;
     private constructor = empty;
     method visible_user::id(&self) -> UserId; alias getId;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality VisibleUser;
+    pre_build_generate_equals_and_hashcode VisibleUser;
 });
 
 foreigner_class!(
@@ -184,8 +169,7 @@ class VisibleGroup {
     private constructor = empty;
     method visible_group::id(&self) -> GroupId; alias getId;
     method visible_group::name(&self) -> Option<GroupName>; alias getName;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality VisibleGroup;
+    pre_build_generate_equals_and_hashcode VisibleGroup;
 });
 
 foreigner_class!(
@@ -195,8 +179,7 @@ class UserAccessErr {
     private constructor = empty;
     method UserAccessErr::id(&self) -> UserId; alias getId;
     method UserAccessErr::err(&self) -> String; alias getErr;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality UserAccessErr;
+    pre_build_generate_equals_and_hashcode UserAccessErr;
 
 });
 
@@ -207,8 +190,7 @@ class GroupAccessErr {
     private constructor = empty;
     method GroupAccessErr::id(&self) -> GroupId; alias getId;
     method GroupAccessErr::err(&self) -> String; alias getErr;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupAccessErr;
+    pre_build_generate_equals_and_hashcode GroupAccessErr;
 
 });
 
@@ -217,8 +199,7 @@ foreigner_class!(class UserWithKey {
     private constructor = empty;
     method UserWithKey::user(&self) -> UserId; alias getUser;
     method UserWithKey::public_key(&self) -> PublicKey; alias getPublicKey;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality UserWithKey;
+    pre_build_generate_equals_and_hashcode UserWithKey;
 
 });
 
@@ -226,8 +207,7 @@ foreigner_class!(class GroupUserList {
     self_type GroupUserList;
     private constructor = empty;
     method GroupUserList::list(&self) -> Vec<UserId>; alias getList;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupUserList;
+    pre_build_generate_equals_and_hashcode GroupUserList;
 
 });
 
@@ -247,8 +227,7 @@ class DeviceContext {
     method device_context::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
     method device_context::to_json_string(&self) -> String; alias toJsonString;
     static_method device_context::from_json_string(jsonString: &str) -> Result<DeviceContext, String>; alias fromJsonString;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DeviceContext;
+    pre_build_generate_equals_and_hashcode DeviceContext;
 });
 
 foreigner_class!(
@@ -272,8 +251,7 @@ class DeviceAddResult {
     method device_add_result::created(&self) -> DateTime<Utc>; alias getCreated;
     /// The date and time that the device was last updated
     method device_add_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DeviceAddResult;
+    pre_build_generate_equals_and_hashcode DeviceAddResult;
 });
 
 ///
@@ -288,8 +266,7 @@ class UserCreateResult {
     method user_create_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
     /// True if the private key of the user's keypair needs to be rotated, else false.
     method user_create_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality UserCreateResult;
+    pre_build_generate_equals_and_hashcode UserCreateResult;
 
 });
 
@@ -302,8 +279,7 @@ class UserResult {
     method user_result::segment_id(&self) -> usize; alias getSegmentId;
     method user_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
     method user_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality UserResult;
+    pre_build_generate_equals_and_hashcode UserResult;
 
 });
 
@@ -323,8 +299,7 @@ class UserDevice {
     /// True if this device instance is the one that was used to make
     /// the API request
     method UserDevice::is_current_device(&self) -> bool; alias isCurrentDevice;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality UserDevice;
+    pre_build_generate_equals_and_hashcode UserDevice;
 
 });
 
@@ -333,8 +308,7 @@ foreigner_class!(class DeviceCreateOpts {
     //Construct the DeviceCreateOpts with `null` for name.
     constructor DeviceCreateOpts::default() -> DeviceCreateOpts;
     constructor device_create_opts::create(name: Option<&DeviceName>) -> DeviceCreateOpts;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DeviceCreateOpts;
+    pre_build_generate_equals_and_hashcode DeviceCreateOpts;
 });
 
 foreigner_class!(
@@ -344,8 +318,7 @@ class UserCreateOpts {
     //Construct the UserCreateOpts with a needs_rotation of false.
     constructor UserCreateOpts::default() -> UserCreateOpts;
     constructor user_create_opts::create(needsRotation: bool) -> UserCreateOpts;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality UserCreateOpts;
+    pre_build_generate_equals_and_hashcode UserCreateOpts;
 });
 
 foreigner_class!(
@@ -354,8 +327,7 @@ class UserDeviceListResult {
     self_type UserDeviceListResult;
     private constructor = empty;
     method user_device_list_result::result(&self) -> Vec<UserDevice>; alias getResult;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality UserDeviceListResult;
+    pre_build_generate_equals_and_hashcode UserDeviceListResult;
 
 });
 
@@ -382,8 +354,7 @@ class GroupMetaResult{
     method group_meta_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
     method group_meta_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupMetaResult;
+    pre_build_generate_equals_and_hashcode GroupMetaResult;
 
 });
 
@@ -414,8 +385,7 @@ class GroupCreateResult{
     method group_create_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
     method group_create_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupCreateResult;
+    pre_build_generate_equals_and_hashcode GroupCreateResult;
 
 });
 
@@ -423,8 +393,7 @@ foreigner_class!(class GroupListResult{
     self_type GroupListResult;
     private constructor = empty;
     method group_list_result::result(&self) -> Vec<GroupMetaResult>; alias getResult;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupListResult;
+    pre_build_generate_equals_and_hashcode GroupListResult;
 
 });
 
@@ -451,8 +420,7 @@ foreigner_class!(class GroupGetResult{
     method group_get_result::member_list(&self) -> Option<GroupUserList>; alias getMemberList;
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
     method group_get_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupGetResult;
+    pre_build_generate_equals_and_hashcode GroupGetResult;
 
 });
 
@@ -465,8 +433,7 @@ class GroupUpdatePrivateKeyResult{
     method group_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
     /// the id of the group whose private key was rotated
     method group_update_private_key_result::id(&self) -> GroupId; alias getId;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupUpdatePrivateKeyResult;
+    pre_build_generate_equals_and_hashcode GroupUpdatePrivateKeyResult;
 
 });
 
@@ -484,8 +451,7 @@ class GroupCreateOpts {
     /// @param members list of users to be added as members of the group. This list takes priority over `addAsMember`, so the creating user will be added as a member even if `addAsMember` is false.
     /// @param needsRotation if true, the group will be marked as needing its private key rotated.
     constructor group_create_opts::create(id: Option<&GroupId>, name: Option<&GroupName>, addAsAdmin: bool, addAsMember: bool, owner: Option<&UserId>, admins: Vec<UserId>, members: Vec<UserId>, needsRotation: bool) -> GroupCreateOpts;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupCreateOpts;
+    pre_build_generate_equals_and_hashcode GroupCreateOpts;
 });
 
 foreigner_class!(
@@ -497,8 +463,7 @@ class GroupAccessEditErr{
     method access_edit_failure::user(&self) -> UserId; alias getUser;
     /// Get the reason for grant/revoke failure
     method access_edit_failure::error(&self) -> String; alias getError;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupAccessEditErr;
+    pre_build_generate_equals_and_hashcode GroupAccessEditErr;
 
 });
 
@@ -511,8 +476,7 @@ class GroupAccessEditResult{
     method group_access_edit_result::succeeded(&self) -> Vec<UserId>; alias getSucceeded;
     /// Get the users whose access could not be modified
     method group_access_edit_result::failed(&self) -> Vec<GroupAccessEditErr>; alias getFailed;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality GroupAccessEditResult;
+    pre_build_generate_equals_and_hashcode GroupAccessEditResult;
 
 });
 
@@ -538,8 +502,7 @@ class Category {
     private constructor = empty;
     static_method category::validate(s: &str) -> Result<Category, String>;
     method category::value(&self) -> String; alias getValue;
-    fn hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality Category;
+    pre_build_generate_equals_and_hashcode Category;
 });
 
 foreigner_class!(
@@ -548,8 +511,7 @@ class Sensitivity {
     private constructor = empty;
     static_method sensitivity::validate(s: &str) -> Result<Sensitivity, String>;
     method sensitivity::value(&self) -> String; alias getValue;
-    fn hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality Sensitivity;
+    pre_build_generate_equals_and_hashcode Sensitivity;
 });
 
 foreigner_class!(
@@ -558,8 +520,7 @@ class DataSubject {
     private constructor = empty;
     static_method data_subject::validate(s: &str) -> Result<DataSubject, String>;
     method data_subject::value(&self) -> String; alias getValue;
-    fn hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DataSubject;
+    pre_build_generate_equals_and_hashcode DataSubject;
 });
 
 foreigner_class!(
@@ -571,8 +532,7 @@ class PolicyGrant {
     method policy_grant::sensitivity(&self) -> Option<Sensitivity>; alias getSensitivity;
     method policy_grant::data_subject(&self) -> Option<DataSubject>; alias getDataSubject;
     method policy_grant::substitute_id(&self) -> Option<UserId>; alias getSubstituteId;
-    fn hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality PolicyGrant;
+    pre_build_generate_equals_and_hashcode PolicyGrant;
 });
 
 foreigner_class!(
@@ -587,8 +547,7 @@ class DocumentEncryptOpts {
     /// @param groupGrants   list of group ids that will be granted access to the document
     /// @param policyGrant   The policy labels which will be evaluated to determine grants. 
     constructor document_create_opt::create(id :Option<&DocumentId>, name :Option<&DocumentName>, grantToAuthor: bool, userGrants: Vec<UserId>, groupGrants: Vec<GroupId>, policyGrant:Option<&PolicyGrant>) -> DocumentEncryptOpts;
-    fn hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DocumentEncryptOpts;
+    pre_build_generate_equals_and_hashcode DocumentEncryptOpts;
 });
 
 foreigner_class!(
@@ -603,8 +562,7 @@ class DocumentListMeta{
     method document_list_meta::association_type(&self) -> AssociationType; alias getAssociationType;
     method document_list_meta::created(&self) -> DateTime<Utc>; alias getCreated;
     method document_list_meta::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DocumentListMeta;
+    pre_build_generate_equals_and_hashcode DocumentListMeta;
 });
 
 foreigner_class!(
@@ -613,8 +571,7 @@ class DocumentListResult{
     self_type DocumentListResult;
     private constructor = empty;
     method document_list_result::result(&self) -> Vec<DocumentListMeta>; alias getResult;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DocumentListResult;
+    pre_build_generate_equals_and_hashcode DocumentListResult;
 });
 
 foreigner_class!(
@@ -629,8 +586,7 @@ class DocumentMetadataResult{
     method document_metadata_result::association_type(&self) -> AssociationType; alias getAssociationType;
     method document_metadata_result::visible_to_users(&self) -> Vec<VisibleUser>; alias getVisibleToUsers;
     method document_metadata_result::visible_to_groups(&self) -> Vec<VisibleGroup>; alias getVisibleToGroups;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DocumentMetadataResult;
+    pre_build_generate_equals_and_hashcode DocumentMetadataResult;
 });
 
 foreigner_class!(
@@ -652,8 +608,7 @@ class DocumentEncryptResult{
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DocumentEncryptResult;
+    pre_build_generate_equals_and_hashcode DocumentEncryptResult;
 });
 
 foreigner_class!(
@@ -670,8 +625,7 @@ class DocumentEncryptUnmanagedResult {
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged; 
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DocumentEncryptUnmanagedResult;
+    pre_build_generate_equals_and_hashcode DocumentEncryptUnmanagedResult;
 });
 
 foreigner_class!(
@@ -684,8 +638,7 @@ class DocumentDecryptResult{
     method document_decrypt_result::decrypted_data(&self) -> Vec<i8>; alias getDecryptedData;
     method document_decrypt_result::created(&self) -> DateTime<Utc>; alias getCreated;
     method document_decrypt_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DocumentDecryptResult;
+    pre_build_generate_equals_and_hashcode DocumentDecryptResult;
 });
 
 foreigner_class!(
@@ -700,8 +653,7 @@ class DocumentDecryptUnmanagedResult{
     /// User/Group that granted access to the encrypted data. More specifically,
     /// this is the user/group associated with the edek that was chosen and transformed by the webservice.
     method document_decrypt_unmanaged_result::access_via(&self) -> UserOrGroupId; alias getAccessViaUserOrGroup;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DocumentDecryptUnmanagedResult;
+    pre_build_generate_equals_and_hashcode DocumentDecryptUnmanagedResult;
 });
 
 foreigner_class!(
@@ -713,8 +665,7 @@ class SucceededResult {
     method document_access_change_result::SucceededResult::users(&self) -> Vec<UserId>; alias getUsers;
     /// Get list of groups whose access was granted/revoked
     method document_access_change_result::SucceededResult::groups(&self) -> Vec<GroupId>; alias getGroups;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality SucceededResult;
+    pre_build_generate_equals_and_hashcode SucceededResult;
 
 });
 
@@ -729,8 +680,7 @@ class FailedResult {
     method document_access_change_result::FailedResult::groups(&self) -> Vec<GroupAccessErr>; alias getGroups;
     /// Utility method to check if the list of failures is empty
     method document_access_change_result::FailedResult::is_empty(&self) -> bool; alias isEmpty;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality FailedResult;
+    pre_build_generate_equals_and_hashcode FailedResult;
 
 });
 
@@ -744,8 +694,7 @@ class DocumentAccessResult {
     method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality DocumentAccessResult;
+    pre_build_generate_equals_and_hashcode DocumentAccessResult;
 });
 
 foreigner_class!(
@@ -760,8 +709,7 @@ class PolicyCachingConfig{
     constructor policy_caching_config::create(maxEntries: usize) -> PolicyCachingConfig;
     constructor PolicyCachingConfig::default() -> PolicyCachingConfig;
     method policy_caching_config::get_max_entries(&self) -> usize; alias getMaxEntries;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality PolicyCachingConfig;
+    pre_build_generate_equals_and_hashcode PolicyCachingConfig;
 });
 
 foreigner_class!(
@@ -774,8 +722,7 @@ class IronOxideConfig{
     constructor ironoxide_config::create(policyCaching: &PolicyCachingConfig, sdkOperationTimeout: Option<&Duration>) -> IronOxideConfig;
     method ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig; 
     method ironoxide_config::get_timeout(&self) -> Option<Duration>; alias getSdkOperationTimeout;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality IronOxideConfig;
+    pre_build_generate_equals_and_hashcode IronOxideConfig;
 });
 
 foreigner_class!(
@@ -786,8 +733,7 @@ class Duration{
     static_method Duration::from_secs(secs: u64) -> Duration; alias fromSecs;
     method duration::get_millis(&self) -> u64; alias getMillis;
     method duration::get_secs(&self) -> u64; alias getSecs;
-    method hash(&self) -> i32; alias hashCode;
-    pre_build_generate_equality Duration;
+    pre_build_generate_equals_and_hashcode Duration;
 });
 
 ///
