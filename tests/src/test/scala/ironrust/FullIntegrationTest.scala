@@ -149,6 +149,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       deviceList.head.getId.getId shouldBe a[java.lang.Long]
       deviceList.head.getName.isPresent shouldBe true
       deviceList.head.getName.get shouldBe deviceName
+      sdk.clearPolicyCache shouldBe 0
     }
   }
 
