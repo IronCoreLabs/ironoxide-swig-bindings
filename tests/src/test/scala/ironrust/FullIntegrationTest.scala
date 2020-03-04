@@ -937,8 +937,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       doc.getId shouldBe validDocumentId
       doc.getName.isPresent shouldBe false
       doc.getAssociationType shouldBe AssociationType.Owner
-      // doc.getAssociationType shouldBe doc2.getAssociationType
-      // doc.hashCode shouldBe doc2.hashCode
+      doc.getAssociationType shouldBe doc2.getAssociationType
+      doc.getAssociationType.hashCode shouldBe doc2.getAssociationType.hashCode
       doc.getVisibleToUsers should have length 1
       checkEqualsAndHashDeclared(doc.getVisibleToUsers.head)
       doc.getVisibleToUsers.head.getId shouldBe primaryTestUserId
