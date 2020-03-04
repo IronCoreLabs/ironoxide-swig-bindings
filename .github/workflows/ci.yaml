@@ -30,7 +30,7 @@ jobs:
       run: |
         # Note that yum will fail if these are run in an order that makes more sense.
         # yum install -y java-sdk
-        # yum install -y openssl-devel
+        yum install -y openssl-devel
         # yum install -y clang
         yum group install -y "Development Tools"
     - uses: actions-rs/toolchain@v1
