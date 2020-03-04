@@ -4,7 +4,6 @@ use crate::{
     jni_c_header::*,
 };
 use chrono::{DateTime, Utc};
-use ironoxide::blocking::BlockingIronOxide;
 
 ///
 /// Classes for Common Types
@@ -856,7 +855,7 @@ class IronOxide {
     /// Clears all entries from the policy cache
     /// 
     /// @return number of entries cleared from the cache
-    method BlockingIronOxide::clear_policy_cache(&self) -> usize; alias clearPolicyCache;
+    method IronOxide::clear_policy_cache(&self) -> usize; alias clearPolicyCache;
     /// Verify a user given a JWT for their user record.
     ///
     /// @param jwt      valid IronCore JWT
