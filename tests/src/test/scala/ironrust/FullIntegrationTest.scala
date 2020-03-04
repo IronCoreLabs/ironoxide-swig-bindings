@@ -171,64 +171,27 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
   }
 
-  "Class equality" should {
-    "work for Category" in {
+  "Classes" should {
+    "implement equals() and hashcode()" in {
       checkEqualsAndHashDeclared(Category.validate("test"))
-    }
-    "work for DataSubject" in {
       checkEqualsAndHashDeclared(DataSubject.validate("test"))
-
-    }
-    "work for DeviceCreateOpts" in {
       checkEqualsAndHashDeclared(new DeviceCreateOpts)
-    }
-    "work for DeviceId" in {
       checkEqualsAndHashDeclared(DeviceId.validate(42))
-    }
-    "work for DeviceName" in {
       checkEqualsAndHashDeclared(DeviceName.validate("test"))
-    }
-    "work for DeviceSigningKeyPair" in {
       checkEqualsAndHashDeclared(DeviceSigningKeyPair.validate(primaryTestUserSigningKeysBytes))
-    }
-    "work for DocumentEncryptOpts" in {
       checkEqualsAndHashDeclared(new DocumentEncryptOpts)
-    }
-    "work for DocumentId" in {
       checkEqualsAndHashDeclared(DocumentId.validate("test"))
-    }
-    "work for DocumentName" in {
       checkEqualsAndHashDeclared(DocumentName.validate("test"))
-    }
-    "work for Duration" in {
       checkEqualsAndHashDeclared(Duration.fromSecs(5))
       Duration.fromSecs(5) shouldBe Duration.fromMillis(5000)
-    }
-    "work for GroupCreateOpts" in {
       checkEqualsAndHashDeclared(new GroupCreateOpts)
-    }
-    "work for GroupId" in {
       checkEqualsAndHashDeclared(GroupId.validate("test"))
-    }
-    "work for GroupName" in {
       checkEqualsAndHashDeclared(GroupName.validate("test"))
-    }
-    "work for IronOxideConfig" in {
       checkEqualsAndHashDeclared(new IronOxideConfig(defaultPolicyCaching, defaultTimeout))
-    }
-    "work for PolicyCachingConfig" in {
       checkEqualsAndHashDeclared(new PolicyCachingConfig(123))
-    }
-    "work for PolicyGrant" in {
       checkEqualsAndHashDeclared(new PolicyGrant)
-    }
-    "work for Sensitivity" in {
       checkEqualsAndHashDeclared(Sensitivity.validate("test"))
-    }
-    "work for UserCreateOpts" in {
       checkEqualsAndHashDeclared(new UserCreateOpts)
-    }
-    "work for UserId" in {
       checkEqualsAndHashDeclared(UserId.validate("test"))
     }
   }
