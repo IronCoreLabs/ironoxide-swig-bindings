@@ -23,10 +23,15 @@ jobs:
     container: ${{ matrix.image }}
     steps:
     - uses: actions/checkout@v2
-    - uses: IronCoreLabs/ironhide-actions/decrypt@v1
+    - name: Decrypt keys for unit tests
+      uses: IronCoreLabs/ironhide-actions/decrypt@v1
+      if: matrix.target != 'macos-10.15'
       with:
         keys: ${{ secrets.IRONHIDE_KEYS }}
         input: tests/src/test/resources/service-keys.conf.iron
+    - name: Decrypt keys for unit tests
+      if: matrix.target == 'macos-10.15'
+      run: openssl aes-256-cbc -pass pass:${{ secrets.OPENSSL_PASS }} -in tests/src/test/resources/service-keys.conf.enc -out tests/src/test/resources/service-keys.conf
     - uses: actions/setup-java@v1
       with:
         java-version: 8
@@ -44,7 +49,7 @@ jobs:
         # Note that yum will fail if these are run in an order that makes more sense.
         # yum install -y java-sdk
         yum install -y openssl-devel
-        # yum install -y clang
+        yum install -y clang
         yum group install -y "Development Tools"
     - uses: actions-rs/toolchain@v1
       with:
