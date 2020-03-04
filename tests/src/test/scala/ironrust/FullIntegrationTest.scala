@@ -7,6 +7,21 @@ import scala.util.Try
 import scodec.bits.ByteVector
 
 class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
+  def checkEqualsAndHashDeclared[A](obj: A) = {
+    val javaObjectClass = (new java.lang.Object).getClass
+    val objClass = obj.getClass
+    val hashCodeClass = objClass.getMethod("hashCode").getDeclaringClass
+    val equalsClass = objClass.getMethod("equals", javaObjectClass).getDeclaringClass
+    assert(
+      hashCodeClass == objClass,
+      s"""\nThe function `hashCode()` was not implemented for $objClass, but was instead inherited from $hashCodeClass"""
+    )
+    assert(
+      equalsClass == objClass,
+      s"""\nThe function `equals()` was not implemented for $objClass, but was instead inherited from $equalsClass"""
+    )
+  }
+
   // Generates a random user ID and password to use for this full integration test
   val primaryTestUserId = Try(UserId.validate(java.util.UUID.randomUUID.toString)).toEither.value
   val primaryTestUserPassword = java.util.UUID.randomUUID.toString
@@ -46,10 +61,10 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         Try(IronOxide.userCreate(jwt, primaryTestUserPassword, new UserCreateOpts(true), defaultTimeout)).toEither
       val createResult = resp.value
 
-      createResult.equals(createResult) shouldBe true
+      checkEqualsAndHashDeclared(createResult)
       createResult.getUserPublicKey.asBytes should have length 64
       createResult.getNeedsRotation shouldBe true
-      createResult.getUserPublicKey.equals(createResult.getUserPublicKey) shouldBe true
+      checkEqualsAndHashDeclared(createResult.getUserPublicKey)
     }
 
     "successfully create a 2nd new user" in {
@@ -85,7 +100,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val verifyResult = resp.value
 
       verifyResult.isPresent shouldBe true
-      verifyResult.equals(verifyResult) shouldBe true
+      checkEqualsAndHashDeclared(verifyResult.get)
       verifyResult.get.getAccountId shouldBe primaryTestUserId
       verifyResult.get.getSegmentId shouldBe 2013
       verifyResult.get.getNeedsRotation shouldBe true
@@ -111,7 +126,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         IronOxide.generateNewDevice(jwt2, secondaryTestUserPassword, new DeviceCreateOpts(deviceName), null)
       ).toEither.value
 
-      newDeviceResult.equals(newDeviceResult) shouldBe true
+      checkEqualsAndHashDeclared(newDeviceResult)
       newDeviceResult.getCreated shouldBe newDeviceResult.getLastUpdated
       newDeviceResult.getName.isPresent shouldBe true
       newDeviceResult.getName.get shouldBe deviceName
@@ -147,8 +162,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       sdk = IronOxide.initialize(deviceContext, defaultConfig)
       val deviceList = sdk.userListDevices.getResult
 
-      newDeviceResult.getDevicePrivateKey.equals(newDeviceResult.getDevicePrivateKey) shouldBe true
-      deviceContext.equals(deviceContext) shouldBe true
+      checkEqualsAndHashDeclared(newDeviceResult.getDevicePrivateKey)
+      checkEqualsAndHashDeclared(deviceContext)
       deviceList.length shouldBe 1
       deviceList.head.getId.getId shouldBe a[java.lang.Long]
       deviceList.head.getName.isPresent shouldBe true
@@ -158,88 +173,63 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Class equality" should {
     "work for Category" in {
-      val cat1 = Category.validate("test")
-      val cat2 = Category.validate("test")
-      cat1 shouldBe cat2
-      cat1.hashCode shouldBe cat2.hashCode
+      checkEqualsAndHashDeclared(Category.validate("test"))
     }
     "work for DataSubject" in {
-      val ds1 = DataSubject.validate("test")
-      val ds2 = DataSubject.validate("test")
-      ds1 shouldBe ds2
-      ds1.hashCode shouldBe ds2.hashCode
+      checkEqualsAndHashDeclared(DataSubject.validate("test"))
+
+    }
+    "work for DeviceCreateOpts" in {
+      checkEqualsAndHashDeclared(new DeviceCreateOpts)
     }
     "work for DeviceId" in {
-      val id1 = DeviceId.validate(42)
-      val id2 = DeviceId.validate(42)
-      id1 shouldBe id2
-      id1.hashCode shouldBe id2.hashCode
+      checkEqualsAndHashDeclared(DeviceId.validate(42))
     }
     "work for DeviceName" in {
-      val name1 = DeviceName.validate("test")
-      val name2 = DeviceName.validate("test")
-      name1 shouldBe name2
-      name1.hashCode shouldBe name2.hashCode
+      checkEqualsAndHashDeclared(DeviceName.validate("test"))
     }
     "work for DeviceSigningKeyPair" in {
-      val key1 = DeviceSigningKeyPair.validate(primaryTestUserSigningKeysBytes)
-      val key2 = DeviceSigningKeyPair.validate(primaryTestUserSigningKeysBytes)
-      key1 shouldBe key2
-      key1.hashCode shouldBe key2.hashCode
+      checkEqualsAndHashDeclared(DeviceSigningKeyPair.validate(primaryTestUserSigningKeysBytes))
+    }
+    "work for DocumentEncryptOpts" in {
+      checkEqualsAndHashDeclared(new DocumentEncryptOpts)
     }
     "work for DocumentId" in {
-      val id1 = DocumentId.validate("test")
-      val id2 = DocumentId.validate("test")
-      id1 shouldBe id2
-      id1.hashCode shouldBe id2.hashCode
+      checkEqualsAndHashDeclared(DocumentId.validate("test"))
     }
     "work for DocumentName" in {
-      val name1 = DocumentName.validate("test")
-      val name2 = DocumentName.validate("test")
-      name1 shouldBe name2
-      name1.hashCode shouldBe name2.hashCode
+      checkEqualsAndHashDeclared(DocumentName.validate("test"))
     }
     "work for Duration" in {
-      val d1 = Duration.fromSecs(5)
-      val d2 = Duration.fromMillis(5000)
-      d1 shouldBe d2
-      d1.hashCode shouldBe d2.hashCode
+      checkEqualsAndHashDeclared(Duration.fromSecs(5))
+      Duration.fromSecs(5) shouldBe Duration.fromMillis(5000)
+    }
+    "work for GroupCreateOpts" in {
+      checkEqualsAndHashDeclared(new GroupCreateOpts)
     }
     "work for GroupId" in {
-      val id1 = GroupId.validate("test")
-      val id2 = GroupId.validate("test")
-      id1 shouldBe id2
-      id1.hashCode shouldBe id2.hashCode
+      checkEqualsAndHashDeclared(GroupId.validate("test"))
     }
     "work for GroupName" in {
-      val name1 = GroupName.validate("test")
-      val name2 = GroupName.validate("test")
-      name1 shouldBe name2
-      name1.hashCode shouldBe name2.hashCode
+      checkEqualsAndHashDeclared(GroupName.validate("test"))
     }
     "work for IronOxideConfig" in {
-      val config1 = new IronOxideConfig(defaultPolicyCaching, defaultTimeout)
-      val config2 = new IronOxideConfig(defaultPolicyCaching, defaultTimeout)
-      config1 shouldBe config2
-      config1.hashCode shouldBe config2.hashCode
+      checkEqualsAndHashDeclared(new IronOxideConfig(defaultPolicyCaching, defaultTimeout))
     }
     "work for PolicyCachingConfig" in {
-      val policy1 = new PolicyCachingConfig(123)
-      val policy2 = new PolicyCachingConfig(123)
-      policy1 shouldBe policy2
-      policy1.hashCode shouldBe policy2.hashCode
+      checkEqualsAndHashDeclared(new PolicyCachingConfig(123))
+    }
+    "work for PolicyGrant" in {
+      checkEqualsAndHashDeclared(new PolicyGrant)
     }
     "work for Sensitivity" in {
-      val sen1 = Sensitivity.validate("test")
-      val sen2 = Sensitivity.validate("test")
-      sen1 shouldBe sen2
-      sen1.hashCode shouldBe sen2.hashCode
+      checkEqualsAndHashDeclared(Sensitivity.validate("test"))
+    }
+    "work for UserCreateOpts" in {
+      checkEqualsAndHashDeclared(new UserCreateOpts)
     }
     "work for UserId" in {
-      val id1 = UserId.validate("test")
-      val id2 = UserId.validate("test")
-      id1 shouldBe id2
-      id1.hashCode shouldBe id2.hashCode
+      checkEqualsAndHashDeclared(UserId.validate("test"))
     }
   }
 
@@ -299,8 +289,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val deviceListResult = Try(sdk.userListDevices).toEither.value
       val deviceList = deviceListResult.getResult
 
-      deviceListResult.equals(deviceListResult) shouldBe true
-      deviceList.equals(deviceList) shouldBe true
+      checkEqualsAndHashDeclared(deviceListResult)
+      checkEqualsAndHashDeclared(deviceList.head)
       deviceList.length shouldBe 3 // We have the primary device as well as secondary and tertiary devices generated above
       deviceList.head.getId.getId shouldBe a[java.lang.Long]
       deviceList.head.getName.isPresent shouldBe true //Our first device (createDeviceContext) from above does have a name
@@ -360,7 +350,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     "Return both for ids that do exist" in {
       val result = Try(sdk.userGetPublicKey(List(primaryTestUserId, secondaryTestUserId).toArray)).toEither.value
 
-      result.head.equals(result.head)
+      checkEqualsAndHashDeclared(result.head)
       //Sort the values just to make sure the assertion doesn't fail due to ordering being off.
       result.toList
         .map(_.getUser.getId)
@@ -374,14 +364,14 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val groupCreateResult =
         sdk.groupCreate(new GroupCreateOpts(null, groupName, true, true, null, Array(), Array(), true))
 
-      groupCreateResult.equals(groupCreateResult) shouldBe true
+      checkEqualsAndHashDeclared(groupCreateResult)
       groupCreateResult.getId.getId.length shouldBe 32 //gooid
       groupCreateResult.getName.get shouldBe groupName
       groupCreateResult.isAdmin shouldBe true
       groupCreateResult.isMember shouldBe true
       groupCreateResult.getCreated should not be null
       groupCreateResult.getLastUpdated shouldBe groupCreateResult.getCreated
-      groupCreateResult.getAdminList.equals(groupCreateResult.getAdminList)
+      checkEqualsAndHashDeclared(groupCreateResult.getAdminList)
       groupCreateResult.getAdminList.getList should have length 1
       groupCreateResult.getAdminList.getList.head shouldBe primaryTestUserId
       groupCreateResult.getMemberList.getList should have length 1
@@ -422,7 +412,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   "Group Private Key Rotate" should {
     "Successfully rotate a valid group" in {
       val rotateResult = sdk.groupRotatePrivateKey(validGroupId)
-      rotateResult.equals(rotateResult) shouldBe true
+      checkEqualsAndHashDeclared(rotateResult)
       rotateResult.getNeedsRotation shouldBe false
       rotateResult.getId shouldBe validGroupId
     }
@@ -439,9 +429,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Group List" should {
     "Return previously created group" in {
-      val groupResult = sdk.groupList.getResult
+      val groupList = sdk.groupList
+      val groupResult = groupList.getResult
 
-      groupResult.equals(groupResult) shouldBe true
       groupResult.length shouldBe 3
       groupResult.head.getId.getId.length shouldBe 32 //gooid
       groupResult.head.getName.get.getName shouldBe "a name"
@@ -449,7 +439,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       groupResult.head.isMember shouldBe true
       groupResult.head.getCreated should not be null
       groupResult.head.getLastUpdated should be > groupResult.head.getCreated
-      groupResult.head.equals(groupResult.head) shouldBe true
+      checkEqualsAndHashDeclared(groupList)
+      checkEqualsAndHashDeclared(groupResult.head)
     }
   }
 
@@ -465,7 +456,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val resp = Try(sdk.groupGetMetadata(validGroupId)).toEither
       val group = resp.value
 
-      group.equals(group) shouldBe true
+      checkEqualsAndHashDeclared(group)
       group.getId.getId.length shouldBe 32
       group.getId shouldBe validGroupId
       group.getName.get.getName shouldBe "a name"
@@ -530,7 +521,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val updateResp = Try(sdk.groupUpdateName(validGroupId, newGroupName)).toEither
       val updatedGroup = updateResp.value
 
-      updatedGroup.getNeedsRotation.equals(updatedGroup.getNeedsRotation) shouldBe true
+      checkEqualsAndHashDeclared(updatedGroup.getNeedsRotation.get)
       updatedGroup.getId shouldBe validGroupId
       updatedGroup.getName.get shouldBe newGroupName
       updatedGroup.getCreated should not be null
@@ -557,7 +548,6 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val removeMember = removeMemberResp.value
 
       removeMember.getSucceeded.toList should have length 1
-      removeMember.getSucceeded.head.equals(removeMember.getSucceeded.head) shouldBe true
       removeMember.getSucceeded.toList.head shouldBe primaryTestUserId
       removeMember.getFailed.toList should have length 1
       removeMember.getFailed.toList.head.getUser shouldBe randomUser
@@ -581,9 +571,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       val addMember = addMemberResp.value
 
-      addMember.equals(addMember) shouldBe true
+      checkEqualsAndHashDeclared(addMember)
       addMember.getFailed.toList should have length 1
-      addMember.getFailed.head.equals(addMember.getFailed.head) shouldBe true
+      checkEqualsAndHashDeclared(addMember.getFailed.head)
       addMember.getSucceeded.toList should have length 0
     }
   }
@@ -651,7 +641,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         Try(sdk.documentEncrypt(data, new DocumentEncryptOpts(null, docName, true, Array(), Array(), null))).toEither
       val result = maybeResult.value
 
-      result.equals(result) shouldBe true
+      checkEqualsAndHashDeclared(result)
+      checkEqualsAndHashDeclared(result.getChanged)
       result.getName.get shouldBe docName
       result.getId.getId.length shouldBe 32
     }
@@ -671,7 +662,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       val decryptedResult = maybeDecrypt.value
 
-      decryptedResult.equals(decryptedResult) shouldBe true
+      checkEqualsAndHashDeclared(decryptedResult)
       decryptedResult.getId.getId.length shouldBe 32
       decryptedResult.getName.isPresent shouldBe false
       decryptedResult.getDecryptedData shouldBe data
@@ -720,7 +711,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       result.getErrors.getGroups should have length 2
       result.getErrors.getGroups.head.getId.getId shouldBe "badgroupid_frompolicy"
       result.getErrors.getGroups.tail.head.getId.getId shouldBe s"data_recovery_${primaryTestUserId.getId}"
-
+      checkEqualsAndHashDeclared(result.getErrors.getGroups.head)
     }
 
     "return failures for bad users and groups" in {
@@ -738,9 +729,9 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       result.getChanged.getGroups should have length 0
 
       // the invalid stuff should have errored
-      result.getErrors.equals(result.getErrors) shouldBe true
+      checkEqualsAndHashDeclared(result.getErrors)
       result.getErrors.getUsers should have length 1
-      result.getErrors.getUsers.head.equals(result.getErrors.getUsers.head) shouldBe true
+      checkEqualsAndHashDeclared(result.getErrors.getUsers.head)
       result.getErrors.getUsers.head.getId.getId shouldBe notAUser.getId
       result.getErrors.getUsers.head.getErr shouldBe "User could not be found"
       result.getErrors.getGroups should have length 1
@@ -760,13 +751,12 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val rotatedDecryptResult = Try(sdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
 
       rotatedPublicKey shouldBe originalPublicKey
-      rotateResult.equals(rotateResult) shouldBe true
+      checkEqualsAndHashDeclared(rotateResult)
       rotateResult.getNeedsRotation shouldBe false
       rotatedDecryptResult.getDecryptedData shouldBe decryptResult.getDecryptedData
       rotatedDecryptResult.getId shouldBe decryptResult.getId
       rotatedDecryptResult.getName shouldBe decryptResult.getName
-      rotateResult.getUserMasterPrivateKey.equals(rotateResult.getUserMasterPrivateKey) shouldBe true
-      rotateResult.equals(rotateResult) shouldBe true
+      checkEqualsAndHashDeclared(rotateResult.getUserMasterPrivateKey)
     }
     "create a new device after rotation" in {
       val jwt = JwtHelper.generateValidJwt(primaryTestUserId.getId)
@@ -822,15 +812,15 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val maybeResult = Try(sdk.advancedDocumentEncryptUnmanaged(data, new DocumentEncryptOpts)).toEither
       val result = maybeResult.value
 
-      result.equals(result) shouldBe true
+      checkEqualsAndHashDeclared(result)
       result.getId.getId.length shouldBe 32
 
       val maybeDecrypt =
         Try(sdk.advancedDocumentDecryptUnmanaged(result.getEncryptedData, result.getEncryptedDeks)).toEither
       val decryptedResult = maybeDecrypt.value
 
-      decryptedResult.getAccessViaUserOrGroup.equals(decryptedResult.getAccessViaUserOrGroup)
-      decryptedResult.equals(decryptedResult) shouldBe true
+      checkEqualsAndHashDeclared(decryptedResult.getAccessViaUserOrGroup)
+      checkEqualsAndHashDeclared(decryptedResult)
       decryptedResult.getId.getId shouldBe result.getId.getId
       decryptedResult.getDecryptedData shouldBe data
       decryptedResult.getAccessViaUserOrGroup.getId shouldBe primaryTestUserId.getId
@@ -960,8 +950,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val listResult = sdk.documentList
       val listMeta = listResult.getResult
 
-      listMeta.equals(listMeta) shouldBe true
-      listResult.equals(listResult) shouldBe true
+      checkEqualsAndHashDeclared(listMeta.head)
+      checkEqualsAndHashDeclared(listResult)
       listMeta should have length 6
     }
   }
@@ -975,19 +965,33 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "Return expected details about document" in {
-      val maybeDoc = Try(sdk.documentGetMetadata(validDocumentId)).toEither
+      val doc = Try(sdk.documentGetMetadata(validDocumentId)).toEither.value
+      // we don't have equals and hashCode on our foreign_enums, so we'll make the call twice
+      // and make sure that the inherited implementation compares value correctly
+      val doc2 = Try(sdk.documentGetMetadata(validDocumentId)).toEither.value
 
-      val doc = maybeDoc.value
-
-      doc.equals(doc) shouldBe true
+      checkEqualsAndHashDeclared(doc)
       doc.getId shouldBe validDocumentId
       doc.getName.isPresent shouldBe false
       doc.getAssociationType shouldBe AssociationType.Owner
-      doc.getAssociationType.equals(doc.getAssociationType) shouldBe true
+      // doc.getAssociationType shouldBe doc2.getAssociationType
+      // doc.hashCode shouldBe doc2.hashCode
       doc.getVisibleToUsers should have length 1
-      doc.getVisibleToUsers.head.equals(doc.getVisibleToUsers.head) shouldBe true
+      checkEqualsAndHashDeclared(doc.getVisibleToUsers.head)
       doc.getVisibleToUsers.head.getId shouldBe primaryTestUserId
       doc.getVisibleToGroups should have length 0
+    }
+    "Return details when encrypted to group" in {
+      val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
+      val groupCreate = sdk.groupCreate(new GroupCreateOpts(null, null, true, true, null, Array(), Array(), false))
+      val encryptResult =
+        sdk.documentEncrypt(data, new DocumentEncryptOpts(null, null, false, Array(), Array(groupCreate.getId), null))
+      val getResult = sdk.documentGetMetadata(encryptResult.getId)
+      sdk.groupDelete(groupCreate.getId)
+
+      getResult.getVisibleToGroups.map(_.getId) shouldBe Array(groupCreate.getId)
+      getResult.getId shouldBe encryptResult.getId
+      checkEqualsAndHashDeclared(getResult.getVisibleToGroups.head)
     }
   }
 
@@ -1025,7 +1029,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       success.getUsers should have length 1
       success.getGroups should have length 1
-      grantResult.equals(grantResult) shouldBe true
+      checkEqualsAndHashDeclared(grantResult)
       grantResult.getErrors.isEmpty shouldBe false
       grantResult.getErrors.getUsers should have length 1
       grantResult.getErrors.getGroups should have length 1

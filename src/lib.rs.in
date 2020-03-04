@@ -124,14 +124,14 @@ class DeviceId {
 });
 
 foreigner_class!(
-    class UserUpdatePrivateKeyResult {
-        self_type UserUpdatePrivateKeyResult;
-        private constructor = empty;
-        /// Updated encrypted user private key
-        method user_update_private_key_result::user_master_private_key(&self) -> EncryptedPrivateKey; alias getUserMasterPrivateKey;
-        /// True if this user's master key requires rotation
-        method user_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
-        pre_build_generate_equals_and_hashcode UserUpdatePrivateKeyResult;
+class UserUpdatePrivateKeyResult {
+    self_type UserUpdatePrivateKeyResult;
+    private constructor = empty;
+    /// Updated encrypted user private key
+    method user_update_private_key_result::user_master_private_key(&self) -> EncryptedPrivateKey; alias getUserMasterPrivateKey;
+    /// True if this user's master key requires rotation
+    method user_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    pre_build_generate_equals_and_hashcode UserUpdatePrivateKeyResult;
 });
 
 foreigner_class!(
@@ -180,7 +180,6 @@ class UserAccessErr {
     method UserAccessErr::id(&self) -> UserId; alias getId;
     method UserAccessErr::err(&self) -> String; alias getErr;
     pre_build_generate_equals_and_hashcode UserAccessErr;
-
 });
 
 foreigner_class!(
@@ -191,7 +190,6 @@ class GroupAccessErr {
     method GroupAccessErr::id(&self) -> GroupId; alias getId;
     method GroupAccessErr::err(&self) -> String; alias getErr;
     pre_build_generate_equals_and_hashcode GroupAccessErr;
-
 });
 
 foreigner_class!(class UserWithKey {
@@ -200,7 +198,6 @@ foreigner_class!(class UserWithKey {
     method UserWithKey::user(&self) -> UserId; alias getUser;
     method UserWithKey::public_key(&self) -> PublicKey; alias getPublicKey;
     pre_build_generate_equals_and_hashcode UserWithKey;
-
 });
 
 foreigner_class!(class GroupUserList {
@@ -208,7 +205,6 @@ foreigner_class!(class GroupUserList {
     private constructor = empty;
     method GroupUserList::list(&self) -> Vec<UserId>; alias getList;
     pre_build_generate_equals_and_hashcode GroupUserList;
-
 });
 
 ///
@@ -267,7 +263,6 @@ class UserCreateResult {
     /// True if the private key of the user's keypair needs to be rotated, else false.
     method user_create_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
     pre_build_generate_equals_and_hashcode UserCreateResult;
-
 });
 
 foreigner_class!(
@@ -280,7 +275,6 @@ class UserResult {
     method user_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
     method user_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
     pre_build_generate_equals_and_hashcode UserResult;
-
 });
 
 foreigner_class!(
@@ -300,7 +294,6 @@ class UserDevice {
     /// the API request
     method UserDevice::is_current_device(&self) -> bool; alias isCurrentDevice;
     pre_build_generate_equals_and_hashcode UserDevice;
-
 });
 
 foreigner_class!(class DeviceCreateOpts {
@@ -328,7 +321,6 @@ class UserDeviceListResult {
     private constructor = empty;
     method user_device_list_result::result(&self) -> Vec<UserDevice>; alias getResult;
     pre_build_generate_equals_and_hashcode UserDeviceListResult;
-
 });
 
 ///
@@ -355,7 +347,6 @@ class GroupMetaResult{
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
     method group_meta_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
     pre_build_generate_equals_and_hashcode GroupMetaResult;
-
 });
 
 foreigner_class!(
@@ -386,7 +377,6 @@ class GroupCreateResult{
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
     method group_create_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
     pre_build_generate_equals_and_hashcode GroupCreateResult;
-
 });
 
 foreigner_class!(class GroupListResult{
@@ -394,7 +384,6 @@ foreigner_class!(class GroupListResult{
     private constructor = empty;
     method group_list_result::result(&self) -> Vec<GroupMetaResult>; alias getResult;
     pre_build_generate_equals_and_hashcode GroupListResult;
-
 });
 
 foreigner_class!(class GroupGetResult{
@@ -421,7 +410,6 @@ foreigner_class!(class GroupGetResult{
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
     method group_get_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
     pre_build_generate_equals_and_hashcode GroupGetResult;
-
 });
 
 foreigner_class!(
@@ -434,7 +422,6 @@ class GroupUpdatePrivateKeyResult{
     /// the id of the group whose private key was rotated
     method group_update_private_key_result::id(&self) -> GroupId; alias getId;
     pre_build_generate_equals_and_hashcode GroupUpdatePrivateKeyResult;
-
 });
 
 foreigner_class!(
@@ -464,7 +451,6 @@ class GroupAccessEditErr{
     /// Get the reason for grant/revoke failure
     method access_edit_failure::error(&self) -> String; alias getError;
     pre_build_generate_equals_and_hashcode GroupAccessEditErr;
-
 });
 
 foreigner_class!(
@@ -477,7 +463,6 @@ class GroupAccessEditResult{
     /// Get the users whose access could not be modified
     method group_access_edit_result::failed(&self) -> Vec<GroupAccessEditErr>; alias getFailed;
     pre_build_generate_equals_and_hashcode GroupAccessEditResult;
-
 });
 
 ///
@@ -666,7 +651,6 @@ class SucceededResult {
     /// Get list of groups whose access was granted/revoked
     method document_access_change_result::SucceededResult::groups(&self) -> Vec<GroupId>; alias getGroups;
     pre_build_generate_equals_and_hashcode SucceededResult;
-
 });
 
 foreigner_class!(
@@ -681,7 +665,6 @@ class FailedResult {
     /// Utility method to check if the list of failures is empty
     method document_access_change_result::FailedResult::is_empty(&self) -> bool; alias isEmpty;
     pre_build_generate_equals_and_hashcode FailedResult;
-
 });
 
 foreigner_class!(
