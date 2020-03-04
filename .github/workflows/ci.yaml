@@ -25,6 +25,14 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 8
+    - name: Install sbt
+      # The setup-java action should do this, but it doesn't on MacOS.
+      # https://github.com/actions/setup-java/issues/50
+      if: ${{ matrix.host == 'macos-10.15' }}
+      run: |
+        curl -Ls https://git.io/sbt > sbt
+        chmod +x sbt
+        sudo mv sbt /usr/local/bin/sbt
     - name: Set up centos
       if: matrix.image != ''
       run: |
