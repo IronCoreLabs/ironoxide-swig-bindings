@@ -26,7 +26,7 @@ jobs:
       with:
         java-version: 8
     - name: Set up centos
-      if: matrix.image != ""
+      if: matrix.image != ''
       run: |
         # Note that yum will fail if these are run in an order that makes more sense.
         # yum install -y java-sdk
@@ -46,4 +46,3 @@ jobs:
         command: b
     - run: sbt test
       working-directory: tests
-
