@@ -1,0 +1,96 @@
+name: release
+
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+  release:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/create-release@v1
+      id: release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Version ${{ github.ref }}
+    - name: Save release info
+      run: echo ${{ steps.release.outputs.upload_url }} > release.txt
+    - name: Upload release info
+      uses: actions/upload-artifact@v1
+      with:
+        name: release
+        path: release.txt
+
+  build:
+    strategy:
+      matrix:
+        target: [ ubuntu-18.04, macos-10.15, centos7, centos8 ]
+        include:
+        - target: ubuntu-18.04
+          host: ubuntu-18.04
+        - target: macos-10.15
+          host: macos-10.15
+        - target: centos7
+          host: ubuntu-latest
+          image: centos7
+        - target: centos8
+          host: ubuntu-latest
+          image: centos8
+    needs: release
+    runs-on: ${{ matrix.host }}
+    container: ${{ matrix.image }}
+    steps:
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 8
+    - name: Install sbt
+      # The setup-java action should do this, but it doesn't on MacOS.
+      # https://github.com/actions/setup-java/issues/50
+      if: ${{ matrix.target != 'ubuntu-18.04' }}
+      run: |
+        curl -Ls https://git.io/sbt > sbt
+        chmod +x sbt
+        mv sbt /usr/local/bin/sbt || sudo mv sbt /usr/local/bin/sbt
+    - name: Set up centos
+      if: matrix.image != ''
+      run: |
+        # Note that yum will fail if these are run in an order that makes more sense.
+        yum install -y openssl-devel
+        yum install -y clang
+        yum group install -y "Development Tools"
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    - uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --release
+    - name: Copy release artifacts
+      run: |
+        # Copy out just the library to upload. In order to just grab the .dylib or .so we just use extglob, allowing use of |.
+        # We did this instead of 2 cp lines so we could leave -e enabled and it would succeed as long as it matches at least once.
+        mkdir release_artifacts
+        shopt -s extglob
+        cp target/release/libironoxide_java.*(so|dylib) release_artifacts/
+    - name: Package libs for centos
+      if: matrix.image != ""
+      working-directory: release_artifacts
+      run: |
+        tar czf "libironoxide_java-${{ matrix.image }}.tar.gz" libironoxide_java.so
+        rm libironoxide_java.so
+    - name: Download release info
+      uses: actions/download-artifact@v1
+      with:
+        name: release
+    - name: Load release info
+      id: release
+      run: echo "::set-output name=upload_url::$(cat release.txt)"
+    - uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.release.outputs.upload_url }}
+        asset_path: release_artifacts/*
