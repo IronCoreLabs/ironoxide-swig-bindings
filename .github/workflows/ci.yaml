@@ -42,7 +42,7 @@ jobs:
       run: |
         curl -Ls https://git.io/sbt > sbt
         chmod +x sbt
-        sudo mv sbt /usr/local/bin/sbt
+        mv sbt /usr/local/bin/sbt || sudo mv sbt /usr/local/bin/sbt
     - name: Set up centos
       if: matrix.image != ''
       run: |
