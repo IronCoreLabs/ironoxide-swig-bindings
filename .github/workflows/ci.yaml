@@ -21,7 +21,7 @@ jobs:
     runs-on: ${{ matrix.host }}
     container: ${{ matrix.image }}
     env:
-      COURSIER_CACHE: ${{ env.HOME }}/.cache/coursier/v1
+      COURSIER_CACHE: /tmp/.cache/coursier/v1
     steps:
     - uses: actions/checkout@v2
     - name: Restore rust cache
