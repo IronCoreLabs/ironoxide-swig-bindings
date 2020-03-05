@@ -22,6 +22,13 @@ jobs:
     container: ${{ matrix.image }}
     steps:
     - uses: actions/checkout@v2
+    - name: Restore cache
+      uses: actions/cache@v1
+      with:
+        key: ${{ github.workflow }}-rust-${{ matrix.target }}-${{ hashFiles('Cargo.lock') }}
+        restore-keys: |
+          ${{ github.workflow }}-rust-${{ matrix.target }}-
+        path: ${{ env.HOME }}/.cargo
     - name: Decrypt keys for unit tests
       uses: IronCoreLabs/ironhide-actions/decrypt@v1
       if: matrix.target != 'macos-10.15'
@@ -62,3 +69,7 @@ jobs:
         command: b
     - run: sbt test
       working-directory: tests
+    - name: Clean the cargo cache
+      run: |
+        cargo install cargo-cache --no-default-features --features ci-autoclean cargo-cache
+        cargo-cache
