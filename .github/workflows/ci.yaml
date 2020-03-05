@@ -71,5 +71,5 @@ jobs:
       working-directory: tests
     - name: Clean the cargo cache
       run: |
-        cargo install cargo-cache --no-default-features --features ci-autoclean cargo-cache
+        cargo install --no-default-features --features ci-autoclean cargo-cache
         cargo-cache
