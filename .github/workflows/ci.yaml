@@ -64,8 +64,6 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 8
-    - name: Debug settings.xml
-      run: cat ${HOME}/.m2/settings.xml
     - name: Install sbt
       # The setup-java action should do this, but it doesn't on MacOS.
       # https://github.com/actions/setup-java/issues/50

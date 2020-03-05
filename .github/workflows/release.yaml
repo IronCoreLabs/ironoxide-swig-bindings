@@ -18,6 +18,13 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: Version ${{ github.ref }}
+    - name: Decrypt PGP key
+      uses: IronCoreLabs/ironhide-actions/decrypt@v1
+      with:
+        keys: ${{ secrets.IRONHIDE_KEYS }}
+        input: .github/signing-key.asc.iron
+    - name: Import PGP key
+      run: gpg --import .github/signing-key.asc
 
     - name: Download release artifacts from ubuntu-18.04
       uses: actions/download-artifact@v1
@@ -130,10 +137,10 @@ jobs:
           host: macos-10.15
         - target: centos7
           host: ubuntu-latest
-          image: centos7
+          image: centos:centos7
         - target: centos8
           host: ubuntu-latest
-          image: centos8
+          image: centos:centos8
     runs-on: ${{ matrix.host }}
     container: ${{ matrix.image }}
     steps:
