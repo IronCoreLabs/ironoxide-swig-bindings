@@ -171,7 +171,7 @@ jobs:
         shopt -s extglob
         cp target/release/libironoxide_java.*(so|dylib) release_artifacts/
     - name: Package libs for centos
-      if: matrix.image != ""
+      if: matrix.image != ''
       working-directory: release_artifacts
       run: |
         tar czf "libironoxide_java-${{ matrix.image }}.tar.gz" libironoxide_java.so
