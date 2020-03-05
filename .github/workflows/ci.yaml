@@ -102,6 +102,10 @@ jobs:
         rm -fv ${HOME}/.ivy2/.sbt.ivy.lock
         find ${HOME}/.ivy2/cache -name 'ivydata-*.properties' -print -delete
         find ${HOME}/.sbt -name '*.lock' -print -delete
+
+  security:
+    runs-on: ubuntu-18.04
+    steps:
     - name: Rust security audit
       uses: actions-rs/audit-check@v1
       with:
