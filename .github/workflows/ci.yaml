@@ -20,15 +20,38 @@ jobs:
           image: centos:centos8
     runs-on: ${{ matrix.host }}
     container: ${{ matrix.image }}
+    env:
+      COURSIER_CACHE: ${{ env.HOME }}/.cache/coursier/v1
     steps:
     - uses: actions/checkout@v2
-    - name: Restore cache
+    - name: Restore rust cache
       uses: actions/cache@v1
       with:
         key: ${{ github.workflow }}-rust-${{ matrix.target }}-${{ hashFiles('Cargo.lock') }}
         restore-keys: |
           ${{ github.workflow }}-rust-${{ matrix.target }}-
         path: ${{ env.HOME }}/.cargo
+    - name: Restore ivy2 cache
+      uses: actions/cache@v1
+      with:
+        key: ${{ github.workflow }}-ivy2-${{ hashFiles('tests/*.sbt') }}
+        restore-keys: |
+          ${{ github.workflow }}-ivy2-
+        path: ${{ env.HOME }}/.ivy2/cache
+    - name: Restore coursier cache
+      uses: actions/cache@v1
+      with:
+        key: ${{ github.workflow }}-coursier-${{ hashFiles('tests/*.sbt') }}
+        restore-keys: |
+          ${{ github.workflow }}-coursier-
+        path: ${{ env.HOME }}/.cache/coursier
+    - name: Restore sbt cache
+      uses: actions/cache@v1
+      with:
+        key: ${{ github.workflow }}-sbt-${{ hashFiles('tests/*.sbt') }}
+        restore-keys: |
+          ${{ github.workflow }}-sbt-
+        path: ${{ env.HOME }}/.sbt
     - name: Decrypt keys for unit tests
       uses: IronCoreLabs/ironhide-actions/decrypt@v1
       if: matrix.target != 'macos-10.15'
@@ -73,3 +96,9 @@ jobs:
       run: |
         cargo install --no-default-features --features ci-autoclean cargo-cache
         cargo-cache
+    - name: Clean the scala cache
+      # https://www.scala-sbt.org/1.x/docs/Travis-CI-with-sbt.html#Caching
+      run: |
+        rm -fv ${{ env.HOME }}/.ivy2/.sbt.ivy.lock
+        find ${{ env.HOME }}/.ivy2/cache -name 'ivydata-*.properties' -print -delete
+        find ${{ env.HOME }}/.sbt -name '*.lock' -print -delete
