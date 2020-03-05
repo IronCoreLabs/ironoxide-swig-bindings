@@ -236,8 +236,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         Try(IronOxide.generateNewDevice(jwt, primaryTestUserPassword, new DeviceCreateOpts, null)).toEither
       val dev3 = new DeviceContext(deviceResp2.value)
 
-      val deviceListResult = Try(sdk.userListDevices).toEither.value
-      val deviceList = deviceListResult.getResult
+      val deviceList = Try(sdk.userListDevices).toEither.value.getResult
 
       deviceList.length shouldBe 3 // We have the primary device as well as secondary and tertiary devices generated above
       deviceList.head.getId.getId shouldBe a[java.lang.Long]
@@ -296,10 +295,10 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
     }
 
     "Return both for ids that do exist" in {
-      val result = Try(sdk.userGetPublicKey(List(primaryTestUserId, secondaryTestUserId).toArray)).toEither.value
+      val result = Try(sdk.userGetPublicKey(List(primaryTestUserId, secondaryTestUserId).toArray)).toEither
 
       //Sort the values just to make sure the assertion doesn't fail due to ordering being off.
-      result.toList
+      result.value.toList
         .map(_.getUser.getId)
         .sorted shouldBe List(primaryTestUserId.getId, secondaryTestUserId.getId).sorted
     }
@@ -373,8 +372,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Group List" should {
     "Return previously created group" in {
-      val groupList = sdk.groupList
-      val groupResult = groupList.getResult
+      val groupResult = sdk.groupList.getResult
 
       groupResult.length shouldBe 3
       groupResult.head.getId.getId.length shouldBe 32 //gooid
@@ -874,10 +872,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Document List" should {
     "Return previously created documents" in {
-      val listResult = sdk.documentList
-      val listMeta = listResult.getResult
-
-      listMeta should have length 6
+      sdk.documentList.getResult should have length 6
     }
   }
 
