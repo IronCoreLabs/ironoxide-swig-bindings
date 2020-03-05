@@ -614,6 +614,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
     "clear an empty policy" in {
       val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
+      // this ID matches the policy's group of "data_recovery_%LOGGED_IN_USER%"
       val id = GroupId.validate(s"data_recovery_${primaryTestUserId.getId}")
       val group = sdk.groupCreate(
         new GroupCreateOpts(id, null, true, true, null, Array(), Array(), false)
