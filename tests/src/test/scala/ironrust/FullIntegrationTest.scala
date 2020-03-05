@@ -149,6 +149,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       deviceList.head.getId.getId shouldBe a[java.lang.Long]
       deviceList.head.getName.isPresent shouldBe true
       deviceList.head.getName.get shouldBe deviceName
+      sdk.clearPolicyCache shouldBe 0
     }
   }
 
@@ -609,7 +610,31 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       result.getErrors.getGroups should have length 2
       result.getErrors.getGroups.head.getId.getId shouldBe "badgroupid_frompolicy"
       result.getErrors.getGroups.tail.head.getId.getId shouldBe s"data_recovery_${primaryTestUserId.getId}"
+    }
 
+    "clear an empty policy" in {
+      val data: Array[Byte] = List(1, 2, 3).map(_.toByte).toArray
+      // this ID matches the policy's group of "data_recovery_%LOGGED_IN_USER%"
+      val id = GroupId.validate(s"data_recovery_${primaryTestUserId.getId}")
+      val group = sdk.groupCreate(
+        new GroupCreateOpts(id, null, true, true, null, Array(), Array(), false)
+      )
+      val result = Try(
+        sdk.documentEncrypt(
+          data,
+          new DocumentEncryptOpts(
+            null,
+            null,
+            true,
+            Array(),
+            Array(),
+            new PolicyGrant()
+          )
+        )
+      ).toEither.value
+      sdk.groupDelete(id) // don't want to disrupt other policy tests by leaving this group
+      sdk.clearPolicyCache shouldBe 1
+      result.getChanged.getUsers.length shouldBe 1
     }
 
     "return failures for bad users and groups" in {
@@ -838,7 +863,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Document List" should {
     "Return previously created documents" in {
-      sdk.documentList.getResult should have length 6
+      sdk.documentList.getResult should have length 7
     }
   }
 
