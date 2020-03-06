@@ -181,10 +181,10 @@ jobs:
       if: matrix.image != ''
       working-directory: release_artifacts
       run: |
-        tar czf "libironoxide_java-${{ matrix.image }}.tar.gz" libironoxide_java.so
+        tar czf "libironoxide_java-${{ matrix.target }}.tar.gz" libironoxide_java.so
         rm libironoxide_java.so
-    - name: Upload release info
+    - name: Upload release artifacts
       uses: actions/upload-artifact@v1
       with:
         name: release-${{ matrix.target }}
-        path: release_artifacts
+        path: release_artifacts/*
