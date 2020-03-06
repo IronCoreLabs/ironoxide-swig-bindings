@@ -6,7 +6,12 @@ SDK for using IronCore Labs from your Java server side applications. This librar
 ## Installation
 ### Library 
 
-Download the appropriate binary for your operating system on the [releases](https://github.com/IronCoreLabs/ironoxide-java/releases) page. `.so` for Linux or `.dylib` for OSX.
+Download the appropriate binary for your operating system on the [releases](https://github.com/IronCoreLabs/ironoxide-java/releases) page:
+- `.so` for (default or Debian-based) Linux
+- `.dylib` for OSX
+- `.tar.gz` for CentOS, RHEL, or similar Linux
+
+(Optional) Verify the PGP signature by running `gpg --verify ${file}.asc`. Our fingerprint is `83F9 49C6 E7E2 F0A2 9564  2DEE 62F5 7B1B 8792 8CAC`.
 
 > If you encounter issues related to linked libraries, you may be able to get a working library built for your system by [building from source](#build-from-source).
 
