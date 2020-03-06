@@ -24,7 +24,7 @@ jobs:
         keys: ${{ secrets.IRONHIDE_KEYS }}
         input: .github/signing-key.asc.iron
     - name: Import PGP key
-      run: gpg --no-tty --batch --yes --import .github/signing-key.asc
+      run: gpg --batch --import .github/signing-key.asc
 
     - name: Download release artifacts from ubuntu-18.04
       uses: actions/download-artifact@v1
@@ -33,8 +33,8 @@ jobs:
         path: release/ubuntu-18.04
     - name: Sign artifact for ubuntu-18.04
       run: |
-        gpg --no-tty --batch --yes --detach-sign -a release/ubuntu-18.04/libironoxide_java.so
-        gpg --no-tty --batch --yes --verify release/ubuntu-18.04/libironoxide_java.so.asc
+        gpg --batch --detach-sign -a release/ubuntu-18.04/libironoxide_java.so
+        gpg --batch --verify release/ubuntu-18.04/libironoxide_java.so.asc release/ubuntu-18.04/libironoxide_java.so
     - name: Upload lib for ubuntu-18.04
       uses: actions/upload-release-asset@v1
       env:
@@ -58,8 +58,8 @@ jobs:
         path: release/macos-10.15
     - name: Sign artifact for macos-10.15
       run: |
-        gpg --no-tty --batch --yes --detach-sign -a release/macos-10.15/libironoxide_java.dylib
-        gpg --no-tty --batch --yes --verify release/macos-10.15/libironoxide_java.dylib.asc
+        gpg --batch --detach-sign -a release/macos-10.15/libironoxide_java.dylib
+        gpg --batch --verify release/macos-10.15/libironoxide_java.dylib.asc release/macos-10.15/libironoxide_java.dylib
     - name: Upload lib for macos-10.15
       uses: actions/upload-release-asset@v1
       env:
@@ -83,8 +83,8 @@ jobs:
         path: release/centos7
     - name: Sign artifact for centos7
       run: |
-        gpg --no-tty --batch --yes --detach-sign -a release/centos7/libironoxide_java-centos7.tar.gz
-        gpg --no-tty --batch --yes --verify release/centos7/libironoxide_java-centos7.tar.gz.asc
+        gpg --batch --detach-sign -a release/centos7/libironoxide_java-centos7.tar.gz
+        gpg --batch --verify release/centos7/libironoxide_java-centos7.tar.gz.asc release/centos7/libironoxide_java-centos7.tar.gz
     - name: Upload lib for centos7
       uses: actions/upload-release-asset@v1
       env:
@@ -108,8 +108,8 @@ jobs:
         path: release/centos8
     - name: Sign artifact for centos8
       run: |
-        gpg --no-tty --batch --yes --detach-sign -a release/centos8/libironoxide_java-centos8.tar.gz
-        gpg --no-tty --batch --yes --verify release/centos8/libironoxide_java-centos8.tar.gz.asc
+        gpg --batch --detach-sign -a release/centos8/libironoxide_java-centos8.tar.gz
+        gpg --batch --verify release/centos8/libironoxide_java-centos8.tar.gz.asc release/centos8/libironoxide_java-centos8.tar.gz
     - name: Upload lib for centos8
       uses: actions/upload-release-asset@v1
       env:
