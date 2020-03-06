@@ -106,6 +106,7 @@ jobs:
   security:
     runs-on: ubuntu-18.04
     steps:
+    - uses: actions/checkout@v2
     - name: Rust security audit
       uses: actions-rs/audit-check@v1
       with:
