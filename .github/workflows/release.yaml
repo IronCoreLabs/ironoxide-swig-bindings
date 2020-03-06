@@ -177,6 +177,8 @@ jobs:
         mkdir release_artifacts
         shopt -s extglob
         cp target/release/libironoxide_java.*(so|dylib) release_artifacts/
+        pwd
+        ls -la release_artifacts
     - name: Package libs for centos
       if: matrix.image != ''
       working-directory: release_artifacts
