@@ -170,23 +170,27 @@ jobs:
       with:
         command: build
         args: --release
-    - name: Copy release artifacts
-      run: |
-        # Copy out just the library to upload. In order to just grab the .dylib or .so we just use extglob, allowing use of |.
-        # We did this instead of 2 cp lines so we could leave -e enabled and it would succeed as long as it matches at least once.
-        mkdir release_artifacts
-        shopt -s extglob
-        cp target/release/libironoxide_java.*(so|dylib) release_artifacts/
-        pwd
-        ls -la release_artifacts
     - name: Package libs for centos
       if: matrix.image != ''
-      working-directory: release_artifacts
+      working-directory: target/release
       run: |
         tar czf "libironoxide_java-${{ matrix.target }}.tar.gz" libironoxide_java.so
         rm libironoxide_java.so
-    - name: Upload release artifacts
+    - name: Upload artifacts for centos
+      if: matrix.image != ''
       uses: actions/upload-artifact@v1
       with:
         name: release-${{ matrix.target }}
-        path: release_artifacts/*
+        path: target/release/libironoxide_java-${{ matrix.target }}.tar.gz
+    - name: Upload artifacts for ubuntu-18.04
+      if: matrix.target == 'ubuntu-18.04'
+      uses: actions/upload-artifact@v1
+      with:
+        name: release-ubuntu-18.04
+        path: target/release/libironoxide_java.so
+    - name: Upload artifacts for macos-10.15
+      if: matrix.target == 'macos-10.15'
+      uses: actions/upload-artifact@v1
+      with:
+        name: release-macos-10.15
+        path: target/release/libironoxide_java.dylib
