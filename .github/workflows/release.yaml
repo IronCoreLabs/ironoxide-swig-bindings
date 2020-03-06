@@ -24,7 +24,7 @@ jobs:
         keys: ${{ secrets.IRONHIDE_KEYS }}
         input: .github/signing-key.asc.iron
     - name: Import PGP key
-      run: gpg --import .github/signing-key.asc
+      run: gpg --no-tty --batch --yes --import .github/signing-key.asc
 
     - name: Download release artifacts from ubuntu-18.04
       uses: actions/download-artifact@v1
