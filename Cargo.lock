@@ -655,8 +655,8 @@ dependencies = [
 
 [[package]]
 name = "ironoxide"
-version = "0.19.1"
-source = "git+https://github.com/IronCoreLabs/ironoxide?branch=58-public-derives#f4aca37a3e1c4270ccca9b5e24f39ba1567fd717"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "async-trait 0.1.24 (registry+https://github.com/rust-lang/crates.io-index)",
  "base64 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -666,7 +666,7 @@ dependencies = [
  "dashmap 3.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "hex 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "itertools 0.8.2 (git+https://github.com/rust-itertools/itertools?rev=c83cc48ffe39b96b7c6797b7b31752e840b373bb)",
+ "itertools 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "percent-encoding 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -676,7 +676,7 @@ dependencies = [
  "quick-error 1.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand_chacha 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "recrypt 0.9.2 (git+https://github.com/IronCoreLabs/recrypt-rs?branch=hash_eq_all_types)",
+ "recrypt 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 1.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "reqwest 0.10.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "ring 0.16.11 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -695,8 +695,8 @@ dependencies = [
  "bindgen 0.53.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "ironoxide 0.19.1 (git+https://github.com/IronCoreLabs/ironoxide?branch=58-public-derives)",
- "itertools 0.8.2 (git+https://github.com/rust-itertools/itertools?rev=c83cc48ffe39b96b7c6797b7b31752e840b373bb)",
+ "ironoxide 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "itertools 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 1.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "rust_swig 0.5.0-pre (git+https://github.com/Dushistov/rust_swig.git?rev=cfd12fb7406f9f2774832c051ce7b4e6c2e193d7)",
@@ -705,8 +705,8 @@ dependencies = [
 
 [[package]]
 name = "itertools"
-version = "0.8.2"
-source = "git+https://github.com/rust-itertools/itertools?rev=c83cc48ffe39b96b7c6797b7b31752e840b373bb#c83cc48ffe39b96b7c6797b7b31752e840b373bb"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "either 1.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1215,8 +1215,8 @@ dependencies = [
 
 [[package]]
 name = "recrypt"
-version = "0.9.2"
-source = "git+https://github.com/IronCoreLabs/recrypt-rs?branch=hash_eq_all_types#52194933d5bcc6219b6e8c0c2d332430f35e3d8d"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "arrayref 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "arrayvec 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1901,8 +1901,8 @@ dependencies = [
 "checksum idna 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "02e2673c30ee86b5b96a9cb52ad15718aa1f966f5ab9ad54a8b95d5ca33120a9"
 "checksum indexmap 1.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "076f042c5b7b98f31d205f1249267e12a6518c1481e9dae9764af19b707d2292"
 "checksum iovec 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "b2b3ea6ff95e175473f8ffe6a7eb7c00d054240321b84c57051175fe3c1e075e"
-"checksum ironoxide 0.19.1 (git+https://github.com/IronCoreLabs/ironoxide?branch=58-public-derives)" = "<none>"
-"checksum itertools 0.8.2 (git+https://github.com/rust-itertools/itertools?rev=c83cc48ffe39b96b7c6797b7b31752e840b373bb)" = "<none>"
+"checksum ironoxide 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8d06f114d04ce2edc0940ee0714f31319405d1b4dcd2502175e9d197fa24531c"
+"checksum itertools 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "284f18f85651fe11e8a991b2adb42cb078325c996ed026d994719efcfca1d54b"
 "checksum itoa 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)" = "b8b7a7c0c47db5545ed3fef7468ee7bb5b74691498139e4b3f6a20685dc6dd8e"
 "checksum js-sys 0.3.36 (registry+https://github.com/rust-lang/crates.io-index)" = "1cb931d43e71f560c81badb0191596562bafad2be06a3f9025b845c847c60df5"
 "checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
@@ -1964,7 +1964,7 @@ dependencies = [
 "checksum rand_pcg 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "abf9b09b01790cfe0364f52bf32995ea3c39f4d2dd011eac241d2914146d0b44"
 "checksum rand_xorshift 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "cbf7e9e623549b0e21f6e97cf8ecf247c1a8fd2e8a992ae265314300b2455d5c"
 "checksum rdrand 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "678054eb77286b51581ba43620cc911abf02758c91f93f479767aed0f90458b2"
-"checksum recrypt 0.9.2 (git+https://github.com/IronCoreLabs/recrypt-rs?branch=hash_eq_all_types)" = "<none>"
+"checksum recrypt 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)" = "19747180239c937ee8dcdc52e1b703361cd792ab32aaa8e864890f8f73af2ba3"
 "checksum redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)" = "2439c63f3f6139d1b57529d16bc3b8bb855230c8efcc5d3a896c8bea7c3b1e84"
 "checksum regex 1.3.4 (registry+https://github.com/rust-lang/crates.io-index)" = "322cf97724bea3ee221b78fe25ac9c46114ebb51747ad5babd51a2fc6a8235a8"
 "checksum regex-syntax 0.6.16 (registry+https://github.com/rust-lang/crates.io-index)" = "1132f845907680735a84409c3bebc64d1364a5683ffbce899550cd09d5eaefc1"
