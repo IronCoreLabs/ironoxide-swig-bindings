@@ -67,7 +67,7 @@ jobs:
     - name: Install sbt
       # The setup-java action should do this, but it doesn't on MacOS.
       # https://github.com/actions/setup-java/issues/50
-      if: ${{ matrix.target != 'ubuntu-18.04' }}
+      if: matrix.target != 'ubuntu-18.04'
       run: |
         curl -Ls https://git.io/sbt > sbt
         chmod +x sbt
