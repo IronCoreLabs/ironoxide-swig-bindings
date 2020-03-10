@@ -733,8 +733,16 @@ foreign_class!(
 class BlindIndexSearch {
     self_type BlindIndexSearch;
     private constructor = empty;
-    method blind_index_search::tokenize_query(&self, query: &str, partition_id: Option<&str>) -> Vec<i32>; alias tokenizeQuery;
-    method blind_index_search::tokenize_data(&self, query: &str, partition_id: Option<&str>) -> Vec<i32>; alias tokenizeData;
+    /// Generate the list of tokens to use to find entries that match the search query, given the specified partition_id.
+    /// 
+    /// @param query        the string you want to tokenize and hash
+    /// @param partitionId  an extra string to include in every hash, allowing 2 queries with different partitionIds to produce a different set of tokens for the same query
+    method blind_index_search::tokenize_query(&self, query: &str, partitionId: Option<&str>) -> Vec<i32>; alias tokenizeQuery;
+    /// Generate the list of tokens to use to find entries that match the search query, given the specified partition_id.
+    /// 
+    /// @param query        the string you want to tokenize and hash
+    /// @param partitionId  an extra string to include in every hash, allowing 2 queries with different partitionIds to produce a different set of tokens for the same query
+    method blind_index_search::tokenize_data(&self, query: &str, partitionId: Option<&str>) -> Vec<i32>; alias tokenizeData;
     pre_build_generate_equals_and_hashcode BlindIndexSearch;
 });
 
