@@ -172,9 +172,14 @@ jobs:
       if: matrix.image != ''
       run: |
         # Note that yum will fail if these are run in an order that makes more sense.
-        yum install -y openssl-devel
-        yum install -y clang
+        yum install -y clang llvm openssl-devel
         yum group install -y "Development Tools"
+    - name: Install llvm (ubuntu)
+      if: matrix.target == 'ubuntu.18.04'
+      run: apt update && apt install -y llvm
+    - name: Install llvm (Mac)
+      if: matrix.target == 'macos-10.15'
+      run: brew install llvm
     - uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
