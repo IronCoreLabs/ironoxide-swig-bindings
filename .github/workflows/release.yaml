@@ -176,7 +176,7 @@ jobs:
         yum group install -y "Development Tools"
     - name: Install llvm (ubuntu)
       if: matrix.target == 'ubuntu-18.04'
-      run: apt update && apt install -y llvm
+      run: sudo apt update && sudo apt install -y llvm
     # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
     - uses: actions-rs/toolchain@v1
       with:
