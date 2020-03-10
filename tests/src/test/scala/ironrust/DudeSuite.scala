@@ -1,10 +1,12 @@
 package ironrust
 
-import org.scalatest.{WordSpec, Matchers, BeforeAndAfterAll, OptionValues}
+import org.scalatest.{BeforeAndAfterAll, OptionValues}
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 import cats.scalatest.EitherValues
 
 //https://www.youtube.com/watch?v=LlLX6KSdWcQ
-trait DudeSuite extends WordSpec with BeforeAndAfterAll with Matchers with EitherValues with OptionValues {
+trait DudeSuite extends AnyWordSpec with BeforeAndAfterAll with Matchers with EitherValues with OptionValues {
   override def beforeAll(): Unit = {
     try {
       java.lang.System.loadLibrary("ironoxide_java")
