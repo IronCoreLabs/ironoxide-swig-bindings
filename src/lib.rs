@@ -14,6 +14,7 @@ use ironoxide::{
     },
     policy::{Category, DataSubject, PolicyGrant, Sensitivity},
     prelude::*,
+    search::{BlindIndexSearch, EncryptedBlindIndexSalt},
     user::{
         DeviceCreateOpts, EncryptedPrivateKey, UserCreateOpts, UserCreateResult, UserDevice,
         UserDeviceListResult, UserResult, UserUpdatePrivateKeyResult,
@@ -173,7 +174,7 @@ mod public_key {
         Ok(i8_conv(bytes).try_into()?)
     }
     pub fn as_bytes(pk: &PublicKey) -> Vec<i8> {
-        u8_conv(&pk.as_bytes()[..]).to_vec()
+        u8_conv(&pk.as_bytes()).to_vec()
     }
 }
 
@@ -1131,5 +1132,52 @@ mod access_edit_failure {
 
     pub fn error(result: &GroupAccessEditErr) -> String {
         result.error().clone()
+    }
+}
+
+fn create_blind_index(
+    sdk: &IronOxide,
+    group_id: &GroupId,
+) -> Result<EncryptedBlindIndexSalt, String> {
+    Ok(sdk.create_blind_index(group_id)?)
+}
+
+mod encrypted_blind_index_salt {
+    use super::*;
+    pub fn encrypted_deks(ebis: &EncryptedBlindIndexSalt) -> Vec<i8> {
+        u8_conv(&ebis.encrypted_deks).to_vec()
+    }
+    pub fn encrypted_salt_bytes(ebis: &EncryptedBlindIndexSalt) -> Vec<i8> {
+        u8_conv(&ebis.encrypted_salt_bytes).to_vec()
+    }
+    pub fn initialize_search(
+        ebis: &EncryptedBlindIndexSalt,
+        ironoxide: &IronOxide,
+    ) -> Result<BlindIndexSearch, String> {
+        Ok(ebis.initialize_search_blocking(ironoxide)?)
+    }
+}
+
+mod blind_index_search {
+    use super::*;
+    pub fn tokenize_query(
+        bis: &BlindIndexSearch,
+        query: &str,
+        partition_id: Option<&str>,
+    ) -> Vec<i32> {
+        bis.tokenize_query(query, partition_id)
+            .into_iter()
+            .map(|n| n as i32)
+            .collect()
+    }
+    pub fn tokenize_data(
+        bis: &BlindIndexSearch,
+        query: &str,
+        partition_id: Option<&str>,
+    ) -> Vec<i32> {
+        bis.tokenize_data(query, partition_id)
+            .into_iter()
+            .map(|n| n as i32)
+            .collect()
     }
 }
