@@ -58,7 +58,7 @@ jobs:
       with:
         keys: ${{ secrets.IRONHIDE_KEYS }}
         input: tests/src/test/resources/service-keys.conf.iron
-    - name: Decrypt keys for unit tests
+    - name: Decrypt keys for unit tests (MacOS)
       if: matrix.target == 'macos-10.15'
       run: openssl enc -aes-256-cbc -d -K ${{ secrets.OPENSSL_KEY }} -iv ${{ secrets.OPENSSL_IV }} -in tests/src/test/resources/service-keys.conf.enc -out tests/src/test/resources/service-keys.conf
     - uses: actions/setup-java@v1
