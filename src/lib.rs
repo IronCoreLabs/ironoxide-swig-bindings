@@ -1144,6 +1144,12 @@ fn create_blind_index(
 
 mod encrypted_blind_index_salt {
     use super::*;
+    pub fn create(encrypted_deks: &[i8], encrypted_salt_bytes: &[i8]) -> EncryptedBlindIndexSalt {
+        EncryptedBlindIndexSalt {
+            encrypted_deks: i8_conv(encrypted_deks).to_vec(),
+            encrypted_salt_bytes: i8_conv(encrypted_salt_bytes).to_vec(),
+        }
+    }
     pub fn encrypted_deks(ebis: &EncryptedBlindIndexSalt) -> Vec<i8> {
         u8_conv(&ebis.encrypted_deks).to_vec()
     }

@@ -722,7 +722,7 @@ class Duration{
 foreign_class!(
 class EncryptedBlindIndexSalt {
     self_type EncryptedBlindIndexSalt;
-    private constructor = empty;
+    constructor encrypted_blind_index_salt::create(encrypted_deks: &[i8], encrypted_salt_bytes: &[i8]) -> EncryptedBlindIndexSalt;
     method encrypted_blind_index_salt::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks;
     method encrypted_blind_index_salt::encrypted_salt_bytes(&self) -> Vec<i8>; alias getEncryptedSaltBytes;
     method encrypted_blind_index_salt::initialize_search(&self, ironoxide: &IronOxide) -> Result<BlindIndexSearch, String>; alias initializeSearch;

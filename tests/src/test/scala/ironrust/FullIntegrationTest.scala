@@ -572,8 +572,14 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
   "Encrypted search" should {
     "succeed" in {
-      val encrypedBlindIndexSalt = sdk.createBlindIndex(validGroupId)
-      val blindIndexSearch = encrypedBlindIndexSalt.initializeSearch(sdk)
+      val encryptedBlindIndexSalt = sdk.createBlindIndex(validGroupId)
+      val encryptedBlindIndexSalt2 =
+        new EncryptedBlindIndexSalt(
+          encryptedBlindIndexSalt.getEncryptedDeks,
+          encryptedBlindIndexSalt.getEncryptedSaltBytes
+        )
+      encryptedBlindIndexSalt shouldBe encryptedBlindIndexSalt2
+      val blindIndexSearch = encryptedBlindIndexSalt.initializeSearch(sdk)
       val token1 = blindIndexSearch.tokenizeData("ironcore labs", "").toList
       val token2 = blindIndexSearch.tokenizeData("ironcore labs", "red").toList
 
