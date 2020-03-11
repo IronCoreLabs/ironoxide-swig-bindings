@@ -733,12 +733,12 @@ foreign_class!(
 class BlindIndexSearch {
     self_type BlindIndexSearch;
     private constructor = empty;
-    /// Generate the list of tokens to use to find entries that match the search query, given the specified partition_id.
+    /// Generate the list of tokens to use to find entries that match the search query, given the specified partitionId.
     /// 
     /// @param query        the string you want to tokenize and hash
     /// @param partitionId  an extra string to include in every hash, allowing 2 queries with different partitionIds to produce a different set of tokens for the same query
     method blind_index_search::tokenize_query(&self, query: &str, partitionId: Option<&str>) -> Vec<i32>; alias tokenizeQuery;
-    /// Generate the list of tokens to use to find entries that match the search query, given the specified partition_id.
+    /// Generate the list of tokens to use to find entries that match the search query, given the specified partitionId.
     /// 
     /// @param query        the string you want to tokenize and hash
     /// @param partitionId  an extra string to include in every hash, allowing 2 queries with different partitionIds to produce a different set of tokens for the same query
@@ -944,7 +944,6 @@ class IronOxide {
     /// @param id id of the group you wish to rotate the private key of
     /// @return The id of the group whose private key got updated and associated metadata
     method group_rotate_private_key(&self, id:&GroupId) -> Result<GroupUpdatePrivateKeyResult, String>; alias groupRotatePrivateKey;
-
     /// Encrypt the provided document bytes. Return the encrypted document encryption keys (EDEKs) instead of creating a document entry in the IronCore webservice.
     ///
     /// @param documentData  bytes of the document to encrypt
@@ -956,8 +955,7 @@ class IronOxide {
     /// @param encryptedDeks  encrypted document encryption keys. Should be the same edeks returned from {@link #advancedDocumentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
     /// @return {@link DocumentDecryptResult} includes the id of the provided document as well as the decrypted document bytes
     method advanced_document_decrypt_unmanaged(&self, encryptedData: &[i8], encryptedDeks: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias advancedDocumentDecryptUnmanaged;
-
-    /// Create an index and encrypt it to the provided group_id.
+    /// Create an index and encrypt it to the provided groupId.
     /// 
     /// @param groupId group to encrypt to
     method create_blind_index(&self, groupId: &GroupId) -> Result<EncryptedBlindIndexSalt, String>; alias createBlindIndex;
