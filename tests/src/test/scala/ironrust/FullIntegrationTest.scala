@@ -580,8 +580,8 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
         )
       encryptedBlindIndexSalt shouldBe encryptedBlindIndexSalt2
       val blindIndexSearch = encryptedBlindIndexSalt.initializeSearch(sdk)
-      val token1 = blindIndexSearch.tokenizeData("ironcore labs", "").toList
-      val token2 = blindIndexSearch.tokenizeData("ironcore labs", "red").toList
+      val token1 = blindIndexSearch.tokenizeQuery("ironcore labs", "").toList
+      val token2 = blindIndexSearch.tokenizeQuery("ironcore labs", "red").toList
 
       token1.length shouldBe 8
       token2.length shouldBe 8
