@@ -1170,20 +1170,22 @@ mod blind_index_search {
         bis: &BlindIndexSearch,
         query: &str,
         partition_id: Option<&str>,
-    ) -> Vec<i32> {
-        bis.tokenize_query(query, partition_id)
+    ) -> Result<Vec<i32>, String> {
+        Ok(bis
+            .tokenize_query(query, partition_id)?
             .into_iter()
             .map(|n| n as i32)
-            .collect()
+            .collect())
     }
     pub fn tokenize_data(
         bis: &BlindIndexSearch,
         query: &str,
         partition_id: Option<&str>,
-    ) -> Vec<i32> {
-        bis.tokenize_data(query, partition_id)
+    ) -> Result<Vec<i32>, String> {
+        Ok(bis
+            .tokenize_data(query, partition_id)?
             .into_iter()
             .map(|n| n as i32)
-            .collect()
+            .collect())
     }
 }

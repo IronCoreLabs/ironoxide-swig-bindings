@@ -332,7 +332,7 @@ foreigner_class!(
 class GroupMetaResult{
     self_type GroupMetaResult;
     private constructor = empty;
-    /// get the unique id of the group 
+    /// get the unique id of the group
     method group_meta_result::id(&self) -> GroupId; alias getId;
     /// null if the group has no name, else the group's name
     method group_meta_result::name(&self) -> Option<GroupName>; alias getName;
@@ -354,7 +354,7 @@ foreigner_class!(
 class GroupCreateResult{
     self_type GroupCreateResult;
     private constructor = empty;
-    /// get the unique id of the group 
+    /// get the unique id of the group
     method group_create_result::id(&self) -> GroupId; alias getId;
     /// null if the group has no name, else the group's name
     method group_create_result::name(&self) -> Option<GroupName>; alias getName;
@@ -365,7 +365,7 @@ class GroupCreateResult{
     /// true if the calling user is a group member
     method GroupCreateResult::is_member(&self) -> bool; alias isMember;
     /// owner of the group
-    method group_create_result::owner(&self) -> UserId; alias getOwner; 
+    method group_create_result::owner(&self) -> UserId; alias getOwner;
     /// a GroupUserList of group admins. Group admins can change group membership.
     method group_create_result::admin_list(&self) -> GroupUserList; alias getAdminList;
     /// a GroupUserList of group members. Members of a group can decrypt values encrypted to the group.
@@ -389,7 +389,7 @@ foreigner_class!(class GroupListResult{
 foreigner_class!(class GroupGetResult{
     self_type GroupGetResult;
     private constructor = empty;
-    /// get the unique id of the group 
+    /// get the unique id of the group
     method group_get_result::id(&self) -> GroupId; alias getId;
     /// null if the group has no name, else the group's name
     method group_get_result::name(&self) -> Option<GroupName>; alias getName;
@@ -403,7 +403,7 @@ foreigner_class!(class GroupGetResult{
     method group_get_result::created(&self) -> DateTime<Utc>; alias getCreated;
     /// get the date and time that the group was last updated
     method group_get_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
-    /// null if the calling user is not in the group, else a GroupUserList of group admins 
+    /// null if the calling user is not in the group, else a GroupUserList of group admins
     method group_get_result::admin_list(&self) -> Option<GroupUserList>; alias getAdminList;
     /// null if the calling user is not in the group, else a GroupUserList of group members
     method group_get_result::member_list(&self) -> Option<GroupUserList>; alias getMemberList;
@@ -433,7 +433,7 @@ class GroupCreateOpts {
     /// @param name human readable name of the group. Does not need to be unique.
     /// @param addAsAdmin if true (default), the creating user will be added as a group admin.
     /// @param addAsMember if true (default), the creating user will be added to the group's membership.
-    /// @param owner if null (default), the creating user will be the owner of the group, else the specified user will be the owner and automatically added as an admin. 
+    /// @param owner if null (default), the creating user will be the owner of the group, else the specified user will be the owner and automatically added as an admin.
     /// @param admins list of users to be added as admins of the group. This list takes priority over `addAsAdmin`, so the creating user will be added as an admin even if `addAsAdmin` is false.
     /// @param members list of users to be added as members of the group. This list takes priority over `addAsMember`, so the creating user will be added as a member even if `addAsMember` is false.
     /// @param needsRotation if true, the group will be marked as needing its private key rotated.
@@ -530,7 +530,7 @@ class DocumentEncryptOpts {
     /// @param grantToAuthor Flag determining whether to encrypt to the calling user or not. If set to false at least one value must be present in the `grant` lists.
     /// @param userGrants    list of user ids that will be granted access to the document
     /// @param groupGrants   list of group ids that will be granted access to the document
-    /// @param policyGrant   The policy labels which will be evaluated to determine grants. 
+    /// @param policyGrant   The policy labels which will be evaluated to determine grants.
     constructor document_create_opt::create(id :Option<&DocumentId>, name :Option<&DocumentName>, grantToAuthor: bool, userGrants: Vec<UserId>, groupGrants: Vec<GroupId>, policyGrant:Option<&PolicyGrant>) -> DocumentEncryptOpts;
     pre_build_generate_equals_and_hashcode DocumentEncryptOpts;
 });
@@ -601,13 +601,13 @@ class DocumentEncryptUnmanagedResult {
     self_type DocumentEncryptUnmanagedResult;
     private constructor = empty;
     /// Unique (within the segment) id of the document
-    method document_encrypt_unmanaged_result::id(&self) -> DocumentId; alias getId; 
+    method document_encrypt_unmanaged_result::id(&self) -> DocumentId; alias getId;
     /// Bytes of encrypted document content
     method document_encrypt_unmanaged_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
     /// Bytes of encrypted document encryption keys (EDEKs)
-    method document_encrypt_unmanaged_result::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks; 
+    method document_encrypt_unmanaged_result::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks;
     /// Get the users and groups whose access was successfully changed
-    method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged; 
+    method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
     method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
     pre_build_generate_equals_and_hashcode DocumentEncryptUnmanagedResult;
@@ -682,7 +682,7 @@ class DocumentAccessResult {
 
 foreigner_class!(
 /// Policy evaluation caching config
-/// 
+///
 /// Since policies are evaluated by the webservice, caching the result can greatly speed
 /// up encrypting a document with a PolicyGrant.
 class PolicyCachingConfig{
@@ -703,7 +703,7 @@ class IronOxideConfig{
     /// @param policyCaching        policy caching configuration for IronOxide
     /// @param sdkOperationTimeout  timeout for all SDK methods
     constructor ironoxide_config::create(policyCaching: &PolicyCachingConfig, sdkOperationTimeout: Option<&Duration>) -> IronOxideConfig;
-    method ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig; 
+    method ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig;
     method ironoxide_config::get_timeout(&self) -> Option<Duration>; alias getSdkOperationTimeout;
     pre_build_generate_equals_and_hashcode IronOxideConfig;
 });
@@ -734,16 +734,15 @@ class BlindIndexSearch {
     self_type BlindIndexSearch;
     private constructor = empty;
     /// Generate the list of tokens to use to find entries that match the search query, given the specified partitionId.
-    /// 
+    ///
     /// @param query        the string you want to tokenize and hash
     /// @param partitionId  an extra string to include in every hash, allowing 2 queries with different partitionIds to produce a different set of tokens for the same query
-    method blind_index_search::tokenize_query(&self, query: &str, partitionId: Option<&str>) -> Vec<i32>; alias tokenizeQuery;
+    method blind_index_search::tokenize_query(&self, query: &str, partitionId: Option<&str>) -> Result<Vec<i32>, String>; alias tokenizeQuery;
     /// Generate the list of tokens to use to find entries that match the search query, given the specified partitionId.
-    /// 
+    ///
     /// @param query        the string you want to tokenize and hash
     /// @param partitionId  an extra string to include in every hash, allowing 2 queries with different partitionIds to produce a different set of tokens for the same query
-    method blind_index_search::tokenize_data(&self, query: &str, partitionId: Option<&str>) -> Vec<i32>; alias tokenizeData;
-    pre_build_generate_equals_and_hashcode BlindIndexSearch;
+    method blind_index_search::tokenize_data(&self, query: &str, partitionId: Option<&str>) -> Result<Vec<i32>, String>; alias tokenizeData;
 });
 
 ///
@@ -758,7 +757,7 @@ class IronOxide {
     self_type IronOxide;
     private constructor = empty;
     /// Clears all entries from the policy cache
-    /// 
+    ///
     /// @return number of entries cleared from the cache
     method IronOxide::clear_policy_cache(&self) -> usize; alias clearPolicyCache;
     /// Verify a user given a JWT for their user record.
@@ -778,7 +777,7 @@ class IronOxide {
     static_method user_create(jwt:&str, password:&str, options:&UserCreateOpts, timeout: Option<&Duration>) -> Result<UserCreateResult, String>; alias userCreate;
     /// Initialize IronOxide with a device. Verifies that the provided user/segment exists and the provided device
     /// keys are valid and exist for the provided account.
-    /// 
+    ///
     /// @param init    device context used to initialize the IronOxide with a set of device keys
     /// @param config  configuration for policy caching and SDK operation timeouts
     /// @throws java.lang.Exception if the provided `DeviceContext` is invalid
@@ -786,13 +785,13 @@ class IronOxide {
     static_method initialize(init:&DeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String>;
     /// Initialize IronOxide with a device. Verifies that the provided user/segment exists and the provided device
     /// keys are valid and exist for the provided account.
-    /// After initialization, checks whether the calling user's private key needs rotation and rotates it 
+    /// After initialization, checks whether the calling user's private key needs rotation and rotates it
     /// if necessary, then does the same for each group the user is an admin of.
-    /// 
+    ///
     /// @param init      device context used to initialize the IronOxide with a set of device keys
     /// @param password  password used to encrypt and escrow the user's private master key
     /// @param config    configuration for policy caching and SDK operation timeouts
-    /// @param timeout   timeout used only for the potential call to rotate_all. This is a separate timeout 
+    /// @param timeout   timeout used only for the potential call to rotate_all. This is a separate timeout
     ///                  from the SDK-wide timeout as it is expected that this operation might take significantly
     ///                  longer than other operations. If `null`, defaults to the SDK operation timeout in `config`.
     /// @return an instance of the IronOxide
@@ -956,7 +955,7 @@ class IronOxide {
     /// @return {@link DocumentDecryptResult} includes the id of the provided document as well as the decrypted document bytes
     method advanced_document_decrypt_unmanaged(&self, encryptedData: &[i8], encryptedDeks: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias advancedDocumentDecryptUnmanaged;
     /// Create an index and encrypt it to the provided groupId.
-    /// 
+    ///
     /// @param groupId group to encrypt to
     method create_blind_index(&self, groupId: &GroupId) -> Result<EncryptedBlindIndexSalt, String>; alias createBlindIndex;
 });

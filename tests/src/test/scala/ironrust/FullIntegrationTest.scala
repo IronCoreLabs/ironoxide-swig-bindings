@@ -57,7 +57,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val regex = "(.*).java".r
       val rustSwigExclude = List("InternalPointerMarker", "JNIReachabilityFence")
       // any class that we can't implement equals and hashCode for must be in this list
-      val iclExclude = List("AssociationType", "IronOxide")
+      val iclExclude = List("AssociationType", "IronOxide", "BlindIndexSearch")
       val currentPath = java.nio.file.Paths.get("").toAbsolutePath.getParent.toString
       val javaFiles = new java.io.File(s"$currentPath/java/com/ironcorelabs/sdk").listFiles
       val classNames =
