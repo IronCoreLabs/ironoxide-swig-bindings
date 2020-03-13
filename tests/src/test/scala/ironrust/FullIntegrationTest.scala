@@ -57,7 +57,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       val regex = "(.*).java".r
       val rustSwigExclude = List("InternalPointerMarker", "JNIReachabilityFence")
       // any class that we can't implement equals and hashCode for must be in this list
-      val iclExclude = List("AssociationType", "IronOxide")
+      val iclExclude = List("AssociationType", "IronOxide", "BlindIndexSearch")
       val currentPath = java.nio.file.Paths.get("").toAbsolutePath.getParent.toString
       val javaFiles = new java.io.File(s"$currentPath/java/com/ironcorelabs/sdk").listFiles
       val classNames =
@@ -567,6 +567,28 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       addMember.getFailed.toList should have length 0
       addMember.getSucceeded.toList should have length 1
       addMember.getSucceeded.toList.head shouldBe secondaryTestUserId
+    }
+  }
+
+  "Encrypted search" should {
+    "tokenize a query correctly" in {
+      val encryptedBlindIndexSalt = sdk.createBlindIndex(validGroupId)
+      val encryptedBlindIndexSalt2 =
+        new EncryptedBlindIndexSalt(
+          encryptedBlindIndexSalt.getEncryptedDeks,
+          encryptedBlindIndexSalt.getEncryptedSaltBytes
+        )
+      encryptedBlindIndexSalt shouldBe encryptedBlindIndexSalt2
+      val blindIndexSearch = encryptedBlindIndexSalt.initializeSearch(sdk)
+      val queryResult1 = blindIndexSearch.tokenizeQuery("ironcore labs", "").toList
+      val dataResult = blindIndexSearch.tokenizeData("ironcore labs", "").toList
+      val queryResult2 = blindIndexSearch.tokenizeQuery("ironcore labs", "red").toList
+
+      dataResult should contain allElementsOf queryResult1
+      dataResult.length should be > 8
+      queryResult1.length shouldBe 8
+      queryResult2.length shouldBe 8
+      queryResult1 should not be queryResult2
     }
   }
 
