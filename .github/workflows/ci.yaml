@@ -1,0 +1,116 @@
+name: CI
+
+on: push
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        target: [ ubuntu-18.04, macos-10.15, centos7, centos8 ]
+        include:
+        - target: ubuntu-18.04
+          host: ubuntu-18.04
+        - target: macos-10.15
+          host: macos-10.15
+        - target: centos7
+          host: ubuntu-latest
+          image: centos:centos7
+        - target: centos8
+          host: ubuntu-latest
+          image: centos:centos8
+    runs-on: ${{ matrix.host }}
+    container: ${{ matrix.image }}
+    env:
+      COURSIER_CACHE: /tmp/.cache/coursier/v1
+    steps:
+    - uses: actions/checkout@v2
+    - name: Restore rust cache
+      uses: actions/cache@v1
+      with:
+        key: ${{ github.workflow }}-rust-${{ matrix.target }}-${{ hashFiles('Cargo.lock') }}
+        restore-keys: |
+          ${{ github.workflow }}-rust-${{ matrix.target }}-
+        path: ~/.cargo
+    - name: Restore ivy2 cache
+      uses: actions/cache@v1
+      with:
+        key: ${{ github.workflow }}-ivy2-${{ hashFiles('tests/*.sbt') }}
+        restore-keys: |
+          ${{ github.workflow }}-ivy2-
+        path: ~/.ivy2/cache
+    - name: Restore coursier cache
+      uses: actions/cache@v1
+      with:
+        key: ${{ github.workflow }}-coursier-${{ hashFiles('tests/*.sbt') }}
+        restore-keys: |
+          ${{ github.workflow }}-coursier-
+        path: /tmp/.cache/coursier
+    - name: Restore sbt cache
+      uses: actions/cache@v1
+      with:
+        key: ${{ github.workflow }}-sbt-${{ hashFiles('tests/*.sbt') }}
+        restore-keys: |
+          ${{ github.workflow }}-sbt-
+        path: ~/.sbt
+    - name: Decrypt keys for unit tests
+      uses: IronCoreLabs/ironhide-actions/decrypt@v1
+      if: matrix.target != 'macos-10.15'
+      with:
+        keys: ${{ secrets.IRONHIDE_KEYS }}
+        input: tests/src/test/resources/service-keys.conf.iron
+    - name: Decrypt keys for unit tests (MacOS)
+      if: matrix.target == 'macos-10.15'
+      run: openssl enc -aes-256-cbc -d -K ${{ secrets.OPENSSL_KEY }} -iv ${{ secrets.OPENSSL_IV }} -in tests/src/test/resources/service-keys.conf.enc -out tests/src/test/resources/service-keys.conf
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 8
+    - name: Install sbt
+      # The setup-java action should do this, but it doesn't on MacOS.
+      # https://github.com/actions/setup-java/issues/50
+      if: matrix.target != 'ubuntu-18.04'
+      run: |
+        curl -Ls https://git.io/sbt > sbt
+        chmod +x sbt
+        mv sbt /usr/local/bin/sbt || sudo mv sbt /usr/local/bin/sbt
+    - name: Set up centos
+      if: matrix.image != ''
+      run: |
+        # Note that yum will fail if these are run in an order that makes more sense.
+        yum install -y clang llvm-devel openssl-devel
+        yum group install -y "Development Tools"
+    - name: Install llvm (ubuntu)
+      if: matrix.target == 'ubuntu-18.04'
+      run: sudo apt update && sudo apt install -y llvm
+    # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        components: rustfmt-preview
+    - uses: actions-rs/cargo@v1
+      with:
+        command: fmt
+        args: -- --check
+    - uses: actions-rs/cargo@v1
+      with:
+        command: b
+    - run: sbt test
+      working-directory: tests
+    - name: Clean the cargo cache
+      run: |
+        cargo install --no-default-features --features ci-autoclean cargo-cache
+        cargo-cache
+    - name: Clean the scala cache
+      # https://www.scala-sbt.org/1.x/docs/Travis-CI-with-sbt.html#Caching
+      run: |
+        rm -fv ${HOME}/.ivy2/.sbt.ivy.lock
+        find ${HOME}/.ivy2/cache -name 'ivydata-*.properties' -print -delete
+        find ${HOME}/.sbt -name '*.lock' -print -delete
+
+  security:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Rust security audit
+      uses: actions-rs/audit-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
