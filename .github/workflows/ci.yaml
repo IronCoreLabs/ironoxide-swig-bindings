@@ -31,13 +31,6 @@ jobs:
         restore-keys: |
           ${{ github.workflow }}-rust-${{ matrix.target }}-
         path: ~/.cargo
-    - name: Restore ivy2 cache
-      uses: actions/cache@v1
-      with:
-        key: ${{ github.workflow }}-ivy2-${{ hashFiles('tests/*.sbt') }}
-        restore-keys: |
-          ${{ github.workflow }}-ivy2-
-        path: ~/.ivy2/cache
     - name: Restore coursier cache
       uses: actions/cache@v1
       with:
@@ -102,8 +95,6 @@ jobs:
     - name: Clean the scala cache
       # https://www.scala-sbt.org/1.x/docs/Travis-CI-with-sbt.html#Caching
       run: |
-        rm -fv ${HOME}/.ivy2/.sbt.ivy.lock
-        find ${HOME}/.ivy2/cache -name 'ivydata-*.properties' -print -delete
         find ${HOME}/.sbt -name '*.lock' -print -delete
 
   security:
