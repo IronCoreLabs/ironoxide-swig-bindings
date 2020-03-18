@@ -5,9 +5,7 @@
 *.code-workspace
 .metals/
 **/.bloop
-tests/src/test/resources/service-keys.conf
-tests/src/test/resources/service-keys.conf.stage
-tests/src/test/resources/service-keys.conf.local
+java/tests/src/test/resources/service-keys.conf
 .vscode
 .DS_Store
 java/java/*
