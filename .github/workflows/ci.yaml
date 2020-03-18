@@ -34,14 +34,14 @@ jobs:
     - name: Restore coursier cache
       uses: actions/cache@v1
       with:
-        key: ${{ github.workflow }}-coursier-${{ hashFiles('tests/*.sbt') }}
+        key: ${{ github.workflow }}-coursier-${{ hashFiles('java/tests/*.sbt') }}
         restore-keys: |
           ${{ github.workflow }}-coursier-
         path: /tmp/.cache/coursier
     - name: Restore sbt cache
       uses: actions/cache@v1
       with:
-        key: ${{ github.workflow }}-sbt-${{ hashFiles('tests/*.sbt') }}
+        key: ${{ github.workflow }}-sbt-${{ hashFiles('java/tests/*.sbt') }}
         restore-keys: |
           ${{ github.workflow }}-sbt-
         path: ~/.sbt
@@ -50,10 +50,10 @@ jobs:
       if: matrix.target != 'macos-10.15'
       with:
         keys: ${{ secrets.IRONHIDE_KEYS }}
-        input: tests/src/test/resources/service-keys.conf.iron
+        input: java/tests/src/test/resources/service-keys.conf.iron
     - name: Decrypt keys for unit tests (MacOS)
       if: matrix.target == 'macos-10.15'
-      run: openssl enc -aes-256-cbc -d -K ${{ secrets.OPENSSL_KEY }} -iv ${{ secrets.OPENSSL_IV }} -in tests/src/test/resources/service-keys.conf.enc -out tests/src/test/resources/service-keys.conf
+      run: openssl enc -aes-256-cbc -d -K ${{ secrets.OPENSSL_KEY }} -iv ${{ secrets.OPENSSL_IV }} -in java/tests/src/test/resources/service-keys.conf.enc -out java/tests/src/test/resources/service-keys.conf
     - uses: actions/setup-java@v1
       with:
         java-version: 8
@@ -87,7 +87,7 @@ jobs:
       with:
         command: b
     - run: sbt test
-      working-directory: tests
+      working-directory: java/tests
     - name: Clean the cargo cache
       run: |
         cargo install --no-default-features --features ci-autoclean cargo-cache
