@@ -1,4 +1,6 @@
+#[cfg(feature = "java")]
 mod jni_c_header;
+
 use ironoxide::{
     blocking::BlockingIronOxide as IronOxide,
     config::{IronOxideConfig, PolicyCachingConfig},

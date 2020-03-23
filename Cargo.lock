@@ -44,13 +44,13 @@ dependencies = [
 
 [[package]]
 name = "async-trait"
-version = "0.1.24"
+version = "0.1.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "750b1c38a1dfadd108da0f01c08f4cdc7ff1bb39b325f9c82cc972361780a6e1"
+checksum = "21a03abb7c9b93ae229356151a083d26218c0358866a2a59d4280c856e9482e6"
 dependencies = [
  "proc-macro2 1.0.9",
  "quote 1.0.3",
- "syn 1.0.16",
+ "syn 1.0.17",
 ]
 
 [[package]]
@@ -479,7 +479,7 @@ dependencies = [
  "proc-macro-hack",
  "proc-macro2 1.0.9",
  "quote 1.0.3",
- "syn 1.0.16",
+ "syn 1.0.17",
 ]
 
 [[package]]
@@ -630,9 +630,9 @@ dependencies = [
 
 [[package]]
 name = "hyper"
-version = "0.13.3"
+version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7b15203263d1faa615f9337d79c1d37959439dc46c2b4faab33286fadc2a1c5"
+checksum = "ed6081100e960d9d74734659ffc9cc91daf1c0fc7aceb8eaa94ee1a3f5046f2e"
 dependencies = [
  "bytes",
  "futures-channel",
@@ -747,6 +747,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "ironoxide-android"
+version = "0.12.1"
+dependencies = [
+ "bindgen",
+ "chrono",
+ "env_logger",
+ "ironoxide",
+ "itertools 0.9.0",
+ "jni-sys",
+ "log",
+ "regex",
+ "rust_swig",
+ "serde_json",
+]
+
+[[package]]
 name = "ironoxide-java"
 version = "0.12.1"
 dependencies = [
@@ -784,6 +800,12 @@ name = "itoa"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8b7a7c0c47db5545ed3fef7468ee7bb5b74691498139e4b3f6a20685dc6dd8e"
+
+[[package]]
+name = "jni-sys"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8eaf4bc02d17cbdd7ff4c7438cafcdf7fb9a4613313ad11b4f8fefe7d3fa0130"
 
 [[package]]
 name = "js-sys"
@@ -1058,7 +1080,7 @@ checksum = "385322a45f2ecf3410c68d2a549a4a2685e8051d0f278e39743ff4e451cb9b3f"
 dependencies = [
  "proc-macro2 1.0.9",
  "quote 1.0.3",
- "syn 1.0.16",
+ "syn 1.0.17",
 ]
 
 [[package]]
@@ -1087,14 +1109,9 @@ checksum = "74490b50b9fbe561ac330df47c08f3f33073d2d00c150f719147d7c54522fa1b"
 
 [[package]]
 name = "proc-macro-hack"
-version = "0.5.12"
+version = "0.5.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f918f2b601f93baa836c1c2945faef682ba5b6d4828ecb45eeb7cc3c71b811b4"
-dependencies = [
- "proc-macro2 1.0.9",
- "quote 1.0.3",
- "syn 1.0.16",
-]
+checksum = "fcfdefadc3d57ca21cf17990a28ef4c0f7c61383a28cb7604cf4a18e6ede1420"
 
 [[package]]
 name = "proc-macro-nested"
@@ -1122,27 +1139,27 @@ dependencies = [
 
 [[package]]
 name = "protobuf"
-version = "2.10.2"
+version = "2.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37a5325d019a4d837d3abde0a836920f959e33d350f77b5f1e289e061e774942"
+checksum = "2981b632a240efd4605316365d76e4fa6cfddc7a317cf87fdce1635d6b14e7fd"
 dependencies = [
  "bytes",
 ]
 
 [[package]]
 name = "protobuf-codegen"
-version = "2.10.2"
+version = "2.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64dd3a6192e0c6c1b0dae8f125b7f6b201c39fc487ebda0ee717d7a87fc47dc2"
+checksum = "b46703db350c4ec696cef74429ba102a0c42db8296e63ef11e395a18a9e66442"
 dependencies = [
  "protobuf",
 ]
 
 [[package]]
 name = "protobuf-codegen-pure"
-version = "2.10.2"
+version = "2.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "037fa49710ee83b3be232ed53c5fce0bdb1b64c6aa6b1143a86640969c3e4b1d"
+checksum = "e980724e8af763ff7236943ee4157c024262035c04f4e05b1a6f20ce5bf0bd46"
 dependencies = [
  "protobuf",
  "protobuf-codegen",
@@ -1349,7 +1366,7 @@ dependencies = [
  "smallvec",
  "smol_str",
  "strum",
- "syn 1.0.16",
+ "syn 1.0.17",
  "which",
 ]
 
@@ -1367,9 +1384,9 @@ checksum = "535622e6be132bccd223f4bb2b8ac8d53cda3c7a6394944d3b2b33fb974f9d76"
 
 [[package]]
 name = "schannel"
-version = "0.1.17"
+version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "507a9e6e8ffe0a4e0ebb9a10293e62fdf7657c06f1b8bb07a8fcf697d2abf295"
+checksum = "039c25b130bd8c1321ee2d7de7fde2659fa9c2744e4bb29711cfc852ea53cd19"
 dependencies = [
  "lazy_static",
  "winapi 0.3.8",
@@ -1399,19 +1416,19 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.104"
+version = "1.0.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "414115f25f818d7dfccec8ee535d76949ae78584fc4f79a6f45a904bf8ab4449"
+checksum = "e707fbbf255b8fc8c3b99abb91e7257a622caeb20a9818cbadbeeede4e0932ff"
 
 [[package]]
 name = "serde_derive"
-version = "1.0.104"
+version = "1.0.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "128f9e303a5a29922045a830221b8f78ec74a5f544944f3d5984f8ec3895ef64"
+checksum = "ac5d00fc561ba2724df6758a17de23df5914f20e41cb00f94d5b7ae42fffaff8"
 dependencies = [
  "proc-macro2 1.0.9",
  "quote 1.0.3",
- "syn 1.0.16",
+ "syn 1.0.17",
 ]
 
 [[package]]
@@ -1513,7 +1530,7 @@ dependencies = [
  "heck",
  "proc-macro2 1.0.9",
  "quote 1.0.3",
- "syn 1.0.16",
+ "syn 1.0.17",
 ]
 
 [[package]]
@@ -1535,9 +1552,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.16"
+version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "123bd9499cfb380418d509322d7a6d52e5315f064fe4b3ad18a53d6b92c07859"
+checksum = "0df0eb663f387145cab623dea85b09c2c5b4b0aef44e945d928e682fce71bb03"
 dependencies = [
  "proc-macro2 1.0.9",
  "quote 1.0.3",
@@ -1804,7 +1821,7 @@ dependencies = [
  "log",
  "proc-macro2 1.0.9",
  "quote 1.0.3",
- "syn 1.0.16",
+ "syn 1.0.17",
  "wasm-bindgen-shared",
 ]
 
@@ -1838,7 +1855,7 @@ checksum = "25bda4168030a6412ea8a047e27238cadf56f0e53516e1e83fec0a8b7c786f6d"
 dependencies = [
  "proc-macro2 1.0.9",
  "quote 1.0.3",
- "syn 1.0.16",
+ "syn 1.0.17",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]
