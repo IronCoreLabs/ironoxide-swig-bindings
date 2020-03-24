@@ -8,7 +8,5 @@
 **/service-keys.conf
 .vscode
 .DS_Store
-java/java/*
-android/java/*
 release_artifacts
-tests/project/metals.sbt
+metals.sbt

@@ -9,6 +9,7 @@ use rust_swig::{JavaConfig, LanguageConfig};
 fn main() {
     env_logger::init();
     let out_dir = env::var("OUT_DIR").unwrap();
+    let out_path = Path::new(&out_dir);
 
     #[cfg(feature = "java")]
     {
@@ -41,12 +42,11 @@ fn main() {
     }
 
     let now = Instant::now();
-    let gen_path = Path::new(&out_dir).join("lib.rs");
-    let icl_expanded_lib_rs = out_dir + "icl-expanded-lib.rs.in";
+    let icl_expanded_lib_rs = format!("{}icl-expanded-lib.rs.in", out_dir);
     // Just before rust_swig expands "lib.rs.in", we do our own expansion
     // This takes in "lib.rs.in" and outputs "icl-expanded-lib.rs.in", which is then fed to rust_swig.
     expand_equals_and_hashcode_macro(&icl_expanded_lib_rs);
-    rust_swig_expand(Path::new(&icl_expanded_lib_rs), &gen_path);
+    rust_swig_expand(Path::new(&icl_expanded_lib_rs), &out_path);
     let expand_time = now.elapsed();
     println!(
         "rust swig expand time: {}",
@@ -89,26 +89,26 @@ fn gen_binding<P: AsRef<Path>>(
     Ok(())
 }
 
-fn rust_swig_expand(from: &Path, out: &Path) {
+fn rust_swig_expand(from: &Path, out_dir: &Path) {
     println!("Run rust_swig_expand");
     let swig_gen = rust_swig::Generator::new(LanguageConfig::JavaConfig(JavaConfig::new(
-        get_java_codegen_output_directory(),
+        get_java_codegen_output_directory(&out_dir),
         "com.ironcorelabs.sdk".into(),
     )))
     .merge_type_map("chrono_support", include_str!("chrono-include.rs"))
     .rustfmt_bindings(true)
     .remove_not_generated_files_from_output_directory(true); //remove outdated *.java files
-    swig_gen.expand("rust_swig_test_jni", from, out);
+    swig_gen.expand("rust_swig_test_jni", from, out_dir.join("lib.rs"));
 }
 
-fn get_java_codegen_output_directory() -> PathBuf {
-    let path = Path::new("java")
+fn get_java_codegen_output_directory(out_dir: &Path) -> PathBuf {
+    let path = out_dir.join("java")
         .join("com")
         .join("ironcorelabs")
         .join("sdk");
     if !path.exists() {
         std::fs::create_dir_all(&path)
-            .expect("Couldn't create codegen output directory at java/com/ironcorelabs/sdk.");
+            .expect("Couldn't create codegen output directory at OUT_DIR/java/com/ironcorelabs/sdk.");
     }
     path.to_path_buf()
 }

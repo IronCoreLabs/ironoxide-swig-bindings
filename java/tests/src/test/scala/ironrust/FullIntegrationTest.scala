@@ -59,7 +59,13 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
       // any class that we can't implement equals and hashCode for must be in this list
       val iclExclude = List("AssociationType", "IronOxide", "BlindIndexSearch")
       val currentPath = java.nio.file.Paths.get("").toAbsolutePath.getParent.toString
-      val javaFiles = new java.io.File(s"$currentPath/java/com/ironcorelabs/sdk").listFiles
+      val fileFilter = new java.io.FileFilter {
+        override def accept(pathname: java.io.File): Boolean =
+          pathname.getName.startsWith("ironoxide-java") && pathname.listFiles.map(file => file.getName).contains("out")
+      }
+      val ironoxideJavaFolder = new java.io.File(s"$currentPath/../target/debug/build/").listFiles(fileFilter)
+      ironoxideJavaFolder.length shouldBe 1
+      val javaFiles = new java.io.File(s"${ironoxideJavaFolder.head}/out/java/com/ironcorelabs/sdk").listFiles
       val classNames =
         javaFiles
           .flatMap(file => regex.findFirstMatchIn(file.getName))
