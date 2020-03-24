@@ -102,13 +102,15 @@ fn rust_swig_expand(from: &Path, out_dir: &Path) {
 }
 
 fn get_java_codegen_output_directory(out_dir: &Path) -> PathBuf {
-    let path = out_dir.join("java")
+    let path = out_dir
+        .join("java")
         .join("com")
         .join("ironcorelabs")
         .join("sdk");
     if !path.exists() {
-        std::fs::create_dir_all(&path)
-            .expect("Couldn't create codegen output directory at OUT_DIR/java/com/ironcorelabs/sdk.");
+        std::fs::create_dir_all(&path).expect(
+            "Couldn't create codegen output directory at OUT_DIR/java/com/ironcorelabs/sdk.",
+        );
     }
     path.to_path_buf()
 }
