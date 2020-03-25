@@ -748,7 +748,7 @@ dependencies = [
 
 [[package]]
 name = "ironoxide-android"
-version = "0.12.1"
+version = "0.13.0"
 dependencies = [
  "bindgen",
  "chrono",
@@ -764,7 +764,7 @@ dependencies = [
 
 [[package]]
 name = "ironoxide-java"
-version = "0.12.1"
+version = "0.13.0"
 dependencies = [
  "bindgen",
  "chrono",
