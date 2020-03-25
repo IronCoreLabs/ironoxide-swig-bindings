@@ -1,9 +1,14 @@
 use crate::{
     document_access_change_result::{DocumentAccessChange, FailedResult, SucceededResult},
     document_decrypt_unmanaged_result::UserOrGroupId,
-    jni_c_header::*,
 };
 use chrono::{DateTime, Utc};
+
+#[cfg(feature = "java")]
+use crate::jni_c_header::*;
+
+#[cfg(feature = "android")]
+use jni_sys::*;
 
 ///
 /// Classes for Common Types

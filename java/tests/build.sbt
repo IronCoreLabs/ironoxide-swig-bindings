@@ -31,8 +31,8 @@ libraryDependencies ++= Seq(
   "com.github.melrief" %% "pureconfig" % "0.5.1",
   "com.ironcorelabs" %% "cats-scalatest" % "3.0.5"
 ).map(_ % "test")
-//Include the generated java as part of the source directories
-unmanagedSourceDirectories in Compile += baseDirectory.value / ".." / "java"
+// Include the generated java as part of the source directories
+unmanagedSourceDirectories in Compile ++= javaSources(baseDirectory.value)
 // HACK: without these lines, the console is basically unusable,
 // since all imports are reported as being unused (and then become
 // fatal errors).
@@ -44,3 +44,11 @@ scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 javaOptions in Test += s"-Djava.library.path=../../target/debug/"
 fork in Test := true
 envVars in Test := Map("IRONCORE_ENV" -> "stage")
+
+def javaSources(base: File): Seq[File] = {
+  val finder: PathFinder = base / ".." / ".." / "target" / "debug" / "build" * "ironoxide-java*" / "out"
+  val files = finder.get
+  if (files.length == 0) throw new Exception("Unable to find Java source files in OUT_DIR")
+  else if (files.length > 1) throw new Exception("Too many Java source directories found in OUT_DIR. Try running `cargo clean` and re-compiling.")
+  files
+}

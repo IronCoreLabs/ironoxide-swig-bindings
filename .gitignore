@@ -5,9 +5,8 @@
 *.code-workspace
 .metals/
 **/.bloop
-java/tests/src/test/resources/service-keys.conf
+**/service-keys.conf
 .vscode
 .DS_Store
-java/java/*
 release_artifacts
-tests/project/metals.sbt
+metals.sbt
