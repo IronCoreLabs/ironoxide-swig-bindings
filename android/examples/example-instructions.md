@@ -1,27 +1,27 @@
 Steps to create an example
 
-- create a new "Basic Application" through Android Studio. Make sure to choose Java as the language.
-- inside of `app/src/main` create a directory `jniLibs/x86`
-- copy `libironoxide_android.so` built for `i686-linux-android` into the `x86` directory
-- in app/build.gradle add the following to the `dependencies`
-  - `implementation 'com.ironcorelabs:ironoxide-android:0.12.2'`
-- add the following to `AndroidManifest.xml` (top level) to enable network access
+- Create a new "Basic Application" through Android Studio. Make sure to choose Java as the language.
+- Inside of `app/src/main` create a directory `jniLibs/x86`
+- Copy `libironoxide_android.so` built for `i686-linux-android` into the `x86` directory
+- In `app/build.gradle` add the following to the `dependencies`
+  - `implementation 'com.ironcorelabs:ironoxide-java:0.13.0'`
+- Add the following to `AndroidManifest.xml` (top level) to enable network access
 
 ```
-    <uses-permission android:name="android.permission.INTERNET" />=
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
-- in MainActivity.java replace `onCreate` with:
+- In `MainActivity.java`, replace `onCreate` with:
 
-```
+```java
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
             try {
-                System.loadLibrary("ironoxide_java");
-                Log.i("JNI", "ironoxide_java library loaded sucessfully");
+                System.loadLibrary("ironoxide_android");
+                Log.i("JNI", "ironoxide_android library loaded sucessfully");
             } catch (UnsatisfiedLinkError e) {
                 Log.e("JNI", "Load library ERROR: " + e);
                 return;
@@ -68,4 +68,4 @@ Steps to create an example
     }
 ```
 
-- Run you app on an x86 emulator with the `Run` menu at the top of the window (you will have to setup an emulator the first time)
+- Run the app on an x86 emulator with the `Run` menu at the top of the window (you will have to set up an emulator the first time).

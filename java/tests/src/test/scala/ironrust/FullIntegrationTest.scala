@@ -64,7 +64,14 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
           pathname.getName.startsWith("ironoxide-java") && pathname.listFiles.map(file => file.getName).contains("out")
       }
       val ironoxideJavaFolder = new java.io.File(s"$currentPath/../target/debug/build/").listFiles(fileFilter)
-      ironoxideJavaFolder.length shouldBe 1
+      assert(
+        ironoxideJavaFolder.length > 0,
+        "Unable to find Java source files in OUT_DIR"
+      )
+      assert(
+        ironoxideJavaFolder.length < 2,
+        "Too many Java source directories found in OUT_DIR. Try running `cargo clean` and re-compiling."
+      )
       val javaFiles = new java.io.File(s"${ironoxideJavaFolder.head}/out/java/com/ironcorelabs/sdk").listFiles
       val classNames =
         javaFiles
