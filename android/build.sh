@@ -14,9 +14,9 @@ cross rustc --target aarch64-linux-android --release -p ironoxide-android
 # otherwise we will need to detect this cause and fail here
 cp -r target/i686-linux-android/release/build/ironoxide-android*/out/java android/ironoxide-android/src/main/
 #cp -r java/com ../ironoxide-android/src/main/java/
-mkdir android/ironoxide-android/src/main/jniLibs/x86/
+mkdir -p android/ironoxide-android/src/main/jniLibs/x86/
 cp -r target/i686-linux-android/release/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/x86/
-mkdir android/ironoxide-android/src/main/jniLibs/arm64-v8a/
+mkdir -p android/ironoxide-android/src/main/jniLibs/arm64-v8a/
 cp -r target/i686-linux-android/release/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/arm64-v8a/
 
 cd android/
