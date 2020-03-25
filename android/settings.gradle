@@ -1,0 +1,2 @@
+include ':ironoxide-android'
+rootProject.name='android'
