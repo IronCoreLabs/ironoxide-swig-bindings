@@ -1,3 +1,5 @@
 /build
 /src/main/java
 /src/main/jniLibs
+/src/androidTest/resources/*.json
+.project
