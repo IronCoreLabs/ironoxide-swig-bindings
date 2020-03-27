@@ -115,7 +115,7 @@ jobs:
       - name: Build
         run: |
           cd android
-          build.sh
+          ./build.sh
       - name: Decrypt keys for unit tests
         run: openssl enc -aes-256-cbc -d -K ${{ secrets.GHA_OPENSSL_KEY }} -iv ${{ secrets.GHA_OPENSSL_IV }} -in android/ironoxide-android/src/androidTest/resources/deviceContext.json.enc -out android/ironoxide-android/src/androidTest/resources/deviceContext.json
       - name: Run tests
