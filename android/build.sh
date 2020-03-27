@@ -1,4 +1,3 @@
-
 rm -rf ironoxide-android/src/main/java
 rm -rf ironoxide-android/src/main/jniLibs/*
 cd ../
