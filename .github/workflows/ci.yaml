@@ -113,8 +113,9 @@ jobs:
       - name: Install Cross
         run: cargo install cross --version 0.1.16
       - name: Build
-        run: cd android
-        run: android/build.sh
+        run: |
+          cd android
+          android/build.sh
       - name: Decrypt keys for unit tests
         run: openssl enc -aes-256-cbc -d -K ${{ secrets.GHA_OPENSSL_KEY }} -iv ${{ secrets.GHA_OPENSSL_IV }} -in android/ironoxide-android/src/androidTest/resources/deviceContext.json.enc -out android/ironoxide-android/src/androidTest/resources/deviceContext.json
       - name: Run tests
