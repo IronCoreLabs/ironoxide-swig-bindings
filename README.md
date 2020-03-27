@@ -57,14 +57,21 @@ From the root of this repository run `cargo build -p ironoxide-java`. The result
 Prerequisites:
 
 - [Rust toolchain](https://www.rust-lang.org/tools/install) installed
-- `JAVA_HOME` environment variable set
-- `clang` installed
 - [`cross`](https://github.com/rust-embedded/cross) installed.
   - We currently only support `cross` v0.1.16. This can be installed with `cargo install cross --version 0.1.16`
+- Android SDK 29. 
 
-From `ironoxide-java/android`, run `build.sh`. There will be an output `aar` in `android/ironoxide-android/build/outputs/aar`
+    You can get the command line SDK [on this page](https://developer.android.com/studio) (scroll down to "Command line tools only"). We can then use `sdkmanager` (found in tools/bin) to install what we need:
+    ```
+    ./sdkmanager --sdk_root=PATH_TO_SDK_INSTALL_LOCATION --install "build-tools;29.0.3" platform-tools "platforms;android-29"
+    ```
+
+- Then edit `android/local.properties` to point the `sdk.dir` to the location of the android SDK.
+
+
+From `ironoxide-java/android`, run `build.sh`. The output AAR file with be  in `android/ironoxide-android/build/outputs/aar`
 
 # License
 
-Copyright (c) 2019 IronCore Labs, Inc.
+Copyright (c) 2020 IronCore Labs, Inc.
 All rights reserved.
