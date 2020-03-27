@@ -14,8 +14,8 @@ cp -r target/i686-linux-android/release/build/ironoxide-android*/out/java androi
 mkdir -p android/ironoxide-android/src/main/jniLibs/x86/
 cp -r target/i686-linux-android/release/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/x86/
 mkdir -p android/ironoxide-android/src/main/jniLibs/arm64-v8a/
-cp -r target/i686-linux-android/release/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/arm64-v8a/
+cp -r target/aarch64-linux-android/release/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/arm64-v8a/
 
 cd android/
 ./gradlew build
-ls ironoxide-android/build/outputs/aar
+ls -alh ironoxide-android/build/outputs/aar
