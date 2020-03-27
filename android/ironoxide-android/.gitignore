@@ -3,3 +3,4 @@
 /src/main/jniLibs
 /src/androidTest/resources/*.json
 .project
+.classpath
