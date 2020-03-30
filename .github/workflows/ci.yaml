@@ -110,7 +110,7 @@ jobs:
       - name: Build
         run: |
           cd android
-          ./build.sh
+          ./build_test.sh
       - name: Zip src/main
         run: |
           cd android/ironoxide-android/src/main
@@ -126,8 +126,8 @@ jobs:
     runs-on: macOS-10.15
     strategy:
       matrix:
-        arch: [x86] #[x86, x86_64]
-        target: [default] #[default, google_apis]
+        arch: [x86, x86_64]
+        target: [default, google_apis]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
