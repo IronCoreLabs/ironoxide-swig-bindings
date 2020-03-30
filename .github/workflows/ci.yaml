@@ -94,8 +94,7 @@ jobs:
           cargo-cache
       - name: Clean the scala cache
         # https://www.scala-sbt.org/1.x/docs/Travis-CI-with-sbt.html#Caching
-        run: |
-          find ${HOME}/.sbt -name '*.lock' -print -delete
+        run: find ${HOME}/.sbt -name '*.lock' -print -delete
 
   android-build:
     runs-on: ubuntu-18.04
@@ -113,8 +112,7 @@ jobs:
           cd android
           ./build.sh
       - name: Zip src/main
-        run: |
-          zip -r android_build.zip android/ironoxide-android/src/main
+        run: zip -r android_build.zip android/ironoxide-android/src/main
       - name: Upload src/main as artifact
         uses: actions/upload-artifact@v1
         with:
@@ -136,12 +134,11 @@ jobs:
         with:
           name: android_build
       - name: Unzip Android build
-        run: |
-          ls -al
-          pwd
-          unzip android_build/android_build.zip -d android/ironoxide-android/src/main
+        run: unzip android_build/android_build.zip -d android/ironoxide-android/src/main
       - name: Decrypt keys for unit tests
         run: openssl enc -aes-256-cbc -d -K ${{ secrets.GHA_OPENSSL_KEY }} -iv ${{ secrets.GHA_OPENSSL_IV }} -in android/ironoxide-android/src/androidTest/resources/deviceContext.json.enc -out android/ironoxide-android/src/androidTest/resources/deviceContext.json
+      - name: Output debugging
+        run: tree android/ironoxide-android/src
       - name: Run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
