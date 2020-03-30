@@ -118,8 +118,7 @@ jobs:
       - name: Upload src/main as artifact
         uses: actions/upload-artifact@v1
         with:
-          name: android_build
-          path: android_build.zip
+          name: android_build.zip
 
   android-test:
     needs: android-build
@@ -134,7 +133,7 @@ jobs:
       - name: Download android build
         uses: actions/download-artifact@v1
         with:
-          name: android_build
+          name: android_build.zip
       - name: Unzip Android build
         run: |
           unzip android_build.zip -d android/ironoxide-android/src/main
