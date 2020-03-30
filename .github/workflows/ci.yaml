@@ -97,12 +97,8 @@ jobs:
         run: |
           find ${HOME}/.sbt -name '*.lock' -print -delete
 
-  android-test:
-    runs-on: macOS-latest
-    strategy:
-      matrix:
-        arch: [x86] #[x86, x86_64]
-        target: [default] #[default, google_apis]
+  android-build:
+    runs-on: ubuntu-18.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -116,6 +112,32 @@ jobs:
         run: |
           cd android
           ./build.sh
+      - name: Zip src/main
+        run: |
+          zip -r android_build.zip android/ironoxide-android/src/main
+      - name: Upload src/main as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: android_build
+          path: android_build.zip
+
+  android-test:
+    needs: android-build
+    runs-on: macOS-10.15
+    strategy:
+      matrix:
+        arch: [x86] #[x86, x86_64]
+        target: [default] #[default, google_apis]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Download android build
+        uses: actions/download-artifact@v1
+        with:
+          name: android_build
+      - name: Unzip Android build
+        run: |
+          unzip android_build.zip -d android/ironoxide-android/src/main
       - name: Decrypt keys for unit tests
         run: openssl enc -aes-256-cbc -d -K ${{ secrets.GHA_OPENSSL_KEY }} -iv ${{ secrets.GHA_OPENSSL_IV }} -in android/ironoxide-android/src/androidTest/resources/deviceContext.json.enc -out android/ironoxide-android/src/androidTest/resources/deviceContext.json
       - name: Run tests
