@@ -2,9 +2,9 @@ rm -rf ironoxide-android/src/main/java
 rm -rf ironoxide-android/src/main/jniLibs/*
 cd ../
 # sometimes this will be uncessary, but until we solve the duplicate ironoxide-android dirs in the target dir, probably safer to leave this here
-cargo clean
-cross rustc --target i686-linux-android --release -p ironoxide-android -- -C lto
-cross rustc --target aarch64-linux-android --release -p ironoxide-android -- -C lto
+# cargo clean
+cross --target i686-linux-android -p ironoxide-android
+cross --target aarch64-linux-android -p ironoxide-android
 
 # how can we handle multiple ironoxide-android directories at this level?
 # Can we make cargo only ever generate one? Can we remove any old ones we build again?
