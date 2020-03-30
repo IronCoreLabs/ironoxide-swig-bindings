@@ -119,7 +119,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: android_build
-          path: android_build.zip
+          path: android/ironoxide-android/src/main/android_build.zip
 
   android-test:
     needs: android-build
