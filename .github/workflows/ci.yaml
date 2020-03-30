@@ -138,7 +138,7 @@ jobs:
       - name: Decrypt keys for unit tests
         run: openssl enc -aes-256-cbc -d -K ${{ secrets.GHA_OPENSSL_KEY }} -iv ${{ secrets.GHA_OPENSSL_IV }} -in android/ironoxide-android/src/androidTest/resources/deviceContext.json.enc -out android/ironoxide-android/src/androidTest/resources/deviceContext.json
       - name: Output debugging
-        run: tree android/ironoxide-android/src
+        run: ls -alR android/ironoxide-android/src
       - name: Run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
