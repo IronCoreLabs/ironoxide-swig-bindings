@@ -96,7 +96,7 @@ jobs:
         # https://www.scala-sbt.org/1.x/docs/Travis-CI-with-sbt.html#Caching
         run: find ${HOME}/.sbt -name '*.lock' -print -delete
 
-  android-build:
+  android-build-x86:
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -108,7 +108,11 @@ jobs:
       - name: Install Cross
         run: cargo install cross --version 0.1.16
       - name: Build
-        run: android/build_test.sh
+        run: |
+          cross build --target i686-linux-android -p ironoxide-android
+          cp -r target/i686-linux-android/debug/build/ironoxide-android*/out/java android/ironoxide-android/src/main/
+          mkdir -p android/ironoxide-android/src/main/jniLibs/x86/
+          cp -r target/i686-linux-android/debug/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/x86/
       - name: Zip src/main
         run: |
           cd android/ironoxide-android/src/main
@@ -116,36 +120,95 @@ jobs:
       - name: Upload src/main as artifact
         uses: actions/upload-artifact@v1
         with:
-          name: android_build
+          name: android_build_x86
           path: android/ironoxide-android/src/main/android_build.zip
 
-  android-test:
-    needs: android-build
-    runs-on: macOS-10.15
-    strategy:
-      matrix:
-        arch: [x86, x86_64]
-        target: [default, google_apis]
+  android-build-x86_64:
+    runs-on: ubuntu-18.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Download android build
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Install Cross
+        run: cargo install cross --version 0.1.16
+      - name: Build
+        run: |
+          cross build --target x86_64-linux-android -p ironoxide-android
+          mkdir -p android/ironoxide-android/src/main/jniLibs/x86_64/
+          cp -r target/x86_64-linux-android/release/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/x86_64/
+      - name: Zip src/main
+        run: |
+          cd android/ironoxide-android/src/main
+          zip -r android_build.zip *
+      - name: Upload src/main as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: android_build_x86_64
+          path: android/ironoxide-android/src/main/android_build.zip
+
+  # As the currently available emulators cannot use this architecture, this does not need to be uploaded.
+  # This can be uncommented when either of the following happens:
+  #   - reactivecircus/android-emulator-runner@v2 supports the arm64-v8a architecture for testing
+  #   - api-level 30 is stabilized, as that allows x86_64 to run arm64-v8a
+  android-build-arm64-v8a:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Install Cross
+        run: cargo install cross --version 0.1.16
+      - name: Build
+        run: |
+          cross build --target aarch64-linux-android -p ironoxide-android
+      #     mkdir -p android/ironoxide-android/src/main/jniLibs/arm64-v8a/
+      #     cp -r target/aarch64-linux-android/debug/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/arm64-v8a/
+      # - name: Zip src/main
+      #   run: |
+      #     cd android/ironoxide-android/src/main
+      #     zip -r android_build.zip *
+      # - name: Upload src/main as artifact
+      #   uses: actions/upload-artifact@v1
+      #   with:
+      #     name: android_build_arm64_v8a
+      #     path: android/ironoxide-android/src/main/android_build.zip
+
+  android-test:
+    needs: [android-build-x86, android-build-x86_64]
+    runs-on: macOS-10.15
+    strategy:
+      matrix:
+        api-level: [24, 29]
+        arch: [x86, x86_64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Download android build (x86)
         uses: actions/download-artifact@v1
         with:
-          name: android_build
-      - name: Unzip Android build
-        run: unzip -o android_build/android_build.zip -d android/ironoxide-android/src/main
+          name: android_build_x86
+      - name: Unzip Android build (x86)
+        run: unzip -o android_build_x86/android_build.zip -d android/ironoxide-android/src/main
+      - name: Download android build (x86_64)
+        uses: actions/download-artifact@v1
+        with:
+          name: android_build_x86_64
+      - name: Unzip Android build (x86_64)
+        run: unzip -o android_build_x86_64/android_build.zip -d android/ironoxide-android/src/main
       - name: Decrypt keys for unit tests
         run: openssl enc -aes-256-cbc -d -K ${{ secrets.GHA_OPENSSL_KEY }} -iv ${{ secrets.GHA_OPENSSL_IV }} -in android/ironoxide-android/src/androidTest/resources/deviceContext.json.enc -out android/ironoxide-android/src/androidTest/resources/deviceContext.json
-      - name: Output debugging
-        run: ls -alR android/ironoxide-android/src
       - name: Run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           working-directory: ./android
           arch: ${{ matrix.arch }}
-          api-level: 29
-          target: ${{ matrix.target }}
+          api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedCheck
 
   security:
