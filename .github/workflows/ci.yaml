@@ -138,7 +138,7 @@ jobs:
         run: |
           cross build --target x86_64-linux-android -p ironoxide-android
           mkdir -p android/ironoxide-android/src/main/jniLibs/x86_64/
-          cp -r target/x86_64-linux-android/release/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/x86_64/
+          cp -r target/x86_64-linux-android/debug/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/x86_64/
       - name: Zip src/main
         run: |
           cd android/ironoxide-android/src/main
