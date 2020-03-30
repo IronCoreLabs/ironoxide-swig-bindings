@@ -108,9 +108,7 @@ jobs:
       - name: Install Cross
         run: cargo install cross --version 0.1.16
       - name: Build
-        run: |
-          cd android
-          ./build_test.sh
+        run: android/build_test.sh
       - name: Zip src/main
         run: |
           cd android/ironoxide-android/src/main
