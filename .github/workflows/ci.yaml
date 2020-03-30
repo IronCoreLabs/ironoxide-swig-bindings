@@ -118,7 +118,7 @@ jobs:
       - name: Upload src/main as artifact
         uses: actions/upload-artifact@v1
         with:
-          name: android_build.zip
+          name: android_build
           path: android_build.zip
 
   android-test:
@@ -134,13 +134,12 @@ jobs:
       - name: Download android build
         uses: actions/download-artifact@v1
         with:
-          name: android_build.zip
-          path: android_build.zip
+          name: android_build
       - name: Unzip Android build
         run: |
-          ls
+          ls -al
           pwd
-          unzip android_build.zip -d android/ironoxide-android/src/main
+          unzip android_build/android_build.zip -d android/ironoxide-android/src/main
       - name: Decrypt keys for unit tests
         run: openssl enc -aes-256-cbc -d -K ${{ secrets.GHA_OPENSSL_KEY }} -iv ${{ secrets.GHA_OPENSSL_IV }} -in android/ironoxide-android/src/androidTest/resources/deviceContext.json.enc -out android/ironoxide-android/src/androidTest/resources/deviceContext.json
       - name: Run tests
