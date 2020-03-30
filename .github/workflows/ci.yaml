@@ -119,6 +119,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: android_build.zip
+          path: android_build.zip
 
   android-test:
     needs: android-build
