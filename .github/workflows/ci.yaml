@@ -97,15 +97,15 @@ jobs:
         run: find ${HOME}/.sbt -name '*.lock' -print -delete
 
   android-build:
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
         arch: [i686-linux-android, x86_64-linux-android]
-    runs-on: ubuntu-18.04
-    env:
-      - FOLDER_NAME: x86
-        if: matrix.arch == 'i686-linux-android'
-      - FOLDER_NAME: x86_64
-        if: matrix.arch == 'x86_64-linux-android'
+        include:
+          - arch: i686-linux-android
+            folder-name: x86
+          - arch: x86_64-linux-android
+            folder-name: x86_64
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -119,8 +119,8 @@ jobs:
         run: |
           cross build --target ${{ matrix.arch }} -p ironoxide-android
           cp -r target/${{ matrix.arch }}/debug/build/ironoxide-android*/out/java android/ironoxide-android/src/main/
-          mkdir -p android/ironoxide-android/src/main/jniLibs/$FOLDER_NAME/
-          cp -r target/${{ matrix.arch }}/debug/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/$FOLDER_NAME/
+          mkdir -p android/ironoxide-android/src/main/jniLibs/${{ matrix.folder-name }}/
+          cp -r target/${{ matrix.arch }}/debug/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/${{ matrix.folder-name }}/
       - name: Zip src/main
         run: |
           cd android/ironoxide-android/src/main
@@ -128,7 +128,7 @@ jobs:
       - name: Upload src/main as artifact
         uses: actions/upload-artifact@v1
         with:
-          name: $FOLDER_NAME
+          name: ${{ matrix.folder-name }}
           path: android/ironoxide-android/src/main/android_build.zip
 
   # android-build-x86:
