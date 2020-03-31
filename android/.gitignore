@@ -1,0 +1,10 @@
+.gradle/
+build/
+.project
+.settings/
+ironoxide-android/build/
+ironoxide-android/src/main/java/
+ironoxide-android/src/main/jniLibs/
+ironoxide-android/src/androidTest/resources/*.json
+ironoxide-android/.project
+ironoxide-android/.classpath

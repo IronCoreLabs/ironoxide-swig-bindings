@@ -10,8 +10,3 @@
 .DS_Store
 release_artifacts
 metals.sbt
-android/.gradle/
-android/build
-.settings
-.project
-local.properties
