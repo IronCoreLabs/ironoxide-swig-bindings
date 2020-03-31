@@ -4,7 +4,14 @@ use std::{
     time::Instant,
 };
 
-use rust_swig::{JavaConfig, LanguageConfig};
+use rust_swig::LanguageConfig;
+
+cfg_if::cfg_if! {
+if #[cfg(feature = "cpp")] {
+    use rust_swig::CppConfig;
+}else{
+    use rust_swig::JavaConfig;
+}}
 
 fn main() {
     env_logger::init();
@@ -91,42 +98,75 @@ fn gen_binding<P: AsRef<Path>>(
 
 fn rust_swig_expand(from: &Path, out_dir: &Path) {
     println!("Run rust_swig_expand");
-    let swig_gen = rust_swig::Generator::new(LanguageConfig::JavaConfig(JavaConfig::new(
-        get_java_codegen_output_directory(&out_dir),
-        "com.ironcorelabs.sdk".into(),
-    )))
-    .merge_type_map("chrono_support", include_str!("chrono-include.rs"))
-    .rustfmt_bindings(true)
-    .remove_not_generated_files_from_output_directory(true); //remove outdated *.java files
-    swig_gen.expand("rust_swig_test_jni", from, out_dir.join("lib.rs"));
+
+    println!("{}", include_str!("chrono-include.rs"));
+
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "cpp")]{
+            let swig_gen = rust_swig::Generator::new(LanguageConfig::CppConfig(CppConfig::new(get_cpp_codegen_output_directory(), "sdk".into())))
+              .merge_type_map("chrono_support", include_str!("../cpp/chrono-include.rs"));
+        } else{
+            let swig_gen = rust_swig::Generator::new(LanguageConfig::JavaConfig(JavaConfig::new(
+                get_java_codegen_output_directory(&out_dir),
+                "com.ironcorelabs.sdk".into(),
+            )))
+            .merge_type_map("chrono_support", include_str!("chrono-include.rs"));
+        }
+    }
+
+    swig_gen
+        .rustfmt_bindings(true)
+        .remove_not_generated_files_from_output_directory(true) //remove outdated *.java or cpp files
+        .expand("rust_swig_test_jni", from, out_dir.join("lib.rs"));
 }
 
-fn get_java_codegen_output_directory(out_dir: &Path) -> PathBuf {
-    let path = out_dir
-        .join("java")
-        .join("com")
-        .join("ironcorelabs")
-        .join("sdk");
-    if !path.exists() {
-        std::fs::create_dir_all(&path).expect(
-            "Couldn't create codegen output directory at OUT_DIR/java/com/ironcorelabs/sdk.",
-        );
+cfg_if::cfg_if! {
+    if #[cfg(feature = "cpp")]{
+    fn get_cpp_codegen_output_directory() -> PathBuf {
+        //let out_dir = env::var("OUT_DIR").expect("no OUT_DIR, but cargo should provide it");
+        let path = Path::new("generated").join("sdk");
+        if !path.exists() {
+          std::fs::create_dir_all(&path).expect("Couldn't create codegen output directory at cpp/sdk/.");
+        }
+        println!("Output dir: {:?}", &path);
+        path.to_path_buf()
+      }
     }
-    path.to_path_buf()
+    else{
+        fn get_java_codegen_output_directory(out_dir: &Path) -> PathBuf {
+            let path = out_dir
+                .join("java")
+                .join("com")
+                .join("ironcorelabs")
+                .join("sdk");
+            if !path.exists() {
+                std::fs::create_dir_all(&path).expect(
+                    "Couldn't create codegen output directory at OUT_DIR/java/com/ironcorelabs/sdk.",
+                );
+            }
+            path.to_path_buf()
+        }
+    }
 }
 
 fn expand_equals_and_hashcode_macro(out: &str) {
-    let equals_and_hashcode = r##"method hash(&self) -> i32; alias hashCode;
-    private method eq(&self, o: &$1) -> bool; alias rustEq;
-    foreign_code r#"
-    public boolean equals(Object obj) {
-        if(obj instanceof $1){
-            $1 other = ($1) obj;
-            return other.rustEq(this);
+    cfg_if::cfg_if! {
+        if #[cfg(cpp)]{
+            let equals_and_hashcode = "";
+        } else{
+            let equals_and_hashcode = r##"method hash(&self) -> i32; alias hashCode;
+                private method eq(&self, o: &$1) -> bool; alias rustEq;
+                foreign_code r#"
+                public boolean equals(Object obj) {
+                    if(obj instanceof $1){
+                        $1 other = ($1) obj;
+                        return other.rustEq(this);
+                    }
+                    return false;
+            }
+            "#;"##;
         }
-        return false;
     }
-    "#;"##;
     let file = std::fs::read_to_string("../common/lib.rs.in")
         .expect("unable to read source file lib.rs.in");
     let re = regex::Regex::new(r"pre_build_generate_equals_and_hashcode (.*);")

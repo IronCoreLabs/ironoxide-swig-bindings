@@ -2,5 +2,6 @@
 
 members = [
     "java",
-    "android"
+    "android",
+    "cpp"
 ]

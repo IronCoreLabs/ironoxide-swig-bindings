@@ -10,3 +10,6 @@
 .DS_Store
 release_artifacts
 metals.sbt
+android/build
+android/.gradle
+cpp/generated
