@@ -103,9 +103,9 @@ jobs:
     runs-on: ubuntu-18.04
     env:
       - FOLDER_NAME: x86
-        if: ${{ matrix.arch }} == i686-linux-android
+        if: matrix.arch == 'i686-linux-android'
       - FOLDER_NAME: x86_64
-        if: ${{ matrix.arch }} == x86_64-linux-android
+        if: matrix.arch == 'x86_64-linux-android'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
