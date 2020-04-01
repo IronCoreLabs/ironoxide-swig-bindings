@@ -128,13 +128,13 @@ cfg_if::cfg_if! {
             //let out_dir = env::var("OUT_DIR").expect("no OUT_DIR, but cargo should provide it");
             let path = Path::new("generated").join("sdk");
             if !path.exists() {
-            std::fs::create_dir_all(&path).expect(format!("Couldn't create codegen output directory at {:?}.", path).as_str());
+                std::fs::create_dir_all(&path).expect(format!("Couldn't create codegen output directory at {:?}.", path).as_str());
             }
             println!("Output dir: {:?}", &path);
             path.to_path_buf()
         }
     }
-    else{
+    else {
         fn get_java_codegen_output_directory(out_dir: &Path) -> PathBuf {
             let path = out_dir
                 .join("java")
@@ -153,9 +153,9 @@ cfg_if::cfg_if! {
 
 fn expand_equals_and_hashcode_macro(out: &str) {
     cfg_if::cfg_if! {
-        if #[cfg(feature="cpp")]{
+        if #[cfg(feature="cpp")] {
             let equals_and_hashcode = "";
-        } else{
+        } else {
             let equals_and_hashcode = r##"method hash(&self) -> i32; alias hashCode;
                 private method eq(&self, o: &$1) -> bool; alias rustEq;
                 foreign_code r#"
