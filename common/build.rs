@@ -104,19 +104,20 @@ fn rust_swig_expand(from: &Path, out_dir: &Path) {
     cfg_if::cfg_if! {
         if #[cfg(feature = "cpp")]{
             let name = "ironoxide_cpp";
-            let swig_gen = rust_swig::Generator::new(LanguageConfig::CppConfig(CppConfig::new(get_cpp_codegen_output_directory(), "sdk".into())))
-              .merge_type_map("chrono_support", include_str!("../cpp/chrono-include.rs"));
+            let swig_gen = rust_swig::Generator::new(LanguageConfig::CppConfig(CppConfig::new(get_cpp_codegen_output_directory(), "sdk".into())));
         } else{
             let name = "ironoxide_jvm";
             let swig_gen = rust_swig::Generator::new(LanguageConfig::JavaConfig(JavaConfig::new(
                 get_java_codegen_output_directory(&out_dir),
                 "com.ironcorelabs.sdk".into(),
-            )))
-            .merge_type_map("chrono_support", include_str!("chrono-include.rs"));
+            )));
         }
     }
 
+    println!("{}", include_str!("chrono-include.rs"));
+
     swig_gen
+        .merge_type_map("chrono_support", include_str!("chrono-include.rs"))
         .rustfmt_bindings(true)
         .remove_not_generated_files_from_output_directory(true) //remove outdated *.java or cpp files
         .expand(name, from, out_dir.join("lib.rs"));
