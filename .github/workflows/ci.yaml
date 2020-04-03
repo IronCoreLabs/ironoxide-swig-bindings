@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       # Work around https://github.com/actions/cache/issues/133#issuecomment-599102035
-      - run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
+      - run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/ || chown -R $(whoami):$(id -ng) ~/.cargo/
         name: Fix perms on .cargo so we can restore the cache.
       - name: Restore rust cache
         uses: actions/cache@v1
