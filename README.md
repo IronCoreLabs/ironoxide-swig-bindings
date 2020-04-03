@@ -77,7 +77,7 @@ From `ironoxide-java/android`, run `build.sh`. The output AAR file with be in `a
 
 ## Running Connected Tests
 
-To run Android connected tests, you must either have an emulator running or a compatible Android phone connected. The tests will require artifacts from the `cross` build, so begin by running the steps in `Build from Source`. This will create the java files and the `.so` files required for the `x86`, `x86_64`, and `arm64-v8a` architectures. If testing on a different architecture, you can find the Rust target to compile to [here](https://forge.rust-lang.org/release/platform-support.html). Run the tests from the repository root with this command:
+To run Android connected tests, you must either have an emulator running or a compatible Android phone connected. The tests will require artifacts from the `cross` build, so begin by running the steps in [Build from Source](#build-from-source-1). This will create the java files and the `.so` files required for the `x86`, `x86_64`, and `arm64-v8a` architectures. If testing on a different architecture, you can find the Rust target to compile to [here](https://forge.rust-lang.org/release/platform-support.html). Run the tests from the repository root with this command:
 
 ```bash
 android/gradlew connectedCheck
