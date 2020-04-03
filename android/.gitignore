@@ -8,3 +8,4 @@ ironoxide-android/src/main/jniLibs/
 ironoxide-android/src/androidTest/resources/*.json
 ironoxide-android/.project
 ironoxide-android/.classpath
+ironoxide-android/gradle.properties

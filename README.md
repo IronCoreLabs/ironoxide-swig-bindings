@@ -42,11 +42,13 @@ Further documentation is available on [our docs site](https://docs.ironcorelabs.
 
 ## Build from Source
 
-Prerequisites:
+### Prerequisites
 
 - [Rust toolchain](https://www.rust-lang.org/tools/install) installed
 - `JAVA_HOME` environment variable set
 - `clang` installed
+
+### Building
 
 From the root of this repository run `cargo build -p ironoxide-java`. The resulting `target/debug/build/ironoxide-java-*/out/java` directory will have the JNI binding code for the Java side and `target/debug` will have the dynamic library file you need to pull into your Java code. It will be named `libironoxide_java.so` or `libironoxide_java.dylib` depending on your environment. This library will only work on the architecture from which it was built.
 
@@ -54,22 +56,32 @@ From the root of this repository run `cargo build -p ironoxide-java`. The result
 
 ## Build from Source
 
-Prerequisites:
+### Prerequisites
 
 - [Rust toolchain](https://www.rust-lang.org/tools/install) installed
 - [`cross`](https://github.com/rust-embedded/cross) installed.
   - We currently only support `cross` v0.1.16. This can be installed with `cargo install cross --version 0.1.16`
-- Android SDK 29. 
+- Android SDK 29.
 
-    You can get the command line SDK [on this page](https://developer.android.com/studio) (scroll down to "Command line tools only"). We can then use `sdkmanager` (found in tools/bin) to install what we need:
-    ```
+  - You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only"). You can then use `sdkmanager` (found in tools/bin) to install additional prerequisites:
+
+    ```bash
     ./sdkmanager --sdk_root=PATH_TO_SDK_INSTALL_LOCATION --install "build-tools;29.0.3" platform-tools "platforms;android-29"
     ```
 
-- Then edit `android/local.properties` to point the `sdk.dir` to the location of the android SDK.
+- Edit `android/local.properties` to point the `sdk.dir` to the location of the Android SDK.
 
+### Building
 
-From `ironoxide-java/android`, run `build.sh`. The output AAR file with be  in `android/ironoxide-android/build/outputs/aar`
+From `ironoxide-java/android`, run `build.sh`. The output AAR file with be in `android/ironoxide-android/build/outputs/aar`.
+
+## Running Connected Tests
+
+To run Android connected tests, you must either have an emulator running or a compatible Android phone connected. The tests will require artifacts from the `cross` build, so begin by running the steps in `Build from Source`. This will create the java files and the `.so` files required for the `x86`, `x86_64`, and `arm64-v8a` architectures. If testing on a different architecture, you can find the Rust target to compile to [here](https://forge.rust-lang.org/release/platform-support.html). Run the tests from the repository root with this command:
+
+```bash
+android/gradlew connectedCheck
+```
 
 # License
 
