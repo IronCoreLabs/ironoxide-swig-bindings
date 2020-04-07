@@ -13,3 +13,15 @@ metals.sbt
 android/build
 android/.gradle
 cpp/generated
+cpp/test/CMakeLists.txt.user
+cpp/test/CMakeCache.txt
+cpp/test/CMakeFiles
+cpp/test/CMakeScripts
+cpp/test/Testing
+cpp/test/Makefile
+cpp/test/cmake_install.cmake
+cpp/test/install_manifest.txt
+cpp/test/compile_commands.json
+cpp/test/CTestTestfile.cmake
+cpp/test/_deps
+cpp/test/cpp-tests
