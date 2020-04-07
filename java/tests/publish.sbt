@@ -22,7 +22,7 @@ pomExtra := (
     <developers>
       {
       Seq(
-        ("bobwall23", "Bob Wall")
+        ("bobwall23", "Bob Wall"),
         ("clintfred", "Clint Frederickson"),
         ("coltfred", "Colt Frederickson"),
         ("ernieturner", "Ernie Turner"),
