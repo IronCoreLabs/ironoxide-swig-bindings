@@ -295,11 +295,16 @@ jobs:
       with:
         name: android-release
         path: android/ironoxide-android/build/outputs/aar/ironoxide-android-release.aar
-    - name: Decrypt PGP key and nexus credentials
+    - name: Decrypt PGP key
       uses: IronCoreLabs/ironhide-actions/decrypt@v1
       with:
         keys: ${{ secrets.IRONHIDE_KEYS }}
-        input: .github/signing-key.asc.iron auth.properties
+        input: .github/signing-key.asc.iron
+    - name: Decrypt nexus credentials
+      uses: IronCoreLabs/ironhide-actions/decrypt@v1
+      with:
+        keys: ${{ secrets.IRONHIDE_KEYS }}
+        input: auth.properties
     - name: Import PGP key
       run: gpg --batch --import .github/signing-key.asc
     - name: Export PGP signing key
