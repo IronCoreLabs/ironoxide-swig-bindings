@@ -21,6 +21,18 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+// If the auth info file exists, read it.
+def authPropsFile = "../.github/auth.properties"
+if (file(authPropsFile).exists()) {
+    def props = new Properties()
+    file(authPropsFile).withInputStream { is -> props.load(is) }
+    project.ext.NEXUS_USERNAME = props.getProperty("NEXUS_USERNAME")
+    project.ext.NEXUS_PASSWORD = props.getProperty("NEXUS_PASSWORD")
+} else {
+    project.ext.NEXUS_USERNAME = ""
+    project.ext.NEXUS_PASSWORD = ""
+}
+
 // Ensure we know where the Android SDK is.
 try {
     if (System.getenv("GITHUB_WORKFLOW") == null) {
