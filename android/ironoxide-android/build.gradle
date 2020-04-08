@@ -33,7 +33,7 @@ android {
 uploadArchives {
     repositories {
         mavenDeployer {
-            beforeDeployment { MavenDeployment -> signing.signPom(deployment) }
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
             pom.groupId = 'com.ironcorelabs'
             pom.artifactId = 'ironoxide-android'
