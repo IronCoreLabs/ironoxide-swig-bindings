@@ -310,5 +310,5 @@ jobs:
     - name: Export PGP signing key
       run: gpg --export-secret-keys > /tmp/signing-key.gpg
     - name: Upload AAR to Maven Central
-      run: ./gradlew -s uploadArchives
+      run: ./gradlew uploadArchives
       working-directory: android
