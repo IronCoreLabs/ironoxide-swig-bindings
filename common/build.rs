@@ -9,6 +9,7 @@ use rust_swig::LanguageConfig;
 cfg_if::cfg_if! {
 if #[cfg(feature = "cpp")] {
     use rust_swig::CppConfig;
+    use rust_swig::CppOptional;
 }else{
     use rust_swig::JavaConfig;
 }}
@@ -104,7 +105,10 @@ fn rust_swig_expand(from: &Path, out_dir: &Path) {
     cfg_if::cfg_if! {
         if #[cfg(feature = "cpp")]{
             let name = "ironoxide_cpp";
-            let swig_gen = rust_swig::Generator::new(LanguageConfig::CppConfig(CppConfig::new(get_cpp_codegen_output_directory(), "sdk".into())))
+            let config = CppConfig::new(get_cpp_codegen_output_directory(), "sdk".into())
+              .cpp_optional(CppOptional::Boost);
+
+            let swig_gen = rust_swig::Generator::new(LanguageConfig::CppConfig(config))
               .merge_type_map("chrono_support", include_str!("../cpp/chrono-include.rs"));
         } else{
             let name = "ironoxide_jvm";
