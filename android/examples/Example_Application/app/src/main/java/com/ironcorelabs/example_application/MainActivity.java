@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle(R.string.app_name_long);
         encryptText = findViewById(R.id.dataText);
         encryptId = findViewById(R.id.nameText);
         decryptView = findViewById(R.id.decryptView);
