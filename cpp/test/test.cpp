@@ -4,6 +4,7 @@
 #include <iostream>
 #include "DocumentListMeta.hpp"
 #include "DocumentMetadataResult.hpp"
+#include "IronOxide_fwd.hpp"
 #include "IronOxide.hpp"
 using namespace sdk;
 
@@ -57,7 +58,7 @@ void test_user_id_error(void)
     TEST_MSG("Error was: %s", error_message.c_str());
 }
 
-void create_ironoxide_config(void)
+void encrypt_decrypt_roundtrip(void)
 {
     auto s = "{\"accountId\":\"abcABC012_.$#|@/:;=+'-91e078f0-a60c-4251-8652-dd498c07a8f4\",\"segmentId\":1825,\"signingPrivateKey\":\"uKHa70uwLVG3IU7XodT2kla/PuC/En8PkRCjMMc9ZE7HFrOV+g0vOwATp/CiXp65mVas0K6TSl/RaxDGlcmsnA==\",\"devicePrivateKey\":\"YZRlDSkM+JxxSXCtWCVK693qfhNqcbhaPrtHs92uD4w=\"}";
     DeviceContext d = unwrap(DeviceContext::fromJsonString(s));
@@ -68,5 +69,5 @@ void create_ironoxide_config(void)
 TEST_LIST = {
     {"test_user_id", test_user_id},
     {"test_user_id_error", test_user_id_error},
-    {"create_ironoxide_config", create_ironoxide_config},
+    {"encrypt_decrypt_roundtrip", encrypt_decrypt_roundtrip},
     {NULL, NULL}};

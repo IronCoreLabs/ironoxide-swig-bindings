@@ -106,7 +106,8 @@ fn rust_swig_expand(from: &Path, out_dir: &Path) {
         if #[cfg(feature = "cpp")]{
             let name = "ironoxide_cpp";
             let config = CppConfig::new(get_cpp_codegen_output_directory(), "sdk".into())
-              .cpp_optional(CppOptional::Boost);
+              .cpp_optional(CppOptional::Boost)
+              .separate_impl_headers(true);
 
             let swig_gen = rust_swig::Generator::new(LanguageConfig::CppConfig(config))
               .merge_type_map("chrono_support", include_str!("../cpp/chrono-include.rs"));
