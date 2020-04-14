@@ -27,6 +27,8 @@ import com.ironcorelabs.sdk.IronOxideConfig;
 import com.ironcorelabs.sdk.UserId;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -38,21 +40,36 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     private final ArrayList<DocumentEncryptResult> encryptedList = new ArrayList<>();
     private MyRecyclerViewAdapter adapter;
 
-    private IronOxide initializeSdk() {
+    // Load the ironoxide_android library, read the "device_context.json" raw resource,
+    // and initialize an IronOxide to make calls
+    private IronOxide initializeIronCore() {
         System.loadLibrary("ironoxide_android");
-        InputStream in = getResources().openRawResource(R.raw.device_context);
-        final java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");
-        final String deviceString = s.hasNext() ? s.next() : "";
+        String deviceString = rawResourceToString(R.raw.device_context);
         try {
             DeviceContext device = DeviceContext.fromJsonString(deviceString);
             return IronOxide.initialize(device, new IronOxideConfig());
         } catch (Exception e) {
-            e.printStackTrace();
+            // Convert the stack trace to a string so it can be output to the Log
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String trace = sw.toString();
             Log.e("JNI", "Failed to load DeviceContext");
+            Log.e("JNI", "" + trace);
             return null;
         }
     }
 
+    // Load the raw resource, then scan through the whole file until hasNext() returns false.
+    // The file will be read in as a String
+    private String rawResourceToString(int id) {
+        InputStream in = getResources().openRawResource(id);
+        final java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
+
+    // Encrypt a String. The DocumentEncryptOpts specify that an ID will be generated, the name will
+    // be used if provided, and only the author will be granted access to the encrypted document.
     private DocumentEncryptResult encryptText(String text, String maybe_name) throws Exception {
         DocumentName name = null;
         if (!maybe_name.equals(""))
@@ -76,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);
 
-        sdk = initializeSdk();
+        sdk = initializeIronCore();
 
         findViewById(R.id.encryptButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     public static class DecryptDialog extends DialogFragment {
         private final String documentData;
 
+        // Constructor for the Dialog that sets documentData to relevant data/metadata
         DecryptDialog(DocumentDecryptResult decryptedDocument) {
             String data = "";
             if (decryptedDocument.getName().isPresent()) {
