@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             String trace = sw.toString();
             Log.e("JNI", "Failed to load DeviceContext");
             Log.e("JNI", "" + trace);
-            return null;
+            throw new RuntimeException("Failed to load DeviceContext");
         }
     }
 
