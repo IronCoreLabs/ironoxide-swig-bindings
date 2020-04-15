@@ -17,9 +17,8 @@ cpp/CMakeLists.txt.user
 cpp/CMakeCache.txt
 cpp/CMakeFiles
 cpp/CMakeScripts
-cpp/Testing
 cpp/Makefile
-cpp/cmake_install.cmake
+cpp/*.cmake
 cpp/install_manifest.txt
 cpp/compile_commands.json
 cpp/CTestTestfile.cmake

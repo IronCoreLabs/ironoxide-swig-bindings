@@ -38,8 +38,8 @@ endfunction(find_cargo_target_directory)
 set(RUST_SWIG_SRCS "${ROOT_DIR}/common/lib.rs.in")
 configure_file(cmake/rust_swig_gen.cmake.in ${CMAKE_BINARY_DIR}/rust_swig_gen.cmake @ONLY)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/rust_swig_gen)
-if (NOT EXISTS ${CMAKE_BINARY_DIR}/rust_swig_regen_headers.cmake)
-  file(WRITE ${CMAKE_BINARY_DIR}/rust_swig_regen_headers.cmake "")
+if (NOT EXISTS ${CMAKE_BINARY_DIR}/ironoxide_regen_headers.cmake)
+  file(WRITE ${CMAKE_BINARY_DIR}/ironoxide_regen_headers.cmake "")
 endif()
 
 execute_process(COMMAND ${CMAKE_COMMAND}
@@ -59,7 +59,7 @@ add_custom_target(rust_swig_gen_headers ${CMAKE_COMMAND}
     -DRUST_BUILD_CWD=${RUST_BUILD_CWD}
     -P ${CMAKE_BINARY_DIR}/rust_swig_gen.cmake
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/rust_swig_gen)
-include(${CMAKE_BINARY_DIR}/rust_swig_regen_headers.cmake)
+include(${CMAKE_BINARY_DIR}/ironoxide_regen_headers.cmake)
 
 find_cargo_target_directory(TARGET_PATH)
 
