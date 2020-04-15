@@ -1,5 +1,3 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
     repositories {
         google()
@@ -8,9 +6,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.0'
-        
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
     }
 }
 
@@ -25,3 +20,33 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+// If the auth info file exists, read it.
+def authPropsFile = "../.github/auth.properties"
+if (file(authPropsFile).exists()) {
+    def props = new Properties()
+    file(authPropsFile).withInputStream { is -> props.load(is) }
+    project.ext.NEXUS_USERNAME = props.getProperty("NEXUS_USERNAME")
+    project.ext.NEXUS_PASSWORD = props.getProperty("NEXUS_PASSWORD")
+} else {
+    project.ext.NEXUS_USERNAME = ""
+    project.ext.NEXUS_PASSWORD = ""
+}
+
+// Ensure we know where the Android SDK is.
+try {
+    if (System.getenv("GITHUB_WORKFLOW") == null) {
+        String sdkDir = findProperty("sdk.dir")
+        if (sdkDir == null) {
+            sdkDir = System.getenv("ANDROID_HOME")
+        }
+        if (!file(sdkDir).isDirectory()) throw new Exception()
+        // Couldn't find this documented anywhere; see https://android.googlesource.com/platform/tools/build/+/6d7fd0d2eff092abf1aaf44d03756b24570b390c/gradle/src/main/groovy/com/android/build/gradle/internal/Sdk.groovy#187
+        System.properties["android.home"] = property("sdk.dir")
+    }
+} catch (Exception e) {
+    // throw new GradleException("sdk.dir must point to the Android SDK. Set it in \$HOME/.gradle/gradle.properties")
+    throw e
+}
+
+defaultTasks = ["build"]

@@ -24,6 +24,15 @@ jobs:
       COURSIER_CACHE: /tmp/.cache/coursier/v1
     steps:
       - uses: actions/checkout@v2
+      # Work around https://github.com/actions/cache/issues/133#issuecomment-599102035
+      - run: |
+          if [ -e ~/.cargo ] ; then
+            if [ -e "$(which sudo)" ] ; then
+              SUDO=$(which sudo)
+            fi
+            ${SUDO} chown -R $(whoami):$(id -ng) ~/.cargo/
+          fi
+        name: Fix perms on .cargo so we can restore the cache.
       - name: Restore rust cache
         uses: actions/cache@v1
         with:
@@ -73,7 +82,7 @@ jobs:
           yum group install -y "Development Tools"
       - name: Install llvm (ubuntu)
         if: matrix.target == 'ubuntu-18.04'
-        run: sudo apt update && sudo apt install -y llvm
+        run: sudo apt-get update && sudo apt-get install -y llvm
       # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
       - uses: actions-rs/toolchain@v1
         with:

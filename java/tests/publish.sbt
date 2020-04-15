@@ -22,17 +22,18 @@ pomExtra := (
     <developers>
       {
       Seq(
-        ("coltfred", "Colt Frederickson"),
+        ("bobwall23", "Bob Wall"),
         ("clintfred", "Clint Frederickson"),
-        ("skeet70", "Murph Murphy"),
+        ("coltfred", "Colt Frederickson"),
         ("ernieturner", "Ernie Turner"),
-        ("bobwall23", "Bob Wall")
+        ("giarc3", "Craig Colegrove"),
+        ("skeet70", "Murph Murphy"),
       ).map {
         case (id, name) =>
           <developer>
             <id>{id}</id>
             <name>{name}</name>
-            <url>http://github.com/{id}</url>
+            <url>https://github.com/{id}</url>
           </developer>
       }
     }

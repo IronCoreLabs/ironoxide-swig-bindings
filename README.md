@@ -69,11 +69,11 @@ From the root of this repository run `cargo build -p ironoxide-java`. The result
     ./sdkmanager --sdk_root=PATH_TO_SDK_INSTALL_LOCATION --install "build-tools;29.0.3" platform-tools "platforms;android-29"
     ```
 
-- Edit `android/local.properties` to point the `sdk.dir` to the location of the Android SDK.
+- Edit `$HOME/.gradle/gradle.properties` to point the `sdk.dir` to the location of the Android SDK.
 
 ### Building
 
-From `ironoxide-java/android`, run `build.sh`. The output AAR file with be in `android/ironoxide-android/build/outputs/aar`.
+From `ironoxide-java/android`, run `build.sh`. The output AAR file will be in `android/ironoxide-android/build/outputs/aar`.
 
 ## Running Connected Tests
 
