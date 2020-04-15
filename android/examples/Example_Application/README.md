@@ -1,6 +1,6 @@
 # IronOxide-Android Example Application
 
-This application provides a simple UI for encrypting/decrypting data with the IronCore service. Its purpose is to give an example of depending on ironoxide-android, loading the native library, and making various SDK calls.
+This application provides a simple UI for encrypting/decrypting data with IronCore's Android SDK. Its purpose is to give an example of depending on ironoxide-android, loading the native library, and making various SDK calls.
 
 <img src="Screenshot.png" alt="Screenshot" width="300"/>
 
