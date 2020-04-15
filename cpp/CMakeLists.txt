@@ -30,5 +30,5 @@ endif ()
 include(rust_part_lib)
 include_directories("test/include")
 
-add_executable(app test/test.cpp)
-target_link_libraries(app rust_part_lib)
+add_executable(cpp-tests test/test.cpp)
+target_link_libraries(cpp-tests rust_part_lib)
