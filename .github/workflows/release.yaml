@@ -140,34 +140,6 @@ jobs:
         asset_name: libironoxide_java-centos8.tar.gz.asc
         asset_content_type: application/pgp-signature
 
-    - name: Download release artifacts from android-debug
-      uses: actions/download-artifact@v1
-      with:
-        name: android-debug
-        path: release/android-debug
-    - name: Sign artifact for android-debug
-      run: |
-        gpg --batch --detach-sign -a release/android-debug/ironoxide-android-debug.aar
-        gpg --batch --verify release/android-debug/ironoxide-android-debug.aar.asc release/android-debug/ironoxide-android-debug.aar
-    - name: Upload aar for android-debug
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/android-debug/ironoxide-android-debug.aar
-        asset_name: ironoxide-android-debug.aar
-        asset_content_type: application/data
-    - name: Upload signature for android-debug
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/android-debug/ironoxide-android-debug.aar.asc
-        asset_name: ironoxide-android-debug.aar.asc
-        asset_content_type: application/pgp-signature
-
     - name: Download release artifacts from android-release
       uses: actions/download-artifact@v1
       with:
@@ -285,11 +257,6 @@ jobs:
         args: cross --version 0.1.16
     - run: ./build.sh
       working-directory: android
-    - name: Upload debug artifact for android
-      uses: actions/upload-artifact@v1
-      with:
-        name: android-debug
-        path: android/ironoxide-android/build/outputs/aar/ironoxide-android-debug.aar
     - name: Upload release artifact for android
       uses: actions/upload-artifact@v1
       with:
