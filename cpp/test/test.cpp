@@ -10,6 +10,7 @@
 #include "IronOxide_impl.hpp"
 #include "DeviceContext_impl.hpp"
 #include "DocumentEncryptResult_impl.hpp"
+#include "DocumentDecryptResult_impl.hpp"
 using namespace sdk;
 
 template <class T>
@@ -66,8 +67,10 @@ void encrypt_decrypt_roundtrip(void)
     auto s = "{\"accountId\":\"abcABC012_.$#|@/:;=+'-91e078f0-a60c-4251-8652-dd498c07a8f4\",\"segmentId\":1825,\"signingPrivateKey\":\"uKHa70uwLVG3IU7XodT2kla/PuC/En8PkRCjMMc9ZE7HFrOV+g0vOwATp/CiXp65mVas0K6TSl/RaxDGlcmsnA==\",\"devicePrivateKey\":\"YZRlDSkM+JxxSXCtWCVK693qfhNqcbhaPrtHs92uD4w=\"}";
     DeviceContext d = unwrap(DeviceContext::fromJsonString(s));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
-    auto foo = unwrap(sdk.documentEncrypt(string_to_slice("foo"), DocumentEncryptOpts()));
-    unwrap(sdk.documentDecrypt(vec_to_slice(foo.getEncryptedData())));
+    auto encrypted_doc = unwrap(sdk.documentEncrypt(string_to_slice("foo"), DocumentEncryptOpts()));
+    auto decrypted = unwrap(sdk.documentDecrypt(vec_to_slice(encrypted_doc.getEncryptedData())));
+    TEST_CHECK(vec_to_string(decrypted.getDecryptedData()) == "foo");
+    TEST_MSG("Decrypted value is not what was encrypted.");
 }
 
 TEST_LIST = {

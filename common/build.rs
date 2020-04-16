@@ -130,7 +130,6 @@ fn rust_swig_expand(from: &Path, out_dir: &Path) {
 cfg_if::cfg_if! {
     if #[cfg(feature = "cpp")]{
         fn get_cpp_codegen_output_directory() -> PathBuf {
-            //let out_dir = env::var("OUT_DIR").expect("no OUT_DIR, but cargo should provide it");
             let path = Path::new("generated").join("sdk");
             if !path.exists() {
                 std::fs::create_dir_all(&path).expect(format!("Couldn't create codegen output directory at {:?}.", path).as_str());
