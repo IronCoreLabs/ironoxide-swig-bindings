@@ -10,3 +10,16 @@
 .DS_Store
 release_artifacts
 metals.sbt
+android/build
+android/.gradle
+cpp/generated
+cpp/CMakeLists.txt.user
+cpp/CMakeCache.txt
+cpp/CMakeFiles
+cpp/CMakeScripts
+cpp/Makefile
+cpp/*.cmake
+cpp/install_manifest.txt
+cpp/compile_commands.json
+cpp/CTestTestfile.cmake
+cpp/cpp-tests
