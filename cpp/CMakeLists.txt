@@ -8,7 +8,6 @@ set(CMAKE_CXX_EXTENSIONS False)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
-find_package(Boost 1.66.0 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 set(CMAKE_REQUIRED_INCLUDES "${Boost_INCLUDE_DIRS}")
 

@@ -2,7 +2,6 @@
 #include "UserId.hpp"
 #include <cstdlib>
 #include <iostream>
-#include <boost/optional.hpp>
 #include "UserId_impl.hpp"
 #include "DocumentListMeta.hpp"
 #include "DocumentMetadataResult.hpp"
