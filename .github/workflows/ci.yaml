@@ -172,7 +172,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedCheck
 
-   cpp-build:
+  cpp-build:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
