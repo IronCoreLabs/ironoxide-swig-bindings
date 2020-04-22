@@ -200,7 +200,7 @@ jobs:
         uses: lukka/get-cmake@latest
       - name: Build
         run: |
-          cargo build --target ${{ matrix.arch }} -p ironoxide-cpp
+          cargo build -p ironoxide-cpp
           cd cpp/
           cmake .
           make
