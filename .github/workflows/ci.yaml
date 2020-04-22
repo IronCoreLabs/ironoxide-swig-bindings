@@ -197,8 +197,9 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Build
+      - name: Get Cmake
         uses: lukka/get-cmake@latest 
+      - name: Build
         run: |
           cargo build --target ${{ matrix.arch }} -p ironoxide-cpp
           cd cpp/
