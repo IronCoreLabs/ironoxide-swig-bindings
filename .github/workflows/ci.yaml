@@ -175,18 +175,12 @@ jobs:
   cpp-build:
     strategy:
       matrix:
-        target: [ubuntu-18.04, macos-10.15, centos7, centos8]
+        target: [ubuntu-18.04, macos-10.15]
         include:
           - target: ubuntu-18.04
             host: ubuntu-18.04
           - target: macos-10.15
             host: macos-10.15
-          - target: centos7
-            host: ubuntu-latest
-            image: centos:centos7
-          - target: centos8
-            host: ubuntu-latest
-            image: centos:centos8
     runs-on: ${{ matrix.host }}
     container: ${{ matrix.image }}
     steps:
