@@ -173,7 +173,6 @@ jobs:
           script: ./gradlew connectedCheck
 
   cpp-build:
-    runs-on: ubuntu-18.04
     strategy:
       matrix:
         target: [ubuntu-18.04, macos-10.15, centos7, centos8]
@@ -198,7 +197,7 @@ jobs:
         with:
           toolchain: stable
       - name: Get Cmake
-        uses: lukka/get-cmake@latest 
+        uses: lukka/get-cmake@latest
       - name: Build
         run: |
           cargo build --target ${{ matrix.arch }} -p ironoxide-cpp
