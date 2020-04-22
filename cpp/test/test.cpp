@@ -119,16 +119,19 @@ void group_create_passing_args(void)
 {
     DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
-    auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts(nullptr, nullptr, true, true, nullptr, RustForeignVecUserId(), RustForeignVecUserId(), false)));
+    auto group_name = unwrap(GroupName::validate(random_id()));
+    auto group_id = unwrap(GroupId::validate(random_id()));
+    auto creator = d.getAccountId();
+    auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts(&group_id, &group_name, true, true, &creator, RustForeignVecUserId(), RustForeignVecUserId(), false)));
     TEST_CHECK(group_create_result.getMemberList().getList().as_slice().size() == 1);
     TEST_MSG("Group create failed.");
 }
 
 TEST_LIST = {
-    {"test_user_id", test_user_id},
-    {"test_user_id_error", test_user_id_error},
-    {"encrypt_decrypt_roundtrip", encrypt_decrypt_roundtrip},
-    {"group_name", group_name},
-    {"group_create_default", group_create_default},
+    // {"test_user_id", test_user_id},
+    // {"test_user_id_error", test_user_id_error},
+    // {"encrypt_decrypt_roundtrip", encrypt_decrypt_roundtrip},
+    // {"group_name", group_name},
+    // {"group_create_default", group_create_default},
     {"group_create_passing_args", group_create_passing_args},
     {NULL, NULL}};
