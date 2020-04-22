@@ -194,7 +194,7 @@ jobs:
         uses: lukka/get-cmake@latest
       - name: Build
         run: |
-          cargo build -p ironoxide-cpp
+          cargo build --release -p ironoxide-cpp
           cd cpp/
           cmake .
           make
