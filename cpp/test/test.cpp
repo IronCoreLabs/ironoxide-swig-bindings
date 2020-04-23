@@ -70,7 +70,7 @@ std::string random_id()
     return random_string(94);
 }
 
-auto deviceContextString = "{\"accountId\":\"abcABC012_.$#|@/:;=+'-91e078f0-a60c-4251-8652-dd498c07a8f4\",\"segmentId\":1825,\"signingPrivateKey\":\"uKHa70uwLVG3IU7XodT2kla/PuC/En8PkRCjMMc9ZE7HFrOV+g0vOwATp/CiXp65mVas0K6TSl/RaxDGlcmsnA==\",\"devicePrivateKey\":\"YZRlDSkM+JxxSXCtWCVK693qfhNqcbhaPrtHs92uD4w=\"}";
+auto deviceContextString = "{\"accountId\": \"test-user\",\"segmentId\": 2546,\"signingPrivateKey\": \"qqoar4KHf9GVBv0a8EQxVx8GJ08FdOY1/wz/LdfDHRP+gyfBTxWoVWA2/6SgXrRq7uWGhdJ9txnujLBDXz2A0A==\",\"devicePrivateKey\": \"GbvMdMLTmVNQHRVC/TT06abJG8VoScWBwA2+m/b7nRY=\"}";
 
 void test_user_id(void)
 {
