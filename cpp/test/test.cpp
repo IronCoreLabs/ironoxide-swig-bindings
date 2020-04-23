@@ -17,6 +17,8 @@
 #include "GroupId_impl.hpp"
 #include "GroupName_impl.hpp"
 #include "GroupListResult_impl.hpp"
+#include "DocumentId_impl.hpp"
+#include "NullableBoolean_impl.hpp"
 using namespace sdk;
 
 template <class T>
@@ -100,6 +102,11 @@ void encrypt_decrypt_roundtrip(void)
     auto decrypted = unwrap(sdk.documentDecrypt(vec_to_slice(encrypted_doc.getEncryptedData())));
     TEST_CHECK(vec_to_string(decrypted.getDecryptedData()) == "foo");
     TEST_MSG("Decrypted value is not what was encrypted.");
+
+    TEST_CHECK(decrypted.getId().getId().to_std_string().length() == 32);
+    TEST_CHECK(!decrypted.getName().has_value());
+    TEST_CHECK(decrypted.getCreated() == encrypted_doc.getCreated());
+    TEST_CHECK(decrypted.getLastUpdated() == encrypted_doc.getLastUpdated());
 }
 
 void group_name(void)
@@ -125,17 +132,23 @@ void group_create_passing_args(void)
     auto group_id = unwrap(GroupId::validate(random_id()));
     auto creator = d.getAccountId();
     auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts(&group_id, &group_name, true, true, &creator, RustForeignVecUserId(), RustForeignVecUserId(), false)));
-    TEST_CHECK(group_create_result.getMemberList().getList().as_slice().size() == 1);
-    TEST_MSG("Group create failed.");
+    auto member_size = group_create_result.getMemberList().getList().as_slice().size();
+    TEST_CHECK_(member_size == 1, "Group member list size is %d", member_size);
+    TEST_CHECK_(group_create_result.isAdmin(), "We should be an admin.");
+    TEST_CHECK_(group_create_result.isMember(), "We should be a member.");
+    auto admin_size = group_create_result.getAdminList().getList().as_slice().size();
+    TEST_CHECK_(admin_size == 1, "Admin size was %d, but should be 1.", admin_size);
+    TEST_CHECK_(!group_create_result.getNeedsRotation().value().getBoolean(), "Group should not need rotation.");
 }
 
+//This test is just a confirmation that passing nulls works, so we don't assert about much in it.
 void group_create_passing_nulls(void)
 {
     DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
     auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts(nullptr, nullptr, true, true, nullptr, RustForeignVecUserId(), RustForeignVecUserId(), false)));
-    TEST_CHECK(group_create_result.getMemberList().getList().as_slice().size() == 1);
-    TEST_MSG("Group create failed.");
+    auto group_member_size = group_create_result.getMemberList().getList().as_slice().size();
+    TEST_CHECK_(group_member_size == 1, "Group member list should be 1, but was %d", group_member_size);
 }
 
 void group_list(void)
@@ -143,17 +156,7 @@ void group_list(void)
     DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
     auto group_list_result = unwrap(sdk.groupList());
-    TEST_CHECK(group_list_result.getResult().as_slice().size() > 1);
-    TEST_MSG("Group list failed.");
-}
-
-void document_encrypt(void)
-{
-    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
-    IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
-    auto encrypt_result = unwrap(sdk.documentEncrypt(string_to_slice("foo"), DocumentEncryptOpts()));
-    TEST_CHECK(!encrypt_result.getName().has_value());
-    TEST_MSG("Document encrypt failed.");
+    TEST_CHECK_(group_list_result.getResult().as_slice().size() > 1, "Group list failed.");
 }
 
 TEST_LIST = {
@@ -165,5 +168,4 @@ TEST_LIST = {
     {"group_create_passing_args", group_create_passing_args},
     {"group_create_passing_nulls", group_create_passing_nulls},
     {"group_list", group_list},
-    {"document_encrypt", document_encrypt},
     {NULL, NULL}};
