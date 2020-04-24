@@ -2,7 +2,7 @@
 #include "UserId.hpp"
 #include <cstdlib>
 #include <iostream>
-#include <boost/optional.hpp>
+#include <random>
 #include "UserId_impl.hpp"
 #include "DocumentListMeta.hpp"
 #include "DocumentMetadataResult.hpp"
@@ -11,6 +11,14 @@
 #include "DeviceContext_impl.hpp"
 #include "DocumentEncryptResult_impl.hpp"
 #include "DocumentDecryptResult_impl.hpp"
+#include "GroupCreateOpts_impl.hpp"
+#include "GroupCreateResult_impl.hpp"
+#include "GroupUserList_impl.hpp"
+#include "GroupId_impl.hpp"
+#include "GroupName_impl.hpp"
+#include "GroupListResult_impl.hpp"
+#include "DocumentId_impl.hpp"
+#include "NullableBoolean_impl.hpp"
 using namespace sdk;
 
 template <class T>
@@ -42,6 +50,30 @@ std::string vec_to_string(RustVeci8 a)
     return std::string(reinterpret_cast<char const *>(&a[0]), a.size());
 }
 
+std::string random_string(std::size_t length)
+{
+    const std::string CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    std::random_device random_device;
+    std::mt19937 generator(random_device());
+    std::uniform_int_distribution<> distribution(0, CHARACTERS.size() - 1);
+
+    std::string random_string;
+
+    for (std::size_t i = 0; i < length; ++i)
+    {
+        random_string += CHARACTERS[distribution(generator)];
+    }
+
+    return random_string;
+}
+std::string random_id()
+{
+    return random_string(94);
+}
+
+auto deviceContextString = "{\"accountId\": \"test-user\",\"segmentId\": 2546,\"signingPrivateKey\": \"qqoar4KHf9GVBv0a8EQxVx8GJ08FdOY1/wz/LdfDHRP+gyfBTxWoVWA2/6SgXrRq7uWGhdJ9txnujLBDXz2A0A==\",\"devicePrivateKey\": \"GbvMdMLTmVNQHRVC/TT06abJG8VoScWBwA2+m/b7nRY=\"}";
+
 void test_user_id(void)
 {
     auto str = "hello";
@@ -64,17 +96,77 @@ void test_user_id_error(void)
 
 void encrypt_decrypt_roundtrip(void)
 {
-    auto s = "{\"accountId\":\"abcABC012_.$#|@/:;=+'-91e078f0-a60c-4251-8652-dd498c07a8f4\",\"segmentId\":1825,\"signingPrivateKey\":\"uKHa70uwLVG3IU7XodT2kla/PuC/En8PkRCjMMc9ZE7HFrOV+g0vOwATp/CiXp65mVas0K6TSl/RaxDGlcmsnA==\",\"devicePrivateKey\":\"YZRlDSkM+JxxSXCtWCVK693qfhNqcbhaPrtHs92uD4w=\"}";
-    DeviceContext d = unwrap(DeviceContext::fromJsonString(s));
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
     auto encrypted_doc = unwrap(sdk.documentEncrypt(string_to_slice("foo"), DocumentEncryptOpts()));
     auto decrypted = unwrap(sdk.documentDecrypt(vec_to_slice(encrypted_doc.getEncryptedData())));
     TEST_CHECK(vec_to_string(decrypted.getDecryptedData()) == "foo");
     TEST_MSG("Decrypted value is not what was encrypted.");
+
+    TEST_CHECK(decrypted.getId().getId().to_std_string().length() == 32);
+    TEST_CHECK(!decrypted.getName().has_value());
+    TEST_CHECK(decrypted.getCreated() == encrypted_doc.getCreated());
+    TEST_CHECK(decrypted.getLastUpdated() == encrypted_doc.getLastUpdated());
+}
+
+void group_name(void)
+{
+    auto group_name = unwrap(GroupName::validate("blargh"));
+    TEST_CHECK(group_name.getName().to_std_string() == "blargh");
+}
+
+void group_create_default(void)
+{
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
+    IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
+    auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts()));
+    TEST_CHECK(group_create_result.getMemberList().getList().as_slice().size() == 1);
+    TEST_MSG("Group create failed.");
+}
+
+void group_create_passing_args(void)
+{
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
+    IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
+    auto group_name = unwrap(GroupName::validate(random_id()));
+    auto group_id = unwrap(GroupId::validate(random_id()));
+    auto creator = d.getAccountId();
+    auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts(&group_id, &group_name, true, true, &creator, RustForeignVecUserId(), RustForeignVecUserId(), false)));
+    auto member_size = group_create_result.getMemberList().getList().as_slice().size();
+    TEST_CHECK_(member_size == 1, "Group member list size is %d", member_size);
+    TEST_CHECK_(group_create_result.isAdmin(), "We should be an admin.");
+    TEST_CHECK_(group_create_result.isMember(), "We should be a member.");
+    auto admin_size = group_create_result.getAdminList().getList().as_slice().size();
+    TEST_CHECK_(admin_size == 1, "Admin size was %d, but should be 1.", admin_size);
+    TEST_CHECK_(!group_create_result.getNeedsRotation().value().getBoolean(), "Group should not need rotation.");
+}
+
+//This test is just a confirmation that passing nulls works, so we don't assert about much in it.
+void group_create_passing_nulls(void)
+{
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
+    IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
+    auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts(nullptr, nullptr, true, true, nullptr, RustForeignVecUserId(), RustForeignVecUserId(), false)));
+    auto group_member_size = group_create_result.getMemberList().getList().as_slice().size();
+    TEST_CHECK_(group_member_size == 1, "Group member list should be 1, but was %d", group_member_size);
+}
+
+void group_list(void)
+{
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
+    IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
+    auto group_list_result = unwrap(sdk.groupList());
+    //We don't create new users in these tests, so all we can do is assert that there is some.
+    TEST_CHECK_(group_list_result.getResult().as_slice().size() > 1, "Group list failed.");
 }
 
 TEST_LIST = {
     {"test_user_id", test_user_id},
     {"test_user_id_error", test_user_id_error},
     {"encrypt_decrypt_roundtrip", encrypt_decrypt_roundtrip},
+    {"group_name", group_name},
+    {"group_create_default", group_create_default},
+    {"group_create_passing_args", group_create_passing_args},
+    {"group_create_passing_nulls", group_create_passing_nulls},
+    {"group_list", group_list},
     {NULL, NULL}};
