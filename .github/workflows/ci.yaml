@@ -176,6 +176,34 @@ jobs:
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedCheck
 
+  cpp-build:
+    strategy:
+      matrix:
+        target: [ubuntu-18.04, macos-10.15]
+        include:
+          - target: ubuntu-18.04
+            host: ubuntu-18.04
+          - target: macos-10.15
+            host: macos-10.15
+    runs-on: ${{ matrix.host }}
+    container: ${{ matrix.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Get Cmake
+        uses: lukka/get-cmake@latest
+      - name: Build
+        run: |
+          cargo build --release -p ironoxide-cpp
+          cd cpp/
+          cmake .
+          make
+          ./cpp-tests
+
   security:
     runs-on: ubuntu-18.04
     steps:
