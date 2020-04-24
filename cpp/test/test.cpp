@@ -156,6 +156,7 @@ void group_list(void)
     DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
     auto group_list_result = unwrap(sdk.groupList());
+    //We don't create new users in these tests, so all we can do is assert that there is some.
     TEST_CHECK_(group_list_result.getResult().as_slice().size() > 1, "Group list failed.");
 }
 
