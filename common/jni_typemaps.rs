@@ -24,12 +24,14 @@ foreign_typemap!(
 "#;
 );
 
+
+// this type and typemap is required so that java can accept `&[T]` as a function input.
+// it uses the `jobject_array_to_vec_of_objects` function, which clones the inside type for you.
 #[repr(transparent)]
 pub struct JForeignObjectsArrayForSlice<T: SwigForeignClass> {
     pub(crate) inner: jobjectArray,
     pub(crate) _marker: ::std::marker::PhantomData<T>,
 }
-
 foreign_typemap!(
     ($p:r_type) <T: SwigForeignClass + Clone> &[T] <= JForeignObjectsArrayForSlice<T> {
         let arr = crate::internal_aliases::JForeignObjectsArray{ inner: $p.inner, _marker: $p._marker};
