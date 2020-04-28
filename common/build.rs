@@ -156,7 +156,17 @@ cfg_if::cfg_if! {
 fn expand_equals_and_hashcode_macro(out: &str) {
     cfg_if::cfg_if! {
         if #[cfg(feature="cpp")] {
-            let equals_and_hashcode = "";
+            let equals_and_hashcode = r##"
+                private method eq(&self, o: &$1) -> bool; alias rustEq;
+                foreign_code r#"
+                friend bool operator==(const ${1}Wrapper &lhs, const ${1}Wrapper &rhs) {
+                    return lhs.rustEq(rhs);
+                }
+                
+                friend bool operator!=(const ${1}Wrapper &lhs, const ${1}Wrapper &rhs) {
+                    return !(lhs == rhs);
+                }
+            "#;"##;        
         } else {
             let equals_and_hashcode = r##"method hash(&self) -> i32; alias hashCode;
                 private method eq(&self, o: &$1) -> bool; alias rustEq;
