@@ -81,6 +81,8 @@ void test_user_id(void)
     //These don't seem to work and I don't know why.
     auto user_id = unwrap(std::move(value));
 
+    //This is to check that equals is defined and that it's working.
+    TEST_CHECK(user_id == user_id);
     TEST_CHECK(user_id.getId().to_std_string() == "hello");
 }
 
@@ -139,6 +141,7 @@ void group_create_passing_args(void)
     auto admin_size = group_create_result.getAdminList().getList().as_slice().size();
     TEST_CHECK_(admin_size == 1, "Admin size was %d, but should be 1.", admin_size);
     TEST_CHECK_(!group_create_result.getNeedsRotation().value().getBoolean(), "Group should not need rotation.");
+    TEST_CHECK_(group_create_result.getMemberList() == group_create_result.getMemberList(), "Member lists should be equal.");
 }
 
 //This test is just a confirmation that passing nulls works, so we don't assert about much in it.
