@@ -442,7 +442,7 @@ class GroupCreateOpts {
     /// @param admins list of users to be added as admins of the group. This list takes priority over `addAsAdmin`, so the creating user will be added as an admin even if `addAsAdmin` is false.
     /// @param members list of users to be added as members of the group. This list takes priority over `addAsMember`, so the creating user will be added as a member even if `addAsMember` is false.
     /// @param needsRotation if true, the group will be marked as needing its private key rotated.
-    constructor group_create_opts::create(id: Option<&GroupId>, name: Option<&GroupName>, addAsAdmin: bool, addAsMember: bool, owner: Option<&UserId>, admins: Vec<UserId>, members: Vec<UserId>, needsRotation: bool) -> GroupCreateOpts;
+    constructor group_create_opts::create(id: Option<&GroupId>, name: Option<&GroupName>, addAsAdmin: bool, addAsMember: bool, owner: Option<&UserId>, admins: &[UserId], members: &[UserId], needsRotation: bool) -> GroupCreateOpts;
     pre_build_generate_equals_and_hashcode GroupCreateOpts;
 });
 
@@ -536,7 +536,7 @@ class DocumentEncryptOpts {
     /// @param userGrants    list of user ids that will be granted access to the document
     /// @param groupGrants   list of group ids that will be granted access to the document
     /// @param policyGrant   The policy labels which will be evaluated to determine grants.
-    constructor document_create_opt::create(id :Option<&DocumentId>, name :Option<&DocumentName>, grantToAuthor: bool, userGrants: Vec<UserId>, groupGrants: Vec<GroupId>, policyGrant:Option<&PolicyGrant>) -> DocumentEncryptOpts;
+    constructor document_create_opt::create(id :Option<&DocumentId>, name :Option<&DocumentName>, grantToAuthor: bool, userGrants: &[UserId], groupGrants: &[GroupId], policyGrant:Option<&PolicyGrant>) -> DocumentEncryptOpts;
     pre_build_generate_equals_and_hashcode DocumentEncryptOpts;
 });
 
@@ -821,7 +821,7 @@ class IronOxide {
     ///
     /// @param users list of user IDs to check
     /// @return map from user ID to users public key. Only users who have public keys will be returned in the map
-    method user_get_public_key(&self, users: Vec<UserId>) -> Result<Vec<UserWithKey>, String>; alias userGetPublicKey;
+    method user_get_public_key(&self, users: &[UserId]) -> Result<Vec<UserWithKey>, String>; alias userGetPublicKey;
     /// Delete a user device.
     ///
     /// If deleting the currently signed in device (`null` for `deviceId`), the sdk will need to be
@@ -880,7 +880,7 @@ class IronOxide {
     /// @param groupGrants  list of group grants
     /// @throws java.lang.Exception the request failed either on the client or the server rejected the whole request
     /// @return each individual grant to a user/group succeeded or failed
-    method document_grant_access(&self, documentId: &DocumentId, userGrants: Vec<UserId>, groupGrants: Vec<GroupId>)
+    method document_grant_access(&self, documentId: &DocumentId, userGrants: &[UserId], groupGrants: &[GroupId])
         -> Result<DocumentAccessResult, String>; alias documentGrantAccess;
     /// Revoke access from a document. Revocation of document access can be either users or groups.
     ///
@@ -889,7 +889,7 @@ class IronOxide {
     /// @param groupRevokes  list of group revokes
     /// @throws java.lang.Exception the request failed either on the client or the server rejected the whole request
     /// @return each individual revoke from a user/group either succeeded or failed
-    method document_revoke_access(&self, documentId: &DocumentId, userRevokes: Vec<UserId>, groupRevokes: Vec<GroupId>)
+    method document_revoke_access(&self, documentId: &DocumentId, userRevokes: &[UserId], groupRevokes: &[GroupId])
         -> Result<DocumentAccessResult, String>; alias documentRevokeAccess;
     /// List all of the groups that the current user is either an admin or member of.
     ///
@@ -921,25 +921,25 @@ class IronOxide {
     /// @param id     id of the group to add members to
     /// @param users  the list of users thet will be added to the group as members
     /// @return all the users that were added and all the users that were not added with the reason they were not
-    method group_add_members(&self, id:&GroupId, users:Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupAddMembers;
+    method group_add_members(&self, id:&GroupId, users: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupAddMembers;
     /// Remove a list of users as members from the group.
     ///
     /// @param id           id of the group to remove members from
     /// @param userRevokes  list of user ids to remove as members
     /// @return list of users that were removed and the users that failed to be removed with the reason they were not
-    method group_remove_members(&self, id:&GroupId, userRevokes: Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupRemoveMembers;
+    method group_remove_members(&self, id:&GroupId, userRevokes: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupRemoveMembers;
     /// Add the users as admins of a group.
     ///
     /// @param id     id of the group to add admins to
     /// @param users  the list of users that will be added to the group as admins
     /// @return all the users that were added and the users that were not added with the reason they were not
-    method group_add_admins(&self, id: &GroupId, users: Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupAddAdmins;
+    method group_add_admins(&self, id: &GroupId, users: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupAddAdmins;
     /// Remove a list of users as admins from the group.
     ///
     /// @param id           id of the group
     /// @param userRevokes  list of user ids to remove as admins
     /// @return list of users that were removed and the users that failed to be removed with the reason they were not
-    method group_remove_admins(&self, id:&GroupId, userRevokes: Vec<UserId>) -> Result<GroupAccessEditResult, String>; alias groupRemoveAdmins;
+    method group_remove_admins(&self, id:&GroupId, userRevokes: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupRemoveAdmins;
     /// Rotate the provided group's private key, but leave the public key the same.
     /// There's no black magic here! This is accomplished via multi-party computation with the
     /// IronCore webservice.

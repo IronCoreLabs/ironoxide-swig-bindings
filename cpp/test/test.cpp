@@ -133,7 +133,7 @@ void group_create_passing_args(void)
     auto group_name = unwrap(GroupName::validate(random_id()));
     auto group_id = unwrap(GroupId::validate(random_id()));
     auto creator = d.getAccountId();
-    auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts(&group_id, &group_name, true, true, &creator, RustForeignVecUserId(), RustForeignVecUserId(), false)));
+    auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts(&group_id, &group_name, true, true, &creator, RustForeignSliceConst<UserIdRef>(), RustForeignSliceConst<UserIdRef>(), false)));
     auto member_size = group_create_result.getMemberList().getList().as_slice().size();
     TEST_CHECK_(member_size == 1, "Group member list size is %d", member_size);
     TEST_CHECK_(group_create_result.isAdmin(), "We should be an admin.");
@@ -149,7 +149,7 @@ void group_create_passing_nulls(void)
 {
     DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
-    auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts(nullptr, nullptr, true, true, nullptr, RustForeignVecUserId(), RustForeignVecUserId(), false)));
+    auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts(nullptr, nullptr, true, true, nullptr, RustForeignSliceConst<UserIdRef>(), RustForeignSliceConst<UserIdRef>(), false)));
     auto group_member_size = group_create_result.getMemberList().getList().as_slice().size();
     TEST_CHECK_(group_member_size == 1, "Group member list should be 1, but was %d", group_member_size);
 }

@@ -98,9 +98,6 @@ fn gen_binding<P: AsRef<Path>>(
 
 fn rust_swig_expand(from: &Path, out_dir: &Path) {
     println!("Run rust_swig_expand");
-
-    println!("{}", include_str!("chrono-include.rs"));
-
     cfg_if::cfg_if! {
         if #[cfg(feature = "cpp")]{
             let name = "ironoxide_cpp";
@@ -108,14 +105,14 @@ fn rust_swig_expand(from: &Path, out_dir: &Path) {
               .separate_impl_headers(true);
 
             let swig_gen = rust_swig::Generator::new(LanguageConfig::CppConfig(config))
-              .merge_type_map("chrono_support", include_str!("../cpp/chrono-include.rs"));
+              .merge_type_map("chrono_support", include_str!("../cpp/cpp_typemaps.rs"));
         } else{
             let name = "ironoxide_jvm";
             let swig_gen = rust_swig::Generator::new(LanguageConfig::JavaConfig(JavaConfig::new(
                 get_java_codegen_output_directory(&out_dir),
                 "com.ironcorelabs.sdk".into(),
             )))
-            .merge_type_map("chrono_support", include_str!("chrono-include.rs"));
+            .merge_type_map("chrono_support", include_str!("jni_typemaps.rs"));
         }
     }
 

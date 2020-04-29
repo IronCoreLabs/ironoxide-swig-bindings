@@ -286,15 +286,17 @@ mod document_create_opt {
         id: Option<&DocumentId>,
         name: Option<&DocumentName>,
         grant_to_author: bool,
-        user_grants: Vec<UserId>,
-        group_grants: Vec<GroupId>,
+        user_grants: &[UserId],
+        group_grants: &[GroupId],
         policy_grant: Option<&PolicyGrant>,
     ) -> DocumentEncryptOpts {
         let users_and_groups: Vec<UserOrGroup> = user_grants
+            .to_owned()
             .into_iter()
             .map(|u| UserOrGroup::User { id: u })
             .chain(
                 group_grants
+                    .to_owned()
                     .into_iter()
                     .map(|g| UserOrGroup::Group { id: g }),
             )
@@ -850,8 +852,8 @@ mod group_create_opts {
         add_as_admin: bool,
         add_as_member: bool,
         owner: Option<&UserId>,
-        admins: Vec<UserId>,
-        members: Vec<UserId>,
+        admins: &[UserId],
+        members: &[UserId],
         needs_rotation: bool,
     ) -> GroupCreateOpts {
         GroupCreateOpts::new(
@@ -860,8 +862,8 @@ mod group_create_opts {
             add_as_admin,
             add_as_member,
             owner.cloned(),
-            admins,
-            members,
+            admins.to_vec(),
+            members.to_vec(),
             needs_rotation,
         )
     }
@@ -959,7 +961,7 @@ fn generate_new_device(
 fn user_list_devices(sdk: &IronOxide) -> Result<UserDeviceListResult, String> {
     Ok(sdk.user_list_devices()?)
 }
-fn user_get_public_key(sdk: &IronOxide, users: Vec<UserId>) -> Result<Vec<UserWithKey>, String> {
+fn user_get_public_key(sdk: &IronOxide, users: &[UserId]) -> Result<Vec<UserWithKey>, String> {
     let result = sdk.user_get_public_key(&users)?;
     Ok(result.into_iter().map(UserWithKey).collect())
 }
@@ -1012,14 +1014,16 @@ fn document_update_name(
 fn document_grant_access(
     sdk: &IronOxide,
     document_id: &DocumentId,
-    grant_users: Vec<UserId>,
-    grant_groups: Vec<GroupId>,
+    grant_users: &[UserId],
+    grant_groups: &[GroupId],
 ) -> Result<DocumentAccessResult, String> {
     let users_and_groups = grant_users
+        .to_owned()
         .into_iter()
         .map(|u| UserOrGroup::User { id: u })
         .chain(
             grant_groups
+                .to_owned()
                 .into_iter()
                 .map(|g| UserOrGroup::Group { id: g }),
         )
@@ -1031,14 +1035,16 @@ fn document_grant_access(
 fn document_revoke_access(
     sdk: &IronOxide,
     document_id: &DocumentId,
-    revoke_users: Vec<UserId>,
-    revoke_groups: Vec<GroupId>,
+    revoke_users: &[UserId],
+    revoke_groups: &[GroupId],
 ) -> Result<DocumentAccessResult, String> {
     let users_and_groups = revoke_users
+        .to_owned()
         .into_iter()
         .map(|u| UserOrGroup::User { id: u })
         .chain(
             revoke_groups
+                .to_owned()
                 .into_iter()
                 .map(|g| UserOrGroup::Group { id: g }),
         )
@@ -1068,30 +1074,30 @@ fn group_delete(sdk: &IronOxide, id: &GroupId) -> Result<GroupId, String> {
 fn group_add_members(
     sdk: &IronOxide,
     group_id: &GroupId,
-    users: Vec<UserId>,
+    users: &[UserId],
 ) -> Result<GroupAccessEditResult, String> {
-    Ok(sdk.group_add_members(group_id, &users)?)
+    Ok(sdk.group_add_members(group_id, users)?)
 }
 fn group_remove_members(
     sdk: &IronOxide,
     group_id: &GroupId,
-    users: Vec<UserId>,
+    users: &[UserId],
 ) -> Result<GroupAccessEditResult, String> {
-    Ok(sdk.group_remove_members(group_id, &users)?)
+    Ok(sdk.group_remove_members(group_id, users)?)
 }
 fn group_add_admins(
     sdk: &IronOxide,
     group_id: &GroupId,
-    users: Vec<UserId>,
+    users: &[UserId],
 ) -> Result<GroupAccessEditResult, String> {
-    Ok(sdk.group_add_admins(group_id, &users)?)
+    Ok(sdk.group_add_admins(group_id, users)?)
 }
 fn group_remove_admins(
     sdk: &IronOxide,
     group_id: &GroupId,
-    users: Vec<UserId>,
+    users: &[UserId],
 ) -> Result<GroupAccessEditResult, String> {
-    Ok(sdk.group_remove_admins(group_id, &users)?)
+    Ok(sdk.group_remove_admins(group_id, users)?)
 }
 fn group_rotate_private_key(
     sdk: &IronOxide,
