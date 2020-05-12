@@ -29,14 +29,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       # Work around https://github.com/actions/cache/issues/133#issuecomment-599102035
-      - run: |
+      - name: Fix perms on .cargo so we can restore the cache.
+        run: |
           if [ -e ~/.cargo ] ; then
             if [ -e "$(which sudo)" ] ; then
               SUDO=$(which sudo)
             fi
             ${SUDO} chown -R $(whoami):$(id -ng) ~/.cargo/
           fi
-        name: Fix perms on .cargo so we can restore the cache.
       - name: Restore rust cache
         uses: actions/cache@v1
         with:
@@ -58,15 +58,6 @@ jobs:
           restore-keys: |
             ${{ github.workflow }}-sbt-
           path: ~/.sbt
-      - name: Decrypt keys for unit tests
-        uses: IronCoreLabs/ironhide-actions/decrypt@v1
-        if: matrix.target != 'macos-10.15'
-        with:
-          keys: ${{ secrets.IRONHIDE_KEYS }}
-          input: java/tests/src/test/resources/service-keys.conf.iron
-      - name: Decrypt keys for unit tests (MacOS)
-        if: matrix.target == 'macos-10.15'
-        run: openssl enc -aes-256-cbc -d -K ${{ secrets.GHA_OPENSSL_KEY }} -iv ${{ secrets.GHA_OPENSSL_IV }} -in java/tests/src/test/resources/service-keys.conf.enc -out java/tests/src/test/resources/service-keys.conf
       - uses: actions/setup-java@v1
         with:
           java-version: 8

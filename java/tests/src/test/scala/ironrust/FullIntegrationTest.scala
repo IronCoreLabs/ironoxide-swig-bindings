@@ -130,7 +130,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
 
       verifyResult.isPresent shouldBe true
       verifyResult.get.getAccountId shouldBe primaryTestUserId
-      verifyResult.get.getSegmentId shouldBe 2013
+      verifyResult.get.getSegmentId shouldBe 713
       verifyResult.get.getNeedsRotation shouldBe true
     }
   }
@@ -399,7 +399,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   }
 
   "Group Get Metadata" should {
-    "Return an error when retrieving a group that doesnt exist" in {
+    "Return an error when retrieving a group that doesn't exist" in {
       val groupId = Try(GroupId.validate("not-a-group=ID-that-exists=")).toEither.value
       val resp = Try(sdk.groupGetMetadata(groupId)).toEither
       resp.leftValue.getMessage should include("404")
@@ -938,7 +938,7 @@ class FullIntegrationTest extends DudeSuite with CancelAfterFailure {
   }
 
   "Document Get Metadata" should {
-    "Return an error when retrieving a document that doesnt exist" in {
+    "Return an error when retrieving a document that doesn't exist" in {
       val docID = Try(DocumentId.validate("not-a-document-ID-that-exists=/")).toEither.value
       val resp = Try(sdk.documentGetMetadata(docID)).toEither
       resp.leftValue.getMessage should include("404")
