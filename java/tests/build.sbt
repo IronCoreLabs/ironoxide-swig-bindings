@@ -28,7 +28,6 @@ libraryDependencies ++= Seq(
   "com.pauldijou" %% "jwt-core" % "4.3.0",
   "org.scalatest" %% "scalatest" % "3.1.2",
   "org.scodec" %% "scodec-bits" % "1.1.14",
-  "com.github.melrief" %% "pureconfig" % "0.7.0",
   "com.ironcorelabs" %% "cats-scalatest" % "3.0.5",
   "org.bouncycastle" % "bcpkix-jdk15on" % "1.65"
 ).map(_ % "test")
