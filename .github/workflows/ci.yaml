@@ -60,7 +60,7 @@ jobs:
           path: ~/.sbt
       - uses: actions/setup-java@v1
         with:
-          java-version: 8
+          java-version: 11
       - name: Install sbt
         # The setup-java action should do this, but it doesn't on MacOS.
         # https://github.com/actions/setup-java/issues/50
