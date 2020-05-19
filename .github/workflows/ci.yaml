@@ -60,7 +60,7 @@ jobs:
           path: ~/.sbt
       - uses: actions/setup-java@v1
         with:
-          java-version: 8
+          java-version: 11
       - name: Install sbt
         # The setup-java action should do this, but it doesn't on MacOS.
         # https://github.com/actions/setup-java/issues/50
@@ -81,16 +81,13 @@ jobs:
       # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
       - uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
-          components: rustfmt-preview
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: -- --check
-      - uses: actions-rs/cargo@v1
-        with:
-          command: b
-      - run: sbt test
+          components: rustfmt
+      - name: Cargo fmt and build
+        run: cargo fmt -- --check && cargo build -p ironoxide-java
+      - name: Scala tests
+        run: sbt test
         working-directory: java/tests
       - name: Clean the cargo cache
         run: |
