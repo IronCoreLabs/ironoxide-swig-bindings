@@ -5,6 +5,7 @@
 # If called with -n, don't actually change any files; just verify.
 
 set -e
+set -x
 
 # Parse args
 case "$1" in
