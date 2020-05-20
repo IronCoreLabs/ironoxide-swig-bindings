@@ -10,6 +10,7 @@ jobs:
   validate:
     runs-on: ubuntu-18.04
     steps:
+    - uses: actions/checkout@v2
     - name: Validate version files
       run: .github/set-versions.sh -c 0.0.1
 
