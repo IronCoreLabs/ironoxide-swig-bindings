@@ -21,6 +21,10 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
+    - name: Configure git
+      run: |
+        git config --local user.email ops@ironcorelabs.com
+        git config --local user.name "Leeroy Travis"
     - uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
