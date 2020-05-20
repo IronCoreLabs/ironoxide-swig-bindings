@@ -1,25 +1,18 @@
-name: release
+name: Build release
 
 on:
-  push:
-    tags:
-    - '*'
+  release:
+    types:
+    - created
 
 jobs:
-  release:
+  github-upload:
     runs-on: ubuntu-18.04
     needs:
       - build
       - android
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/create-release@v1
-      id: release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Version ${{ github.ref }}
     - name: Decrypt PGP key
       uses: IronCoreLabs/ironhide-actions/decrypt@v1
       with:
@@ -279,3 +272,29 @@ jobs:
     - name: Upload AAR to Maven Central
       run: ./gradlew uploadArchives
       working-directory: android
+
+  java:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Decrypt PGP key
+      uses: IronCoreLabs/ironhide-actions/decrypt@v1
+      with:
+        keys: ${{ secrets.IRONHIDE_KEYS }}
+        input: .github/signing-key.asc.iron
+    - name: Import PGP key
+      run: gpg --batch --import .github/signing-key.asc
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 8
+    - name: Install llvm (ubuntu)
+      if: matrix.target == 'ubuntu-18.04'
+      run: sudo apt-get update && sudo apt-get install -y llvm
+    - name: Cargo build
+      run: cargo build -p ironoxide-java
+    - name: Java release
+      run: sbt release
+      working-directory: java/tests
