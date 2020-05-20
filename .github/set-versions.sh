@@ -21,6 +21,9 @@ esac
 
 if [ $# -ne 1 ] ; then
     echo "Usage: $0 [-j] version" >&2
+    echo "Got: $@"
+    echo "1: $1"
+    echo "2: $2"
     exit 1
 fi
 VERS="$1"
