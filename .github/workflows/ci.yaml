@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Validate version files
-      run: .github/set-versions.sh -c 0.0.1
+      run: .github/set-versions.sh -n 0.0.1
 
   java-test:
     strategy:
