@@ -33,18 +33,18 @@ if [ -z "${JAVAONLY}" ] ; then
     for TOMLDIR in android cpp java ; do
         TOMLFILE="${TOMLDIR}/Cargo.toml"
         # Edit the file.
-        sed -i "${VERIFY}" -e 's/^version = ".*"$/version = "'"${VERS}"'"/' "${TOMLFILE}"
+        sed -i"${VERIFY}" -e 's/^version = ".*"$/version = "'"${VERS}"'"/' "${TOMLFILE}"
         EDITEDFILES="${EDITEDFILES} ${TOMLFILE}"
     done
 fi
 
-sed -i "${VERIFY}" -e 's/^VERSION_NAME=.*/VERSION_NAME='"${VERS}"'/' android/gradle.properties
+sed -i"${VERIFY}" -e 's/^VERSION_NAME=.*/VERSION_NAME='"${VERS}"'/' android/gradle.properties
 EDITEDFILES="${EDITEDFILES} android/gradle.properties"
 
-sed -i "${VERIFY}" -e 's/com.ironcorelabs:ironoxide-android:.*@aar/com.ironcorelabs:ironoxide-android:'"${VERS}"'@aar/' android/examples/Example_Application/app/build.gradle
+sed -i"${VERIFY}" -e 's/com.ironcorelabs:ironoxide-android:.*@aar/com.ironcorelabs:ironoxide-android:'"${VERS}"'@aar/' android/examples/Example_Application/app/build.gradle
 EDITEDFILES="${EDITEDFILES} android/examples/Example_Application/app/build.gradle"
 
-sed -i "${VERIFY}" -e 's/^version in ThisBuild := ".*"$/version in ThisBuild := "'"${VERS}"'"/' java/tests/version.sbt
+sed -i"${VERIFY}" -e 's/^version in ThisBuild := ".*"$/version in ThisBuild := "'"${VERS}"'"/' java/tests/version.sbt
 EDITEDFILES="${EDITEDFILES} java/tests/version.sbt"
 
 for FILE in ${EDITEDFILES} ; do
