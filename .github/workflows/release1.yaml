@@ -25,7 +25,7 @@ jobs:
         token: ${{ secrets.DEPLOYMENT_TOKEN }}
     - name: Switch to branch
       run: |
-        BRANCH=$(git show -s --pretty=%d HEAD | awk '{print $NF}' | sed 's/\)$//')
+        BRANCH=$(git show -s --pretty=%d HEAD | awk '{print $NF}' | sed 's/)$//')
         git checkout ${BRANCH}
     - name: Configure git
       run: |
