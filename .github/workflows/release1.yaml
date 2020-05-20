@@ -26,6 +26,7 @@ jobs:
     - name: Switch to branch
       run: |
         BRANCH=$(git show -s --pretty=%d HEAD | awk '{print $NF}' | sed 's/)$//')
+        echo "Switching to ${BRANCH}"
         git checkout ${BRANCH}
     - name: Configure git
       run: |
