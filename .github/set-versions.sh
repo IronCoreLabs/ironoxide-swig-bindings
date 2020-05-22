@@ -26,6 +26,7 @@ fi
 VERS="$1"
 
 TEMPFILE=$(mktemp)
+# shellcheck disable=SC2064
 trap "rm -f ${TEMPFILE}" EXIT
 
 # Only edit these files if "-j" wasn't given.
@@ -54,8 +55,9 @@ for FILE in ${EDITEDFILES} ; do
     git diff --cached "${FILE}"
     # Verify that we've changed exactly one line.
     git diff --cached --numstat "${FILE}" > "${TEMPFILE}"
-    read ADDED REMOVED FILENAME < "${TEMPFILE}"
-    if [ "${ADDED}" -ne 1 -o "${REMOVED}" -ne 1 ] ; then
+    # shellcheck disable=SC2034
+    read -r ADDED REMOVED FILENAME < "${TEMPFILE}"
+    if [ "${ADDED}" -ne 1 ] || [ "${REMOVED}" -ne 1 ] ; then
         echo "Changes to ${FILE} must be exactly one line; aborting." >&2
         exit 1
     fi
