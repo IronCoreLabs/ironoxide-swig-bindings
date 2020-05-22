@@ -1,7 +1,6 @@
 # Release process
 
-1. Create and push a tag starting with `release-v`, like `release-v0.13.0`.
-
-That's it. It'll cause `.github/workflows/release1.yaml` to run, which will set the version in various files and then create an
-empty release. That causes `.github/workflows/release2.yaml` to run, which builds the release files and uploads them to the GitHub
-release and other places like Maven Central.
+1. Create and push a new branch starting with `release-v`, like `release-v0.13.0`.
+1. The `release1.yaml` workflow will set the version (e.g., `0.13.0`) in various files and create a new PR for the release.
+1. CI will run on the PR. Then it can either be approved and merged, or closed.
+1. Merging the PR will cause `release2.yaml` to run, which builds and publishes the release.
