@@ -1,33 +1,25 @@
 name: Start release
 
 # There are a lot of builds for different languages that all need to agree on what the version is. To start a release, somebody
-# pushes a tag starting with "release-". This workflow will then:
+# pushes a branch starting with "release-v". This workflow will then:
 # - Edit all the files that need to know the name of the release.
 # - Commit those files.
-# - Make a new tag for the release. (The tag name will take the current tag and strip the "release-" from the start.)
-# - Edit the files again to advance Java-related versions to *-SNAPSHOT.
-# - Commit those files again.
-# - Push the new tag.
-# - Delete the current tag.
-# - Create a release on GitHub. That triggers another workflow to build the release and upload its artifacts.
+# - Make a new PR for the release.
+# - Add a comment to the PR explaining what's going on.
+# When the release PR is merged, it triggers the second release workflow.
 
-on:
-  push:
-    tags:
-    - release-*
+on: create
 
 jobs:
   kickoff:
+    if: github.event.ref_type == 'branch' && startsWith(github.event.ref, 'release-')
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
       with:
+        # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The DEPLOYMENT_TOKEN is a personal
+        # access token with "repo" permissions.
         token: ${{ secrets.DEPLOYMENT_TOKEN }}
-    - name: Switch to branch
-      run: |
-        BRANCH=$(git show -s --pretty=%d HEAD | awk '{print $NF}' | sed 's/)$//')
-        echo "Switching to ${BRANCH}"
-        git checkout ${BRANCH}
     - name: Configure git
       run: |
         git config --local user.email ops@ironcorelabs.com
@@ -35,39 +27,32 @@ jobs:
     - uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
-    - name: Set tag
-      id: tag
+    - name: Calculate versions from github.ref
+      id: version
       run: |
         CURRENT=$(basename ${{ github.ref }})
         NAME=$(echo ${CURRENT} | sed 's/release-//')
-        NUMBER=$(echo ${NAME} | sed 's/[^0-9.]//')
-        NEXT=$(echo ${NUMBER} | awk -F. -v OFS=. '{$NF++;print}')
-        echo "::set-output name=current::${CURRENT}"
+        NUMBER=$(echo ${NAME} | sed -E -e 's/[^0-9.]+/./g' -e 's/\.+/./g' -e 's/^\.//' -e 's/\.$//')
         echo "::set-output name=tag::${NAME}"
         echo "::set-output name=dewey::${NUMBER}"
-        echo "::set-output name=next::${NEXT}"
     - name: Edit files for release
-      run: .github/set-versions.sh ${{ steps.tag.outputs.dewey }}
+      run: .github/set-versions.sh ${{ steps.version.outputs.dewey }}
     - uses: actions-rs/cargo@v1
       name: Update Cargo.lock
       with:
         command: update
         args: -p ironoxide-android -p ironoxide-cpp -p ironoxide-java
     - run: git add Cargo.lock
-    - run: git commit -m "Setting version to ${{ steps.tag.outputs.tag }}"
-    - run: git tag -a -m "Releasing ${{ steps.tag.outputs.tag }}" ${{ steps.tag.outputs.tag }}
-    - name: Edit files for next snapshot
-      run: .github/set-versions.sh -j ${{ steps.tag.outputs.next }}-SNAPSHOT
-    - run: git commit -m "Setting java version to ${{ steps.tag.outputs.next }}"
-    - name: Push git changes
+    - run: git commit -m "Setting version to ${{ steps.version.outputs.tag }}"
+    - run: git push
+    - name: Create PR
       run: |
-        git push origin ${{ steps.tag.outputs.tag }}
-        git push
-        git push origin ${{ steps.tag.outputs.current }} --delete
-    - uses: actions/create-release@v1
-      id: release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Version ${{ github.ref }}
+        curl --silent --show-error --fail -X POST \
+          -H "Authorization: token ${{ github.token }}" \
+          -H "Content-Type: application/json" \
+          --data '{"title": "Release ${{ steps.version.outputs.tag }}",
+            "head": "${{ github.ref }}",
+            "base": "${{ github.event.master_branch }}",
+            "body": "The release will be built when this PR is merged. Or close the PR to abort the release process."
+            }' \
+          https://api.github.com/repos/${{ github.repository }}/pulls

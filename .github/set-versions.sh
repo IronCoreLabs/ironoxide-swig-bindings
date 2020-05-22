@@ -52,7 +52,7 @@ for FILE in ${EDITEDFILES} ; do
     git add "${FILE}"
     # Show the user the diff of what's changed.
     git diff --cached "${FILE}"
-    # Verify that we've only changed one line.
+    # Verify that we've changed exactly one line.
     git diff --cached --numstat "${FILE}" > "${TEMPFILE}"
     read ADDED REMOVED FILENAME < "${TEMPFILE}"
     if [ "${ADDED}" -ne 1 -o "${REMOVED}" -ne 1 ] ; then
