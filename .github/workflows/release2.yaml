@@ -32,8 +32,8 @@ jobs:
       run: gpg --batch --import .github/signing-key.asc
     - name: Configure git
       run: |
-        git config --local user.email bot@cjones.org
-        git config --local user.name "Row Bot"
+        git config --local user.email ops@ironcorelabs.com
+        git config --local user.name "Leeroy Travis"
     - name: Calculate versions from head_ref
       id: version
       run: |
@@ -331,7 +331,7 @@ jobs:
         toolchain: stable
     - uses: actions/setup-java@v1
       with:
-        java-version: 8
+        java-version: 11
     - name: Install llvm (ubuntu)
       if: matrix.target == 'ubuntu-18.04'
       run: sudo apt-get update && sudo apt-get install -y llvm
