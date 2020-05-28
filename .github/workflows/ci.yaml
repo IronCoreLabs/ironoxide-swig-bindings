@@ -7,6 +7,14 @@ on:
   pull_request:
 
 jobs:
+  validate:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Validate version files
+      # Make sure we still know how to edit the version files. (But discard the changes.)
+      run: .github/set-versions.sh -n 0.0.1
+
   java-test:
     strategy:
       matrix:
@@ -191,12 +199,3 @@ jobs:
           cmake .
           make
           ./cpp-tests
-
-  security:
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: Rust security audit
-        uses: actions-rs/audit-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,16 +1,7 @@
-1. Set the version name. The following files need to be updated:
-    - `android/Cargo.toml`
-    - `android/examples/example-instructions.md`
-    - `android/gradle.properties`
-    - `java/Cargo.toml`
-    - `java/tests/version.sbt`
-1. Use `sbt` to release the jar file.
-    1. Make sure you have a sonatype account with write access to com.ironcorelabs. You'll need to type your username/password,
-        unless they're in your global SBT configuration.
-    1. Make sure you have the private key for the PGP account used to sign these releases, `E84BBF42`. You'll need the
-        passphrase to unlock this keychain.
-    1. Make sure you have push access to this GitHub repository, because sbt will commit changes and push them to origin.
-    1. `sbt release` Sbt will build the Rust lib and Java bindings, then push the jar to Maven Central. Then it will create a new
-        tag and push that to GitHub.
-1. The new tag will cause GitHub Actions to run a release workflow, which will build the Rust lib and Android aar. The Rust lib
-    will be uploaded to a GitHub release, and the aar will be uploaded to Maven Central.
+# Release process
+
+1. Create and push a new branch starting with `release-v`, like `release-v0.13.0`.
+1. The `release1.yaml` workflow will set the version (e.g., `0.13.0`) in various files and create a new PR for the release.
+1. CI will run on the PR. Then it can either be approved and merged, or closed.
+1. Merging the PR will cause `release2.yaml` to run, which builds and publishes the release.
+1. After publishing the release, it increments Java-related versions to the next `-SNAPSHOT` release.

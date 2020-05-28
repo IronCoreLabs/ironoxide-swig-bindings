@@ -12,7 +12,7 @@ pomIncludeRepository := { _ => false }
 
 useGpg := true
 
-usePgpKeyHex("E84BBF42")
+usePgpKeyHex("62F57B1B")
 
 pomExtra := (
     <scm>
@@ -44,15 +44,8 @@ import ReleaseTransformations._
 
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
-  inquireVersions,
   runClean,
   runTest,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
   ReleaseStep(action = Command.process("publishSigned", _), enableCrossBuild = true),
-  setNextVersion,
-  commitNextVersion,
   ReleaseStep(action = Command.process("sonatypeReleaseAll", _), enableCrossBuild = true),
-  pushChanges
 )

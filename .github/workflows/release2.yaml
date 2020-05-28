@@ -1,25 +1,28 @@
-name: release
+name: Build release
+
+# This is triggered by merging a PR from a branch named release-*. This workflow builds and publishes the release. Then it changes
+# the version to *-SNAPSHOT in various Java-related files.
 
 on:
-  push:
-    tags:
-    - '*'
+  pull_request:
+    types:
+    - closed
 
 jobs:
   release:
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-18.04
     needs:
       - build
       - android
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/create-release@v1
-      id: release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Version ${{ github.ref }}
+        # base_ref will typically be master. We'll need to commit a change to that branch and push it.
+        ref: ${{ github.base_ref }}
+        # If we use the default GITHUB_TOKEN then CI won't run after we push our changes. This DEPLOYMENT_TOKEN is a personal access
+        # token with "repo" permissions.
+        token: ${{ secrets.DEPLOYMENT_TOKEN }}
     - name: Decrypt PGP key
       uses: IronCoreLabs/ironhide-actions/decrypt@v1
       with:
@@ -27,6 +30,30 @@ jobs:
         input: .github/signing-key.asc.iron
     - name: Import PGP key
       run: gpg --batch --import .github/signing-key.asc
+    - name: Configure git
+      run: |
+        git config --local user.email ops@ironcorelabs.com
+        git config --local user.name "Leeroy Travis"
+    - name: Calculate versions from head_ref
+      id: version
+      run: |
+        CURRENT=$(basename ${{ github.head_ref }})
+        NAME=$(echo ${CURRENT} | sed 's/release-//')
+        NUMBER=$(echo ${NAME} | sed -E -e 's/[^0-9.]+/./g' -e 's/\.+/./g' -e 's/^\.//' -e 's/\.$//')
+        NEXT=$(echo ${NUMBER} | awk -F. -v OFS=. '{$NF++;print}')
+        echo "::set-output name=tag::${NAME}"
+        echo "::set-output name=next::${NEXT}"
+    - name: Create release tag
+      run: |
+        git tag ${{ steps.version.outputs.tag }}
+        git push origin ${{ steps.version.outputs.tag }}
+    - uses: actions/create-release@v1
+      id: release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.tag }}
+        release_name: Version ${{ steps.version.outputs.tag }}
 
     - name: Download release artifacts from ubuntu-18.04
       uses: actions/download-artifact@v1
@@ -168,7 +195,13 @@ jobs:
         asset_name: ironoxide-android-release.aar.asc
         asset_content_type: application/pgp-signature
 
+    - name: Increment to next -SNAPSHOT version for Java.
+      run: .github/set-versions.sh -j ${{ steps.version.outputs.next }}-SNAPSHOT
+    - run: git commit -m "Set next -SNAPSHOT version for Java."
+    - run: git push
+
   build:
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
         target: [ ubuntu-18.04, macos-10.15, centos7, centos8 ]
@@ -241,6 +274,7 @@ jobs:
         path: target/release/libironoxide_java.dylib
 
   android:
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
@@ -279,3 +313,30 @@ jobs:
     - name: Upload AAR to Maven Central
       run: ./gradlew uploadArchives
       working-directory: android
+
+  java:
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Decrypt PGP key
+      uses: IronCoreLabs/ironhide-actions/decrypt@v1
+      with:
+        keys: ${{ secrets.IRONHIDE_KEYS }}
+        input: .github/signing-key.asc.iron
+    - name: Import PGP key
+      run: gpg --batch --import .github/signing-key.asc
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Install llvm (ubuntu)
+      if: matrix.target == 'ubuntu-18.04'
+      run: sudo apt-get update && sudo apt-get install -y llvm
+    - name: Cargo build
+      run: cargo build -p ironoxide-java
+    - name: Java release
+      run: sbt release
+      working-directory: java/tests
