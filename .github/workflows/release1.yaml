@@ -37,11 +37,8 @@ jobs:
         echo "::set-output name=dewey::${NUMBER}"
     - name: Edit files for release
       run: .github/set-versions.sh ${{ steps.version.outputs.dewey }}
-    - uses: actions-rs/cargo@v1
-      name: Update Cargo.lock
-      with:
-        command: update
-        args: -p ironoxide-android -p ironoxide-cpp -p ironoxide-java
+    - name: Update Cargo.lock
+      run: cargo update -p ironoxide-android -p ironoxide-cpp -p ironoxide-java
     - run: git add Cargo.lock
     - run: git commit -m "Setting version to ${{ steps.version.outputs.tag }}"
     - run: git push
