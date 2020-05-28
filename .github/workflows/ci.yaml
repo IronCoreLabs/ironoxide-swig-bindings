@@ -12,6 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Validate version files
+      # Make sure we still know how to edit the version files. (But discard the changes.)
       run: .github/set-versions.sh -n 0.0.1
 
   java-test:

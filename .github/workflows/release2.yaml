@@ -9,8 +9,8 @@ on:
     - closed
 
 jobs:
-  github-upload:
-    if: github.event.pull_request.merged
+  release:
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-18.04
     needs:
       - build
@@ -201,7 +201,7 @@ jobs:
     - run: git push
 
   build:
-    if: github.event.pull_request.merged
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
         target: [ ubuntu-18.04, macos-10.15, centos7, centos8 ]
@@ -274,7 +274,7 @@ jobs:
         path: target/release/libironoxide_java.dylib
 
   android:
-    if: github.event.pull_request.merged
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
@@ -315,7 +315,7 @@ jobs:
       working-directory: android
 
   java:
-    if: github.event.pull_request.merged
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
