@@ -9,7 +9,7 @@ class SearchTests extends TestSuite {
       val searchQuery = "ironcore labs"
       val groupId = Try(primarySdk.groupCreate(new GroupCreateOpts)).toEither.value.getId
       val ebis = Try(primarySdk.createBlindIndex(groupId)).toEither.value
-      val bis = Try(primarySdk.initializeSearch(ebis)).toEither.value
+      val bis = Try(primarySdk.initializeBlindIndexSearch(ebis)).toEither.value
       val queryTokens = Try(bis.tokenizeQuery(searchQuery, "")).toEither.value
       val dataTokens = Try(bis.tokenizeData(searchQuery, "")).toEither.value
       queryTokens.length shouldBe 8
@@ -20,7 +20,7 @@ class SearchTests extends TestSuite {
       val searchQuery = "ironcore labs"
       val groupId = Try(primarySdk.groupCreate(new GroupCreateOpts)).toEither.value.getId
       val ebis = Try(primarySdk.createBlindIndex(groupId)).toEither.value
-      val bis = Try(primarySdk.initializeSearch(ebis)).toEither.value
+      val bis = Try(primarySdk.initializeBlindIndexSearch(ebis)).toEither.value
       val queryTokens = Try(bis.tokenizeQuery(searchQuery, "")).toEither.value
       val queryTokens2 = Try(bis.tokenizeQuery(searchQuery, "foo")).toEither.value
       queryTokens.length shouldBe 8
