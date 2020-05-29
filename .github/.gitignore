@@ -1,2 +1,3 @@
 auth.properties
 signing-key.asc
+sonatype.sbt
