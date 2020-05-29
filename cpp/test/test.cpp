@@ -1,24 +1,8 @@
 #include "acutest.h"
-#include "UserId.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <random>
-#include "UserId_impl.hpp"
-#include "DocumentListMeta.hpp"
-#include "DocumentMetadataResult.hpp"
-#include "IronOxide_fwd.hpp"
-#include "IronOxide_impl.hpp"
-#include "DeviceContext_impl.hpp"
-#include "DocumentEncryptResult_impl.hpp"
-#include "DocumentDecryptResult_impl.hpp"
-#include "GroupCreateOpts_impl.hpp"
-#include "GroupCreateResult_impl.hpp"
-#include "GroupUserList_impl.hpp"
-#include "GroupId_impl.hpp"
-#include "GroupName_impl.hpp"
-#include "GroupListResult_impl.hpp"
-#include "DocumentId_impl.hpp"
-#include "NullableBoolean_impl.hpp"
+#include "IronOxide.hpp"
 using namespace sdk;
 
 template <class T>

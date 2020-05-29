@@ -1164,9 +1164,9 @@ mod encrypted_blind_index_salt {
     pub fn encrypted_salt_bytes(ebis: &EncryptedBlindIndexSalt) -> Vec<i8> {
         u8_conv(&ebis.encrypted_salt_bytes).to_vec()
     }
-    pub fn initialize_search(
-        ebis: &EncryptedBlindIndexSalt,
+    pub fn initialize_blind_index_search(
         ironoxide: &IronOxide,
+        ebis: &EncryptedBlindIndexSalt,
     ) -> Result<BlindIndexSearch, String> {
         Ok(ebis.initialize_search_blocking(ironoxide)?)
     }
