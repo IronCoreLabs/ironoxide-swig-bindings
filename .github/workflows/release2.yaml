@@ -15,6 +15,7 @@ jobs:
     needs:
       - build
       - android
+      - java
     steps:
     - uses: actions/checkout@v2
       with:
@@ -337,6 +338,15 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y llvm
     - name: Cargo build
       run: cargo build -p ironoxide-java
+    - name: Decrypt sonatype auth
+      uses: IronCoreLabs/ironhide-actions/decrypt@v1
+      with:
+        keys: ${{ secrets.IRONHIDE_KEYS }}
+        input: .github/sonatype.sbt.iron
+    - name: Install sonatype auth
+      run: |
+        mkdir -p ~/.sbt/1.0
+        cp .github/sonatype.sbt ~/.sbt/1.0/sonatype.sbt
     - name: Java release
       run: sbt release
       working-directory: java/tests
