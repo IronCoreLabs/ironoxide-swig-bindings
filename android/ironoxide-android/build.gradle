@@ -105,99 +105,10 @@ publishing {
 }
 
 signing {
+    // Only sign artifacts if we can upload them.
+    required { NEXUS_USERNAME != "" }
     sign publishing.publications.mavenJava
 }
-
-//
-//uploadArchives {
-//    repositories {
-//        mavenDeployer {
-//            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-//
-//            pom.groupId = 'com.ironcorelabs'
-//            pom.artifactId = 'ironoxide-android'
-//            pom.version = VERSION_NAME
-//
-//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-//                authentication(userName: NEXUS_USERNAME,
-//                               password: NEXUS_PASSWORD)
-//            }
-//            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-//                authentication(userName: NEXUS_USERNAME,
-//                               password: NEXUS_PASSWORD)
-//            }
-//
-//            pom.project {
-//                name 'ironoxide-android'
-//                packaging 'aar'
-//                description 'Android library for IronOxide transform encryption'
-//                url 'https://github.com/IronCoreLabs/ironoxide-java'
-//
-//                scm {
-//                    url 'https://github.com/IronCoreLabs/ironoxide-java'
-//                    connection 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
-//                    developerConnection 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
-//                }
-//
-//                licenses {
-//                    license {
-//                        name 'AGPL-3.0'
-//                        url 'https://www.gnu.org/licenses/agpl-3.0.txt'
-//                        distribution 'repo'
-//                    }
-//                }
-//
-//                developers {
-//                    developer {
-//                        id 'bobwall23'
-//                        name 'Bob Wall'
-//                        url 'https://github.com/bobwall23'
-//                    }
-//                    developer {
-//                        id 'clintfred'
-//                        name 'Clint Frederickson'
-//                        url 'https://github.com/clintfred'
-//                    }
-//                    developer {
-//                        id 'coltfred'
-//                        name 'Colt Frederickson'
-//                        url 'https://github.com/coltfred'
-//                    }
-//                    developer {
-//                        id 'ernieturner'
-//                        name 'Ernie Turner'
-//                        url 'https://github.com/ernieturner'
-//                    }
-//                    developer {
-//                        id 'giarc3'
-//                        name 'Craig Colegrove'
-//                        url 'https://github.com/giarc3'
-//                    }
-//                    developer {
-//                        id 'skeet70'
-//                        name 'Murph Murphy'
-//                        url 'https://github.com/skeet70'
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//signing {
-//    // Only sign artifacts if we can upload them.
-//    required { NEXUS_USERNAME != "" }
-//    sign configurations.archives
-//}
-//
-//task androidSourcesJar(type: Jar) {
-//    classifier = 'sources'
-//    from android.sourceSets.main.java.sourceFiles
-//}
-//
-//artifacts {
-//    archives androidSourcesJar
-//}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
