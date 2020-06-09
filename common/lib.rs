@@ -1,9 +1,7 @@
 #[cfg(feature = "java")]
 mod jni_c_header;
 
-use ironoxide::{
-    blocking::BlockingIronOxide as IronOxide, prelude::*,
-};
+use ironoxide::{blocking::BlockingIronOxide as IronOxide, prelude::*};
 use std::{
     collections::hash_map::DefaultHasher,
     convert::TryInto,
