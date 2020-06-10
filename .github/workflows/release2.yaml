@@ -371,8 +371,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Get Cmake
-        uses: lukka/get-cmake@latest
       - name: Setup iOS build
         run: |
           rustup target add x86_64-apple-ios aarch64-apple-ios
