@@ -36,47 +36,27 @@ jobs:
       COURSIER_CACHE: /tmp/.cache/coursier/v1
     steps:
       - uses: actions/checkout@v2
-      # Work around https://github.com/actions/cache/issues/133#issuecomment-599102035
-      - name: Fix perms on .cargo so we can restore the cache.
-        run: |
-          if [ -e ~/.cargo ] ; then
-            if [ -e "$(which sudo)" ] ; then
-              SUDO=$(which sudo)
-            fi
-            ${SUDO} chown -R $(whoami):$(id -ng) ~/.cargo/
-          fi
       - name: Restore rust cache
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
-          key: ${{ github.workflow }}-rust-${{ matrix.target }}-${{ hashFiles('Cargo.lock') }}
+          key: rust-${{ matrix.target }}-${{ hashFiles('**/Cargo.*') }}
           restore-keys: |
-            ${{ github.workflow }}-rust-${{ matrix.target }}-
-          path: ~/.cargo
-      - name: Restore coursier cache
-        uses: actions/cache@v1
+            rust-${{ matrix.target }}-
+          path: |
+            ~/.cargo
+            target
+      - name: Restore Scala caches
+        uses: actions/cache@v2
         with:
-          key: ${{ github.workflow }}-coursier-${{ hashFiles('java/tests/*.sbt') }}
+          key: scala-${{ hashFiles('java/tests/*.sbt') }}
           restore-keys: |
-            ${{ github.workflow }}-coursier-
-          path: /tmp/.cache/coursier
-      - name: Restore sbt cache
-        uses: actions/cache@v1
-        with:
-          key: ${{ github.workflow }}-sbt-${{ hashFiles('java/tests/*.sbt') }}
-          restore-keys: |
-            ${{ github.workflow }}-sbt-
-          path: ~/.sbt
-      - uses: actions/setup-java@v1
+            coursier-
+          path: |
+            /tmp/.cache/coursier
+            ~/.sbt
+      - uses: olafurpg/setup-scala@v7
         with:
           java-version: 11
-      - name: Install sbt
-        # The setup-java action should do this, but it doesn't on MacOS.
-        # https://github.com/actions/setup-java/issues/50
-        if: matrix.target != 'ubuntu-18.04'
-        run: |
-          curl -Ls https://git.io/sbt > sbt
-          chmod +x sbt
-          mv sbt /usr/local/bin/sbt || sudo mv sbt /usr/local/bin/sbt
       - name: Set up centos
         if: matrix.image != ''
         run: |
@@ -120,6 +100,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Restore rust cache
+        uses: actions/cache@v2
+        with:
+          key: rust-${{ matrix.arch }}-${{ hashFiles('**/Cargo.*') }}
+          restore-keys: |
+            rust-${{ matrix.arch }}-
+          path: |
+            ~/.cargo
+            target
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -148,6 +137,7 @@ jobs:
   #   - api-level 30 is stabilized, as that allows x86_64 to run arm64-v8a
   android-test:
     needs: android-build
+    # reactivecircus/android-emulator-runner@v2 only works on Mac.
     runs-on: macos-10.15
     strategy:
       matrix:
@@ -175,17 +165,20 @@ jobs:
   cpp-build:
     strategy:
       matrix:
-        target: [ubuntu-18.04, macos-10.15]
-        include:
-          - target: ubuntu-18.04
-            host: ubuntu-18.04
-          - target: macos-10.15
-            host: macos-10.15
-    runs-on: ${{ matrix.host }}
-    container: ${{ matrix.image }}
+        os: [ubuntu-18.04, macos-10.15]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Restore rust cache
+        uses: actions/cache@v2
+        with:
+          key: rust-${{ matrix.os }}-${{ hashFiles('**/Cargo.*') }}
+          restore-keys: |
+            rust-${{ matrix.os }}-
+          path: |
+            ~/.cargo
+            target
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
