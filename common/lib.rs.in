@@ -730,7 +730,6 @@ class EncryptedBlindIndexSalt {
     constructor encrypted_blind_index_salt::create(encrypted_deks: &[i8], encrypted_salt_bytes: &[i8]) -> EncryptedBlindIndexSalt;
     method encrypted_blind_index_salt::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks;
     method encrypted_blind_index_salt::encrypted_salt_bytes(&self) -> Vec<i8>; alias getEncryptedSaltBytes;
-    method encrypted_blind_index_salt::initialize_search(&self, ironoxide: &IronOxide) -> Result<BlindIndexSearch, String>; alias initializeSearch;
     pre_build_generate_equals_and_hashcode EncryptedBlindIndexSalt;
 });
 
@@ -963,4 +962,6 @@ class IronOxide {
     ///
     /// @param groupId group to encrypt to
     method create_blind_index(&self, groupId: &GroupId) -> Result<EncryptedBlindIndexSalt, String>; alias createBlindIndex;
+    method encrypted_blind_index_salt::initialize_blind_index_search(&self, encrypted_salt: &EncryptedBlindIndexSalt) -> Result<BlindIndexSearch, String>; alias initializeBlindIndexSearch;
+
 });
