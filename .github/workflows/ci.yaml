@@ -192,9 +192,11 @@ jobs:
           cmake .
           make
           ./cpp-tests
-      - name: Build for iOS
+      - name: Setup iOS build
         if: matrix.os == 'macos-10.15'
         run: |
-          rustup target add x86_64-apple-ios
+          rustup target add x86_64-apple-ios aarch64-apple-ios
           cargo install cargo-lipo
-          cargo lipo --release -p ironoxide-cpp
+      - name: Build for iOS
+        if: matrix.os == 'macos-10.15'
+        run: cargo lipo --release -p ironoxide-cpp
