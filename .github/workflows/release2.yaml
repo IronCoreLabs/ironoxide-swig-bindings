@@ -204,16 +204,16 @@ jobs:
         path: release/release-iOS
     - name: Sign artifact for release-iOS
       run: |
-        gpg --batch --detach-sign -a release/release-iOS/ironoxide-ios.tar.gz
-        gpg --batch --verify release/release-iOS/ironoxide-ios.tar.gz.asc release/release-iOS/ironoxide-ios.tar.gz
+        gpg --batch --detach-sign -a release/release-iOS/ironoxide-homebrew.tar.gz
+        gpg --batch --verify release/release-iOS/ironoxide-homebrew.tar.gz.asc release/release-iOS/ironoxide-homebrew.tar.gz
     - name: Upload aar for release-iOS
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/release-iOS/ironoxide-ios.tar.gz
-        asset_name: ironoxide-ios.tar.gz
+        asset_path: release/release-iOS/ironoxide-homebrew.tar.gz
+        asset_name: ironoxide-homebrew.tar.gz
         asset_content_type: application/data
     - name: Upload signature for release-iOS
       uses: actions/upload-release-asset@v1
@@ -221,8 +221,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/release-iOS/ironoxide-ios.tar.gz.asc
-        asset_name: ironoxide-ios.tar.gz.asc
+        asset_path: release/release-iOS/ironoxide-homebrew.tar.gz.asc
+        asset_name: ironoxide-homebrew.tar.gz.asc
         asset_content_type: application/pgp-signature
 
     - name: Increment to next -SNAPSHOT version for Java.
@@ -390,12 +390,12 @@ jobs:
       - name: Build iOS tar
         run: |
           ( cd cpp/generated && mv sdk headers )
-          tar -c -f ironoxide-ios.tar -C cpp/generated headers
-          tar -r -f ironoxide-ios.tar -C cpp ironoxide.pc.in
-          tar -r -f ironoxide-ios.tar -C target/universal/release libironoxide.a
-          gzip ironoxide-ios.tar
+          tar -c -f ironoxide-homebrew.tar -C cpp/generated headers
+          tar -r -f ironoxide-homebrew.tar -C cpp ironoxide.pc.in
+          tar -r -f ironoxide-homebrew.tar -C target/universal/release libironoxide.a
+          gzip ironoxide-homebrew.tar
       - name: Upload iOS artifact
         uses: actions/upload-artifact@v1
         with:
           name: release-iOS
-          path: ironoxide-ios.tar.gz
+          path: ironoxide-homebrew.tar.gz
