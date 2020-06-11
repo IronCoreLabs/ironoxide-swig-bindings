@@ -6,7 +6,7 @@ name: Build release
 on:
   pull_request:
     types:
-    - closed
+      - closed
 
 jobs:
   release:
@@ -17,336 +17,255 @@ jobs:
       - android
       - java
     steps:
-    - uses: actions/checkout@v2
-      with:
-        # base_ref will typically be master. We'll need to commit a change to that branch and push it.
-        ref: ${{ github.base_ref }}
-        # If we use the default GITHUB_TOKEN then CI won't run after we push our changes. This DEPLOYMENT_TOKEN is a personal access
-        # token with "repo" permissions.
-        token: ${{ secrets.DEPLOYMENT_TOKEN }}
-    - name: Decrypt PGP key
-      uses: IronCoreLabs/ironhide-actions/decrypt@v1
-      with:
-        keys: ${{ secrets.IRONHIDE_KEYS }}
-        input: .github/signing-key.asc.iron
-    - name: Import PGP key
-      run: gpg --batch --import .github/signing-key.asc
-    - name: Configure git
-      run: |
-        git config --local user.email ops@ironcorelabs.com
-        git config --local user.name "Leeroy Travis"
-    - name: Calculate versions from head_ref
-      id: version
-      run: |
-        CURRENT=$(basename ${{ github.head_ref }})
-        NAME=$(echo ${CURRENT} | sed 's/release-//')
-        NUMBER=$(echo ${NAME} | sed -E -e 's/[^0-9.]+/./g' -e 's/\.+/./g' -e 's/^\.//' -e 's/\.$//')
-        NEXT=$(echo ${NUMBER} | awk -F. -v OFS=. '{$NF++;print}')
-        echo "::set-output name=tag::${NAME}"
-        echo "::set-output name=next::${NEXT}"
-    - name: Create release tag
-      run: |
-        git tag ${{ steps.version.outputs.tag }}
-        git push origin ${{ steps.version.outputs.tag }}
-    - uses: actions/create-release@v1
-      id: release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.version.outputs.tag }}
-        release_name: Version ${{ steps.version.outputs.tag }}
+      - uses: actions/checkout@v2
+        with:
+          # base_ref will typically be master. We'll need to commit a change to that branch and push it.
+          ref: ${{ github.base_ref }}
+          # If we use the default GITHUB_TOKEN then CI won't run after we push our changes. This DEPLOYMENT_TOKEN is a personal access
+          # token with "repo" permissions.
+          token: ${{ secrets.DEPLOYMENT_TOKEN }}
+      - name: Decrypt PGP key
+        uses: IronCoreLabs/ironhide-actions/decrypt@v1
+        with:
+          keys: ${{ secrets.IRONHIDE_KEYS }}
+          input: .github/signing-key.asc.iron
+      - name: Import PGP key
+        run: gpg --batch --import .github/signing-key.asc
+      - name: Configure git
+        run: |
+          git config --local user.email ops@ironcorelabs.com
+          git config --local user.name "Leeroy Travis"
+      - name: Calculate versions from head_ref
+        id: version
+        run: |
+          CURRENT=$(basename ${{ github.head_ref }})
+          NAME=$(echo ${CURRENT} | sed 's/release-//')
+          NUMBER=$(echo ${NAME} | sed -E -e 's/[^0-9.]+/./g' -e 's/\.+/./g' -e 's/^\.//' -e 's/\.$//')
+          NEXT=$(echo ${NUMBER} | awk -F. -v OFS=. '{$NF++;print}')
+          echo "::set-output name=tag::${NAME}"
+          echo "::set-output name=next::${NEXT}"
+      - name: Create release tag
+        run: |
+          git tag ${{ steps.version.outputs.tag }}
+          git push origin ${{ steps.version.outputs.tag }}
+      - uses: actions/create-release@v1
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          release_name: Version ${{ steps.version.outputs.tag }}
 
-    - name: Download release artifacts from ubuntu-18.04
-      uses: actions/download-artifact@v1
-      with:
-        name: release-ubuntu-18.04
-        path: release/ubuntu-18.04
-    - name: Sign artifact for ubuntu-18.04
-      run: |
-        gpg --batch --detach-sign -a release/ubuntu-18.04/libironoxide_java.so
-        gpg --batch --verify release/ubuntu-18.04/libironoxide_java.so.asc release/ubuntu-18.04/libironoxide_java.so
-    - name: Upload lib for ubuntu-18.04
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/ubuntu-18.04/libironoxide_java.so
-        asset_name: libironoxide_java.so
-        asset_content_type: application/data
-    - name: Upload signature for ubuntu-18.04
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/ubuntu-18.04/libironoxide_java.so.asc
-        asset_name: libironoxide_java.so.asc
-        asset_content_type: application/pgp-signature
+      - name: Download release artifacts from ubuntu-18.04
+        uses: actions/download-artifact@v1
+        with:
+          name: release-ubuntu-18.04
+          path: release/ubuntu-18.04
+      - name: Sign artifact for ubuntu-18.04
+        run: |
+          gpg --batch --detach-sign -a release/ubuntu-18.04/libironoxide_java.so
+          gpg --batch --verify release/ubuntu-18.04/libironoxide_java.so.asc release/ubuntu-18.04/libironoxide_java.so
+      - name: Upload lib for ubuntu-18.04
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: release/ubuntu-18.04/libironoxide_java.so
+          asset_name: libironoxide_java.so
+          asset_content_type: application/data
+      - name: Upload signature for ubuntu-18.04
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: release/ubuntu-18.04/libironoxide_java.so.asc
+          asset_name: libironoxide_java.so.asc
+          asset_content_type: application/pgp-signature
 
-    - name: Download release artifacts from macos-10.15
-      uses: actions/download-artifact@v1
-      with:
-        name: release-macos-10.15
-        path: release/macos-10.15
-    - name: Sign artifact for macos-10.15
-      run: |
-        gpg --batch --detach-sign -a release/macos-10.15/libironoxide_java.dylib
-        gpg --batch --verify release/macos-10.15/libironoxide_java.dylib.asc release/macos-10.15/libironoxide_java.dylib
-    - name: Upload lib for macos-10.15
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/macos-10.15/libironoxide_java.dylib
-        asset_name: libironoxide_java.dylib
-        asset_content_type: application/data
-    - name: Upload signature for macos-10.15
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/macos-10.15/libironoxide_java.dylib.asc
-        asset_name: libironoxide_java.dylib.asc
-        asset_content_type: application/pgp-signature
+      - name: Download release artifacts from macos-10.15
+        uses: actions/download-artifact@v1
+        with:
+          name: release-macos-10.15
+          path: release/macos-10.15
+      - name: Sign artifact for macos-10.15
+        run: |
+          gpg --batch --detach-sign -a release/macos-10.15/libironoxide_java.dylib
+          gpg --batch --verify release/macos-10.15/libironoxide_java.dylib.asc release/macos-10.15/libironoxide_java.dylib
+      - name: Upload lib for macos-10.15
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: release/macos-10.15/libironoxide_java.dylib
+          asset_name: libironoxide_java.dylib
+          asset_content_type: application/data
+      - name: Upload signature for macos-10.15
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: release/macos-10.15/libironoxide_java.dylib.asc
+          asset_name: libironoxide_java.dylib.asc
+          asset_content_type: application/pgp-signature
 
-    - name: Download release artifacts from centos7
-      uses: actions/download-artifact@v1
-      with:
-        name: release-centos7
-        path: release/centos7
-    - name: Sign artifact for centos7
-      run: |
-        gpg --batch --detach-sign -a release/centos7/libironoxide_java-centos7.tar.gz
-        gpg --batch --verify release/centos7/libironoxide_java-centos7.tar.gz.asc release/centos7/libironoxide_java-centos7.tar.gz
-    - name: Upload lib for centos7
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/centos7/libironoxide_java-centos7.tar.gz
-        asset_name: libironoxide_java-centos7.tar.gz
-        asset_content_type: application/data
-    - name: Upload signature for centos7
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/centos7/libironoxide_java-centos7.tar.gz.asc
-        asset_name: libironoxide_java-centos7.tar.gz.asc
-        asset_content_type: application/pgp-signature
+      - name: Download release artifacts from android-release
+        uses: actions/download-artifact@v1
+        with:
+          name: android-release
+          path: release/android-release
+      - name: Sign artifact for android-release
+        run: |
+          gpg --batch --detach-sign -a release/android-release/ironoxide-android-release.aar
+          gpg --batch --verify release/android-release/ironoxide-android-release.aar.asc release/android-release/ironoxide-android-release.aar
+      - name: Upload aar for android-release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: release/android-release/ironoxide-android-release.aar
+          asset_name: ironoxide-android-release.aar
+          asset_content_type: application/data
+      - name: Upload signature for android-release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: release/android-release/ironoxide-android-release.aar.asc
+          asset_name: ironoxide-android-release.aar.asc
+          asset_content_type: application/pgp-signature
 
-    - name: Download release artifacts from centos8
-      uses: actions/download-artifact@v1
-      with:
-        name: release-centos8
-        path: release/centos8
-    - name: Sign artifact for centos8
-      run: |
-        gpg --batch --detach-sign -a release/centos8/libironoxide_java-centos8.tar.gz
-        gpg --batch --verify release/centos8/libironoxide_java-centos8.tar.gz.asc release/centos8/libironoxide_java-centos8.tar.gz
-    - name: Upload lib for centos8
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/centos8/libironoxide_java-centos8.tar.gz
-        asset_name: libironoxide_java-centos8.tar.gz
-        asset_content_type: application/data
-    - name: Upload signature for centos8
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/centos8/libironoxide_java-centos8.tar.gz.asc
-        asset_name: libironoxide_java-centos8.tar.gz.asc
-        asset_content_type: application/pgp-signature
-
-    - name: Download release artifacts from android-release
-      uses: actions/download-artifact@v1
-      with:
-        name: android-release
-        path: release/android-release
-    - name: Sign artifact for android-release
-      run: |
-        gpg --batch --detach-sign -a release/android-release/ironoxide-android-release.aar
-        gpg --batch --verify release/android-release/ironoxide-android-release.aar.asc release/android-release/ironoxide-android-release.aar
-    - name: Upload aar for android-release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/android-release/ironoxide-android-release.aar
-        asset_name: ironoxide-android-release.aar
-        asset_content_type: application/data
-    - name: Upload signature for android-release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: release/android-release/ironoxide-android-release.aar.asc
-        asset_name: ironoxide-android-release.aar.asc
-        asset_content_type: application/pgp-signature
-
-    - name: Increment to next -SNAPSHOT version for Java.
-      run: .github/set-versions.sh -j ${{ steps.version.outputs.next }}-SNAPSHOT
-    - run: git commit -m "Set next -SNAPSHOT version for Java."
-    - run: git push
+      - name: Increment to next -SNAPSHOT version for Java.
+        run: .github/set-versions.sh -j ${{ steps.version.outputs.next }}-SNAPSHOT
+      - run: git commit -m "Set next -SNAPSHOT version for Java."
+      - run: git push
 
   build:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
-        target: [ ubuntu-18.04, macos-10.15, centos7, centos8 ]
+        target: [ubuntu-18.04, macos-10.15]
         include:
-        - target: ubuntu-18.04
-          host: ubuntu-18.04
-        - target: macos-10.15
-          host: macos-10.15
-        - target: centos7
-          host: ubuntu-latest
-          image: centos:centos7
-        - target: centos8
-          host: ubuntu-latest
-          image: centos:centos8
+          - target: ubuntu-18.04
+            host: ubuntu-18.04
+          - target: macos-10.15
+            host: macos-10.15
     runs-on: ${{ matrix.host }}
-    container: ${{ matrix.image }}
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-java@v1
-      with:
-        java-version: 8
-    - name: Install sbt
-      # The setup-java action should do this, but it doesn't on MacOS.
-      # https://github.com/actions/setup-java/issues/50
-      if: ${{ matrix.target != 'ubuntu-18.04' }}
-      run: |
-        curl -Ls https://git.io/sbt > sbt
-        chmod +x sbt
-        mv sbt /usr/local/bin/sbt || sudo mv sbt /usr/local/bin/sbt
-    - name: Set up centos
-      if: matrix.image != ''
-      run: |
-        # Note that yum will fail if these are run in an order that makes more sense.
-        yum install -y clang llvm-devel openssl-devel
-        yum group install -y "Development Tools"
-    - name: Install llvm (ubuntu)
-      if: matrix.target == 'ubuntu-18.04'
-      run: sudo apt-get update && sudo apt-get install -y llvm
-    # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
-    - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-    - uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --release
-    - name: Package libs for centos
-      if: matrix.image != ''
-      working-directory: target/release
-      run: |
-        tar czf "libironoxide_java-${{ matrix.target }}.tar.gz" libironoxide_java.so
-        rm libironoxide_java.so
-    - name: Upload artifacts for centos
-      if: matrix.image != ''
-      uses: actions/upload-artifact@v1
-      with:
-        name: release-${{ matrix.target }}
-        path: target/release/libironoxide_java-${{ matrix.target }}.tar.gz
-    - name: Upload artifacts for ubuntu-18.04
-      if: matrix.target == 'ubuntu-18.04'
-      uses: actions/upload-artifact@v1
-      with:
-        name: release-ubuntu-18.04
-        path: target/release/libironoxide_java.so
-    - name: Upload artifacts for macos-10.15
-      if: matrix.target == 'macos-10.15'
-      uses: actions/upload-artifact@v1
-      with:
-        name: release-macos-10.15
-        path: target/release/libironoxide_java.dylib
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Install sbt
+        # The setup-java action should do this, but it doesn't on MacOS.
+        # https://github.com/actions/setup-java/issues/50
+        if: ${{ matrix.target != 'ubuntu-18.04' }}
+        run: |
+          curl -Ls https://git.io/sbt > sbt
+          chmod +x sbt
+          mv sbt /usr/local/bin/sbt || sudo mv sbt /usr/local/bin/sbt
+      - name: Install llvm (ubuntu)
+        if: matrix.target == 'ubuntu-18.04'
+        run: sudo apt-get update && sudo apt-get install -y llvm
+      # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+      - name: Upload artifacts for ubuntu-18.04
+        if: matrix.target == 'ubuntu-18.04'
+        uses: actions/upload-artifact@v1
+        with:
+          name: release-ubuntu-18.04
+          path: target/release/libironoxide_java.so
+      - name: Upload artifacts for macos-10.15
+        if: matrix.target == 'macos-10.15'
+        uses: actions/upload-artifact@v1
+        with:
+          name: release-macos-10.15
+          path: target/release/libironoxide_java.dylib
 
   android:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-    - uses: actions/setup-java@v1
-      with:
-        java-version: 8
-    - run: sudo apt-get install -y clang
-    - uses: actions-rs/cargo@v1
-      with:
-        command: install
-        args: cross --version 0.1.16
-    - run: ./build.sh
-      working-directory: android
-    - name: Upload release artifact for android
-      uses: actions/upload-artifact@v1
-      with:
-        name: android-release
-        path: android/ironoxide-android/build/outputs/aar/ironoxide-android-release.aar
-    - name: Decrypt PGP key
-      uses: IronCoreLabs/ironhide-actions/decrypt@v1
-      with:
-        keys: ${{ secrets.IRONHIDE_KEYS }}
-        input: .github/signing-key.asc.iron
-    - name: Decrypt nexus credentials
-      uses: IronCoreLabs/ironhide-actions/decrypt@v1
-      with:
-        keys: ${{ secrets.IRONHIDE_KEYS }}
-        input: .github/auth.properties.iron
-    - name: Import PGP key
-      run: gpg --batch --import .github/signing-key.asc
-    - name: Export PGP signing key
-      run: gpg --export-secret-keys > /tmp/signing-key.gpg
-    - name: Upload AAR to Maven Central
-      run: ./gradlew uploadArchives
-      working-directory: android
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - run: sudo apt-get install -y clang
+      - uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cross --version 0.1.16
+      - run: ./build.sh
+        working-directory: android
+      - name: Upload release artifact for android
+        uses: actions/upload-artifact@v1
+        with:
+          name: android-release
+          path: android/ironoxide-android/build/outputs/aar/ironoxide-android-release.aar
+      - name: Decrypt PGP key
+        uses: IronCoreLabs/ironhide-actions/decrypt@v1
+        with:
+          keys: ${{ secrets.IRONHIDE_KEYS }}
+          input: .github/signing-key.asc.iron
+      - name: Decrypt nexus credentials
+        uses: IronCoreLabs/ironhide-actions/decrypt@v1
+        with:
+          keys: ${{ secrets.IRONHIDE_KEYS }}
+          input: .github/auth.properties.iron
+      - name: Import PGP key
+        run: gpg --batch --import .github/signing-key.asc
+      - name: Export PGP signing key
+        run: gpg --export-secret-keys > /tmp/signing-key.gpg
+      - name: Upload AAR to Maven Central
+        run: ./gradlew uploadArchives
+        working-directory: android
 
   java:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@v2
-    - name: Decrypt PGP key
-      uses: IronCoreLabs/ironhide-actions/decrypt@v1
-      with:
-        keys: ${{ secrets.IRONHIDE_KEYS }}
-        input: .github/signing-key.asc.iron
-    - name: Import PGP key
-      run: gpg --batch --import .github/signing-key.asc
-    - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-    - uses: actions/setup-java@v1
-      with:
-        java-version: 11
-    - name: Install llvm (ubuntu)
-      if: matrix.target == 'ubuntu-18.04'
-      run: sudo apt-get update && sudo apt-get install -y llvm
-    - name: Cargo build
-      run: cargo build -p ironoxide-java
-    - name: Decrypt sonatype auth
-      uses: IronCoreLabs/ironhide-actions/decrypt@v1
-      with:
-        keys: ${{ secrets.IRONHIDE_KEYS }}
-        input: .github/sonatype.sbt.iron
-    - name: Install sonatype auth
-      run: |
-        mkdir -p ~/.sbt/1.0
-        cp .github/sonatype.sbt ~/.sbt/1.0/sonatype.sbt
-    - name: Java release
-      run: sbt release
-      working-directory: java/tests
+      - uses: actions/checkout@v2
+      - name: Decrypt PGP key
+        uses: IronCoreLabs/ironhide-actions/decrypt@v1
+        with:
+          keys: ${{ secrets.IRONHIDE_KEYS }}
+          input: .github/signing-key.asc.iron
+      - name: Import PGP key
+        run: gpg --batch --import .github/signing-key.asc
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Install llvm (ubuntu)
+        if: matrix.target == 'ubuntu-18.04'
+        run: sudo apt-get update && sudo apt-get install -y llvm
+      - name: Cargo build
+        run: cargo build -p ironoxide-java
+      - name: Decrypt sonatype auth
+        uses: IronCoreLabs/ironhide-actions/decrypt@v1
+        with:
+          keys: ${{ secrets.IRONHIDE_KEYS }}
+          input: .github/sonatype.sbt.iron
+      - name: Install sonatype auth
+        run: |
+          mkdir -p ~/.sbt/1.0
+          cp .github/sonatype.sbt ~/.sbt/1.0/sonatype.sbt
+      - name: Java release
+        run: sbt release
+        working-directory: java/tests

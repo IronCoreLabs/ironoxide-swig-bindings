@@ -14,7 +14,6 @@ Download the appropriate binary for your operating system on the [releases](http
 
 - `.so` for (default or Debian-based) Linux
 - `.dylib` for OSX
-- `.tar.gz` for CentOS, RHEL, or similar Linux
 
 (Optional) Verify the PGP signature by running `gpg --verify ${file}.asc`. Our fingerprint is `83F9 49C6 E7E2 F0A2 9564 2DEE 62F5 7B1B 8792 8CAC`.
 
