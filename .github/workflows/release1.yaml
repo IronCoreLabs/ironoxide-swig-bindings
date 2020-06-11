@@ -15,41 +15,41 @@ jobs:
     if: github.event.ref_type == 'branch' && startsWith(github.event.ref, 'release-')
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@v2
-      with:
-        # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The DEPLOYMENT_TOKEN is a personal
-        # access token with "repo" permissions.
-        token: ${{ secrets.DEPLOYMENT_TOKEN }}
-    - name: Configure git
-      run: |
-        git config --local user.email ops@ironcorelabs.com
-        git config --local user.name "Leeroy Travis"
-    - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-    - name: Calculate versions from github.ref
-      id: version
-      run: |
-        CURRENT=$(basename ${{ github.ref }})
-        NAME=$(echo ${CURRENT} | sed 's/release-//')
-        NUMBER=$(echo ${NAME} | sed -E -e 's/[^0-9.]+/./g' -e 's/\.+/./g' -e 's/^\.//' -e 's/\.$//')
-        echo "::set-output name=tag::${NAME}"
-        echo "::set-output name=dewey::${NUMBER}"
-    - name: Edit files for release
-      run: .github/set-versions.sh ${{ steps.version.outputs.dewey }}
-    - name: Update Cargo.lock
-      run: cargo update -p ironoxide-android -p ironoxide-cpp -p ironoxide-java
-    - run: git add Cargo.lock
-    - run: git commit -m "Setting version to ${{ steps.version.outputs.tag }}"
-    - run: git push
-    - name: Create PR
-      run: |
-        curl --silent --show-error --fail -X POST \
-          -H "Authorization: token ${{ github.token }}" \
-          -H "Content-Type: application/json" \
-          --data '{"title": "Release ${{ steps.version.outputs.tag }}",
-            "head": "${{ github.ref }}",
-            "base": "${{ github.event.master_branch }}",
-            "body": "The release will be built when this PR is merged. Or close the PR to abort the release process."
-            }' \
-          https://api.github.com/repos/${{ github.repository }}/pulls
+      - uses: actions/checkout@v2
+        with:
+          # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The DEPLOYMENT_TOKEN is a personal
+          # access token with "repo" permissions.
+          token: ${{ secrets.DEPLOYMENT_TOKEN }}
+      - name: Configure git
+        run: |
+          git config --local user.email ops@ironcorelabs.com
+          git config --local user.name "Leeroy Travis"
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Calculate versions from github.ref
+        id: version
+        run: |
+          CURRENT=$(basename ${{ github.ref }})
+          NAME=$(echo ${CURRENT} | sed 's/release-//')
+          NUMBER=$(echo ${NAME} | sed -E -e 's/[^0-9.]+/./g' -e 's/\.+/./g' -e 's/^\.//' -e 's/\.$//')
+          echo "::set-output name=tag::${NAME}"
+          echo "::set-output name=dewey::${NUMBER}"
+      - name: Edit files for release
+        run: .github/set-versions.sh ${{ steps.version.outputs.dewey }}
+      - name: Update Cargo.lock
+        run: cargo update -p ironoxide-android -p ironoxide-cpp -p ironoxide-java
+      - run: git add Cargo.lock
+      - run: git commit -m "Setting version to ${{ steps.version.outputs.tag }}"
+      - run: git push
+      - name: Create PR
+        run: |
+          curl --silent --show-error --fail -X POST \
+            -H "Authorization: token ${{ github.token }}" \
+            -H "Content-Type: application/json" \
+            --data '{"title": "Release ${{ steps.version.outputs.tag }}",
+              "head": "${{ github.ref }}",
+              "base": "${{ github.event.master_branch }}",
+              "body": "The release will be built when this PR is merged. Or close the PR to abort the release process."
+              }' \
+            https://api.github.com/repos/${{ github.repository }}/pulls
