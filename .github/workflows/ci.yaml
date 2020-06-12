@@ -39,7 +39,7 @@ jobs:
       - name: Restore rust cache
         uses: actions/cache@v2
         with:
-          key: rust-${{ matrix.target }}-${{ hashFiles('**/Cargo.*') }}
+          key: rust-${{ matrix.target }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             rust-${{ matrix.target }}-
           path: |
