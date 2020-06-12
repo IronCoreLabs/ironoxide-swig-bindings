@@ -260,7 +260,7 @@ jobs:
         yum install -y clang llvm-devel openssl-devel
         yum group install -y "Development Tools"
     - name: Install llvm (ubuntu)
-      if: matrix.target == 'ubuntu-18.04'
+      if: startsWith(matrix.target, 'ubuntu')
       run: sudo apt-get update && sudo apt-get install -y llvm
       # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
     - uses: actions-rs/toolchain@v1
@@ -283,13 +283,13 @@ jobs:
         name: release-${{ matrix.target }}
         path: target/release/libironoxide_java-${{ matrix.target }}.tar.gz
     - name: Upload artifacts for ubuntu-18.04
-      if: matrix.target == 'ubuntu-18.04'
+      if: startsWith(matrix.target, 'ubuntu')
       uses: actions/upload-artifact@v1
       with:
         name: release-ubuntu-18.04
         path: target/release/libironoxide_java.so
     - name: Upload artifacts for macos-10.15
-      if: matrix.target == 'macos-10.15'
+      if: startsWith(matrix.target, 'macos')
       uses: actions/upload-artifact@v1
       with:
         name: release-macos-10.15
@@ -355,7 +355,7 @@ jobs:
       with:
         java-version: 11
     - name: Install llvm (ubuntu)
-      if: matrix.target == 'ubuntu-18.04'
+      if: startsWith(matrix.target, 'ubuntu')
       run: sudo apt-get update && sudo apt-get install -y llvm
     - name: Cargo build
       run: cargo build -p ironoxide-java

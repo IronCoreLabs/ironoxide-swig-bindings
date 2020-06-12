@@ -64,7 +64,7 @@ jobs:
           yum install -y clang llvm-devel openssl-devel
           yum group install -y "Development Tools"
       - name: Install llvm (ubuntu)
-        if: matrix.target == 'ubuntu-18.04'
+        if: startsWith(matrix.target, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y llvm
       # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
       - uses: actions-rs/toolchain@v1
@@ -193,10 +193,10 @@ jobs:
           make
           ./cpp-tests
       - name: Setup iOS build
-        if: matrix.os == 'macos-10.15'
+        if: startsWith(matrix.os, 'macos')
         run: |
           rustup target add x86_64-apple-ios aarch64-apple-ios
           cargo install cargo-lipo
       - name: Build for iOS
-        if: matrix.os == 'macos-10.15'
+        if: startsWith(matrix.os, 'macos')
         run: cargo lipo --release -p ironoxide-cpp
