@@ -95,9 +95,8 @@ To make calls, you must create a project and segment in the IronCore Admin Conso
 
 ### Prerequisites
 
-- [Rust toolchain](https://www.rust-lang.org/tools/install) installed
+- [Rust toolchain](https://www.rust-lang.org/tools/install) installed.
 - [cross](https://github.com/rust-embedded/cross) installed.
-  - We currently only support `cross` v0.1.16. This can be installed with `cargo install cross --version 0.1.16`
 - Android SDK 29. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only") and then use `sdkmanager` (found in tools/bin) to install additional prerequisites:
 
   ```bash
