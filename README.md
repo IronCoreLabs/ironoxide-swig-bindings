@@ -14,7 +14,6 @@ Download the appropriate binary for your operating system on the [releases](http
 
 - `.so` for (default or Debian-based) Linux
 - `.dylib` for OSX
-- `.tar.gz` for CentOS, RHEL, or similar Linux
 
 (Optional) Verify the PGP signature by running `gpg --verify ${file}.asc`. Our fingerprint is `83F9 49C6 E7E2 F0A2 9564 2DEE 62F5 7B1B 8792 8CAC`.
 
@@ -96,9 +95,8 @@ To make calls, you must create a project and segment in the IronCore Admin Conso
 
 ### Prerequisites
 
-- [Rust toolchain](https://www.rust-lang.org/tools/install) installed
+- [Rust toolchain](https://www.rust-lang.org/tools/install) installed.
 - [cross](https://github.com/rust-embedded/cross) installed.
-  - We currently only support `cross` v0.1.16. This can be installed with `cargo install cross --version 0.1.16`
 - Android SDK 29. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only") and then use `sdkmanager` (found in tools/bin) to install additional prerequisites:
 
   ```bash

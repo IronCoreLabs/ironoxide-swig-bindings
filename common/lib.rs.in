@@ -918,7 +918,7 @@ class IronOxide {
     /// Add the users as members of a group.
     ///
     /// @param id     id of the group to add members to
-    /// @param users  the list of users thet will be added to the group as members
+    /// @param users  the list of users that will be added to the group as members
     /// @return all the users that were added and all the users that were not added with the reason they were not
     method group_add_members(&self, id:&GroupId, users: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupAddMembers;
     /// Remove a list of users as members from the group.

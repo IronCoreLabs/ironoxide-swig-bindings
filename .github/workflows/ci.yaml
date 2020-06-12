@@ -10,10 +10,10 @@ jobs:
   validate:
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@v2
-    - name: Validate version files
-      # Make sure we still know how to edit the version files. (But discard the changes.)
-      run: .github/set-versions.sh -n 0.0.1
+      - uses: actions/checkout@v2
+      - name: Validate version files
+        # Make sure we still know how to edit the version files. (But discard the changes.)
+        run: .github/set-versions.sh -n 0.0.1
 
   java-test:
     strategy:
@@ -113,10 +113,9 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Install Cross
-        run: cargo install cross --version 0.1.16
       - name: Build
         run: |
+          cargo install cross
           cross build --target ${{ matrix.arch }} -p ironoxide-android
           cp -r target/${{ matrix.arch }}/debug/build/ironoxide-android*/out/java android/ironoxide-android/src/main/
           mkdir -p android/ironoxide-android/src/main/jniLibs/${{ matrix.folder-name }}/
