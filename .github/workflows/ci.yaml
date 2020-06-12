@@ -124,10 +124,9 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Install Cross
-        run: cargo install cross --version 0.1.16
       - name: Build
         run: |
+          cargo install cross
           cross build --target ${{ matrix.arch }} -p ironoxide-android
           cp -r target/${{ matrix.arch }}/debug/build/ironoxide-android*/out/java android/ironoxide-android/src/main/
           mkdir -p android/ironoxide-android/src/main/jniLibs/${{ matrix.folder-name }}/
