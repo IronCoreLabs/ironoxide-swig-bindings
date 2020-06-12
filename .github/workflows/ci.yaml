@@ -50,7 +50,7 @@ jobs:
         with:
           key: scala-${{ hashFiles('java/tests/*.sbt') }}
           restore-keys: |
-            coursier-
+            scala-
           path: |
             /tmp/.cache/coursier
             ~/.sbt
