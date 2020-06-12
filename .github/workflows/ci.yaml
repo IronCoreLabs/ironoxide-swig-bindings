@@ -185,7 +185,7 @@ jobs:
           toolchain: stable
       - name: Get Cmake
         uses: lukka/get-cmake@latest
-      - name: Build
+      - name: Build and test
         run: |
           cargo build --release -p ironoxide-cpp
           cd cpp/
