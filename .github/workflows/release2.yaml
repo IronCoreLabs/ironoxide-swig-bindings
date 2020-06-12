@@ -178,20 +178,15 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
-        target: [ubuntu-18.04, macos-10.15]
-        include:
-          - target: ubuntu-18.04
-            host: ubuntu-18.04
-          - target: macos-10.15
-            host: macos-10.15
-    runs-on: ${{ matrix.host }}
+        os: [ubuntu-18.04, macos-10.15]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: 11
       - name: Install llvm (ubuntu)
-        if: startsWith(matrix.target, 'ubuntu')
+        if: startsWith(matrix.os, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y llvm
         # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
       - uses: actions-rs/toolchain@v1
@@ -202,13 +197,13 @@ jobs:
           command: build
           args: --release
       - name: Upload artifacts for ubuntu-18.04
-        if: startsWith(matrix.target, 'ubuntu')
+        if: startsWith(matrix.os, 'ubuntu')
         uses: actions/upload-artifact@v1
         with:
           name: release-ubuntu-18.04
           path: target/release/libironoxide_java.so
       - name: Upload artifacts for macos-10.15
-        if: startsWith(matrix.target, 'macos')
+        if: startsWith(matrix.os, 'macos')
         uses: actions/upload-artifact@v1
         with:
           name: release-macos-10.15
