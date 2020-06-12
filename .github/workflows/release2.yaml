@@ -206,7 +206,7 @@ jobs:
       run: |
         gpg --batch --detach-sign -a release/release-iOS/ironoxide-homebrew.tar.gz
         gpg --batch --verify release/release-iOS/ironoxide-homebrew.tar.gz.asc release/release-iOS/ironoxide-homebrew.tar.gz
-    - name: Upload aar for release-iOS
+    - name: Upload tar for release-iOS
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
