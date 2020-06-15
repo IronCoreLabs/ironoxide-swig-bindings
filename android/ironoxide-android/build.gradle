@@ -37,7 +37,7 @@ uploadArchives {
             pom.artifactId = 'ironoxide-android'
             pom.version = VERSION_NAME
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            repository(url: "https://oss.sonatype.org/content/repositories/releases/") {
                 authentication(userName: NEXUS_USERNAME,
                                password: NEXUS_PASSWORD)
             }
