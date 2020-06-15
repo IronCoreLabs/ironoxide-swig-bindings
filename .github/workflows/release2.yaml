@@ -15,6 +15,7 @@ jobs:
     needs:
       - build
       - android
+      - cpp
       - java
     steps:
       - uses: actions/checkout@v2
@@ -140,6 +141,34 @@ jobs:
           asset_name: ironoxide-android-release.aar.asc
           asset_content_type: application/pgp-signature
 
+      - name: Download release artifacts from release-iOS
+        uses: actions/download-artifact@v1
+        with:
+          name: release-iOS
+          path: release/release-iOS
+      - name: Sign artifact for release-iOS
+        run: |
+          gpg --batch --detach-sign -a release/release-iOS/ironoxide-homebrew.tar.gz
+          gpg --batch --verify release/release-iOS/ironoxide-homebrew.tar.gz.asc release/release-iOS/ironoxide-homebrew.tar.gz
+      - name: Upload tar for release-iOS
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: release/release-iOS/ironoxide-homebrew.tar.gz
+          asset_name: ironoxide-homebrew.tar.gz
+          asset_content_type: application/data
+      - name: Upload signature for release-iOS
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: release/release-iOS/ironoxide-homebrew.tar.gz.asc
+          asset_name: ironoxide-homebrew.tar.gz.asc
+          asset_content_type: application/pgp-signature
+
       - name: Increment to next -SNAPSHOT version for Java.
         run: .github/set-versions.sh -j ${{ steps.version.outputs.next }}-SNAPSHOT
       - run: git commit -m "Set next -SNAPSHOT version for Java."
@@ -149,30 +178,17 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
-        target: [ubuntu-18.04, macos-10.15]
-        include:
-          - target: ubuntu-18.04
-            host: ubuntu-18.04
-          - target: macos-10.15
-            host: macos-10.15
-    runs-on: ${{ matrix.host }}
+        os: [ubuntu-18.04, macos-10.15]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
+      - uses: olafurpg/setup-scala@v7
         with:
-          java-version: 8
-      - name: Install sbt
-        # The setup-java action should do this, but it doesn't on MacOS.
-        # https://github.com/actions/setup-java/issues/50
-        if: ${{ matrix.target != 'ubuntu-18.04' }}
-        run: |
-          curl -Ls https://git.io/sbt > sbt
-          chmod +x sbt
-          mv sbt /usr/local/bin/sbt || sudo mv sbt /usr/local/bin/sbt
+          java-version: 11
       - name: Install llvm (ubuntu)
-        if: matrix.target == 'ubuntu-18.04'
+        if: startsWith(matrix.os, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y llvm
-      # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
+        # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -181,13 +197,13 @@ jobs:
           command: build
           args: --release
       - name: Upload artifacts for ubuntu-18.04
-        if: matrix.target == 'ubuntu-18.04'
+        if: startsWith(matrix.os, 'ubuntu')
         uses: actions/upload-artifact@v1
         with:
           name: release-ubuntu-18.04
           path: target/release/libironoxide_java.so
       - name: Upload artifacts for macos-10.15
-        if: matrix.target == 'macos-10.15'
+        if: startsWith(matrix.os, 'macos')
         uses: actions/upload-artifact@v1
         with:
           name: release-macos-10.15
@@ -252,7 +268,7 @@ jobs:
         with:
           java-version: 11
       - name: Install llvm (ubuntu)
-        if: matrix.target == 'ubuntu-18.04'
+        if: startsWith(matrix.target, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y llvm
       - name: Cargo build
         run: cargo build -p ironoxide-java
@@ -268,3 +284,31 @@ jobs:
       - name: Java release
         run: sbt release
         working-directory: java/tests
+
+  cpp:
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Setup iOS build
+        run: |
+          rustup target add x86_64-apple-ios aarch64-apple-ios
+          cargo install cargo-lipo
+      - name: Build for iOS
+        run: cargo lipo --release -p ironoxide-cpp
+      - name: Build iOS tar
+        run: |
+          ( cd cpp/generated && mv sdk headers )
+          tar -c -f ironoxide-homebrew.tar -C cpp/generated headers
+          tar -r -f ironoxide-homebrew.tar -C cpp ironoxide.pc.in
+          tar -r -f ironoxide-homebrew.tar -C target/universal/release libironoxide.a
+          gzip ironoxide-homebrew.tar
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: release-iOS
+          path: ironoxide-homebrew.tar.gz

@@ -6,9 +6,9 @@ build = "../common/build.rs"
 edition = "2018"
 
 [lib]
-name = "ironoxide_shared"
+name = "ironoxide"
 path = "../common/lib.rs"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 log = "0.4"

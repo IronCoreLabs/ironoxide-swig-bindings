@@ -37,6 +37,8 @@ if [ -z "${JAVAONLY}" ] ; then
         sed -i"${VERIFY}" -e 's/^version = ".*"$/version = "'"${VERS}"'"/' "${TOMLFILE}"
         EDITEDFILES="${EDITEDFILES} ${TOMLFILE}"
     done
+
+    sed -i"${VERIFY}" -e 's/^Version: .*$/Version: '"${VERS}"'/' cpp/ironoxide.pc.in
 fi
 
 sed -i"${VERIFY}" -e 's/^VERSION_NAME=.*/VERSION_NAME='"${VERS}"'/' android/gradle.properties
