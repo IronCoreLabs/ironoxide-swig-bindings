@@ -103,9 +103,11 @@ uploadArchives {
     }
 }
 
+// Only sign artifacts if we can upload them.
+tasks.withType(Sign) {
+    onlyIf { NEXUS_USERNAME != "" }
+}
 signing {
-    // Only sign artifacts if we can upload them.
-    required { NEXUS_USERNAME != "" }
     sign configurations.archives
 }
 
