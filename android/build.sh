@@ -1,3 +1,8 @@
+#!/bin/sh
+
+# Builds the android release. Run from this directory.
+
+set -e
 
 rm -rf ironoxide-android/src/main/java
 rm -rf ironoxide-android/src/main/jniLibs/*
