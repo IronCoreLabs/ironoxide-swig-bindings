@@ -170,7 +170,9 @@ jobs:
           asset_content_type: application/pgp-signature
 
       - name: Increment to next -SNAPSHOT version for Java.
-        run: .github/set-versions.sh -j ${{ steps.version.outputs.next }}-SNAPSHOT
+        run: |
+          rm -rf release
+          .github/set-versions.sh -j ${{ steps.version.outputs.next }}-SNAPSHOT
       - run: git commit -m "Set next -SNAPSHOT version for Java."
       - run: git push
 
