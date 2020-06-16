@@ -4,14 +4,26 @@ import scala.util.Try
 import com.ironcorelabs.sdk._
 
 class UserTests extends TestSuite {
-  "User Create" should {
+  "Jwt" should {
     "return error for invalid jwt" in {
-      val badResponseTry = Try(IronOxide.userCreate("foo", testUsersPassword, new UserCreateOpts, null)).toEither
-      badResponseTry.leftValue.getMessage should include("must be valid ascii and be formatted correctly")
+      val badJwt = Try(Jwt.validate("foo")).toEither
+      badJwt.isLeft shouldBe true
     }
+    "accept valid jwt" in {
+      val jwt = Try(
+        Jwt.validate(
+          "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJhYmNBQkMwMTJfLiQjfEAvOjs9KyctZDEyMjZkMWItNGMzOS00OWRhLTkzM2MtNjQyZTIzYWMxOTQ1IiwicGlkIjo0MzgsInNpZCI6Imlyb25veGlkZS1kZXYxIiwia2lkIjo1OTMsImlhdCI6MTU5MTkwMTc0MCwiZXhwIjoxNTkxOTAxODYwfQ.wgs_tnh89SlKnIkoQHdlC0REjkxTl1P8qtDSQwWTFKwo8KQKXUQdpp4BfwqUqLcxA0BW6_XfVRlqMX5zcvCc6w"
+        )
+      ).toEither.value
+      jwt.getAlgorithm shouldBe "ES256"
+    }
+  }
+
+  "User Create" should {
     "return error for outdated jwt" in {
-      val jwt =
+      val jwtString =
         "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTA3NzE4MjMsImlhdCI6MTU1MDc3MTcwMywia2lkIjo1NTEsInBpZCI6MTAxMiwic2lkIjoidGVzdC1zZWdtZW50Iiwic3ViIjoiYTAzYjhlNTYtMTVkMi00Y2Y3LTk0MWYtYzYwMWU1NzUxNjNiIn0.vlqt0da5ltA2dYEK9i_pfRxPd3K2uexnkbAbzmbjW65XNcWlBOIbcdmmQLnSIZkRyTORD3DLXOIPYbGlApaTCR5WbaR3oPiSsR9IqdhgMEZxCcarqGg7b_zzwTP98fDcALGZNGsJL1hIrl3EEXdPoYjsOJ5LMF1H57NZiteBDAsm1zfXgOgCtvCdt7PQFSCpM5GyE3und9VnEgjtcQ6HAZYdutqjI79vaTnjt2A1X38pbHcnfvSanzJoeU3szwtBiVlB3cfXbROvBC7Kz8KvbWJzImJcJiRT-KyI4kk3l8wAs2FUjSRco8AQ1nIX21QHlRI0vVr_vdOd_pTXOUU51g"
+      val jwt = Try(Jwt.validate(jwtString)).toEither.value
       val resp = Try(IronOxide.userCreate(jwt, "foo", new UserCreateOpts(true), null)).toEither
       resp.leftValue.getMessage should include("ServerError { message: \"\\'jwt ey")
     }
@@ -30,14 +42,10 @@ class UserTests extends TestSuite {
       user.getAccountId shouldBe dc.getAccountId
       user.getNeedsRotation shouldBe true
     }
-    "return error for invalid jwt" in {
-      val badResponseTry = Try(IronOxide.userVerify("foo", null))
-      badResponseTry.isFailure shouldBe true
-      badResponseTry.failed.get.getMessage should include("must be valid ascii and be formatted correctly")
-    }
     "return error for outdated jwt" in {
-      val jwt =
+      val jwtString =
         "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTA3NzE4MjMsImlhdCI6MTU1MDc3MTcwMywia2lkIjo1NTEsInBpZCI6MTAxMiwic2lkIjoidGVzdC1zZWdtZW50Iiwic3ViIjoiYTAzYjhlNTYtMTVkMi00Y2Y3LTk0MWYtYzYwMWU1NzUxNjNiIn0.vlqt0da5ltA2dYEK9i_pfRxPd3K2uexnkbAbzmbjW65XNcWlBOIbcdmmQLnSIZkRyTORD3DLXOIPYbGlApaTCR5WbaR3oPiSsR9IqdhgMEZxCcarqGg7b_zzwTP98fDcALGZNGsJL1hIrl3EEXdPoYjsOJ5LMF1H57NZiteBDAsm1zfXgOgCtvCdt7PQFSCpM5GyE3und9VnEgjtcQ6HAZYdutqjI79vaTnjt2A1X38pbHcnfvSanzJoeU3szwtBiVlB3cfXbROvBC7Kz8KvbWJzImJcJiRT-KyI4kk3l8wAs2FUjSRco8AQ1nIX21QHlRI0vVr_vdOd_pTXOUU51g"
+      val jwt = Try(Jwt.validate(jwtString)).toEither.value
       val resp = Try(IronOxide.userVerify(jwt, null))
       resp.isFailure shouldBe true
       resp.failed.get.getMessage should include("was an invalid authorization token")

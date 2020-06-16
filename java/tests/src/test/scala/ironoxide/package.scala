@@ -1,7 +1,6 @@
 import com.ironcorelabs.sdk._
 import scala.util.Try
 import cats.scalatest.EitherValues
-import pdi.jwt.{Jwt, JwtClaim, JwtAlgorithm};
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 package object ironoxide extends EitherValues {
@@ -13,20 +12,21 @@ package object ironoxide extends EitherValues {
     new DeviceContext(dar)
   }
 
-  def generateValidJwt(accountId: String = java.util.UUID.randomUUID.toString, expiresInSec: Long = 120) = {
+  def generateValidJwt(accountId: String = java.util.UUID.randomUUID.toString, expiresInSec: Long = 120): Jwt = {
     java.security.Security.addProvider(new BouncyCastleProvider)
-
     val projectId = 431
     val segmentId = "ironoxide-java"
     val iakId = 597
     val key =
       "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgNdz7Kffzhn1PnAy1XI2YFUEnDC9TWbzctzIGvWqNv82hRANCAAQG3CAlUWHmBLRRkbwB4zSierd8BRbbyUlczZoNOiXKwbia9CZ9DJ/Dh72c8yFNNVr+hKdvV4Vhj2MQGbMF7Qo3"
     val currentTime = System.currentTimeMillis() / 1000
-    val claim = JwtClaim({ raw"""{"pid": $projectId,"sid": "$segmentId","kid": $iakId}""" })
+    val claim = pdi.jwt
+      .JwtClaim({ raw"""{"pid": $projectId,"sid": "$segmentId","kid": $iakId}""" })
       .about(accountId)
       .issuedAt(currentTime)
       .expiresAt(currentTime + expiresInSec)
-    Jwt.encode(claim, key, JwtAlgorithm.ES256)
+    val jwtString = pdi.jwt.Jwt.encode(claim, key, pdi.jwt.JwtAlgorithm.ES256)
+    Jwt.validate(jwtString)
   }
 
   val testUsersPassword = java.util.UUID.randomUUID.toString
