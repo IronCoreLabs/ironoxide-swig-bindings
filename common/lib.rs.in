@@ -129,6 +129,7 @@ class DeviceId {
 });
 
 foreigner_class!(
+/// Claims required to form a valid `Jwt`.
 class JwtClaims{
     self_type JwtClaims;
     private constructor = empty;
@@ -148,6 +149,10 @@ class JwtClaims{
 });
 
 foreigner_class!(
+/// IronCore JWT.
+///
+/// Must be either ES256 or RS256 and have a payload similar to `JwtClaims`, but could be
+/// generated from an external source.
 class Jwt {
     self_type Jwt;
     private constructor = empty;
