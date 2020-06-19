@@ -97,16 +97,17 @@ To make calls, you must create a project and segment in the IronCore Admin Conso
 
 - Install [Rust toolchain](https://www.rust-lang.org/tools/install).
 - Install [cross](https://github.com/rust-embedded/cross).
-- Edit `$HOME/.gradle/gradle.properties` to include `sdk.dir=PATH_TO_ANDROID_SDK`.
 - Install Android SDK 29. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only"). The extracted `tools` folder must follow a specific folder hierarchy. We recommend `AndroidCLI/cmdline-tools/tools`. You are then able to use `sdkmanager` (found in `tools/bin`) to install additional prerequisites:
 
   ```bash
   ./sdkmanager "build-tools;29.0.3" "platform-tools" "platforms;android-29"
   ```
 
+- Create the file `$HOME/.gradle/gradle.properties` and add the line `sdk.dir=PATH_TO_ANDROID_CLI_FOLDER`.
+
 ### Building
 
-From the repository root, run `android/build.sh`. The output AAR file will be in `android/ironoxide-android/build/outputs/aar`.
+From the repository root, run `android/build.sh`. This will put the compiled library and generated Java files into `android/ironoxide-android/src/main`.
 
 ## Testing
 
@@ -119,13 +120,14 @@ From the repository root, run `android/build.sh`. The output AAR file will be in
     1. `./sdkmanager "emulator" "system-images;android-29;google_apis;x86_64"`
     2. `./avdmanager create avd -n pixel_3 -k "system-images;android-29;google_apis;x86_64" -d pixel_3`
     3. `../../../emulator/emulator -avd pixel_3 -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim`
+  - The emulator may take some time to boot, but the output will include `emulator: INFO: boot completed` when it has completed. You will need to use a different terminal to run the tests.
 
 ### Running the Connected Android Tests
 
-Run the tests from the repository root with:
+Run the tests from the `android` folder with:
 
 ```bash
-android/gradlew connectedAndroidTests
+./gradlew connectedAndroidTest
 ```
 
 # License
