@@ -97,7 +97,9 @@ To make calls, you must create a project and segment in the IronCore Admin Conso
 
 - Install [Rust toolchain](https://www.rust-lang.org/tools/install).
 - Install [cross](https://github.com/rust-embedded/cross).
-- Install Android SDK 29. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only"). The extracted `tools` folder must follow a specific folder hierarchy. We recommend `AndroidCLI/cmdline-tools/tools`. You are then able to use `sdkmanager` (found in `tools/bin`) to install additional prerequisites:
+- Install Android SDK 29. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only").
+  - Note: **The extracted `tools` folder must follow a specific folder hierarchy. We recommend `AndroidCLI/cmdline-tools/tools`**.
+- Install Android 29 build and platform tools. This can be done with `sdkmanager` (found in `tools/bin`):
 
   ```bash
   ./sdkmanager "build-tools;29.0.3" "platform-tools" "platforms;android-29"
