@@ -17,7 +17,7 @@ pub fn hash<T: Hash>(t: &T) -> i32 {
     s.finish() as i32
 }
 
-pub fn eq<T: Eq>(t: &T, other: &T) -> bool {
+pub fn eq<T: PartialEq>(t: &T, other: &T) -> bool {
     t.eq(other)
 }
 
@@ -886,12 +886,50 @@ mod duration {
     }
 }
 
+mod jwt_claims {
+    use super::*;
+    pub fn sub(j: &JwtClaims) -> String {
+        j.sub.clone()
+    }
+    pub fn pid(j: &JwtClaims) -> usize {
+        j.pid
+    }
+    pub fn sid(j: &JwtClaims) -> String {
+        j.sid.clone()
+    }
+    pub fn kid(j: &JwtClaims) -> usize {
+        j.kid
+    }
+    pub fn iat(j: &JwtClaims) -> u64 {
+        j.iat
+    }
+    pub fn exp(j: &JwtClaims) -> u64 {
+        j.exp
+    }
+}
+
+mod jwt {
+    use super::*;
+    pub fn validate(j: &str) -> Result<Jwt, String> {
+        Ok(Jwt::new(j)?)
+    }
+    pub fn jwt(j: &Jwt) -> String {
+        j.jwt().to_string()
+    }
+    pub fn claims(j: &Jwt) -> JwtClaims {
+        j.claims().clone()
+    }
+    pub fn algorithm(j: &Jwt) -> String {
+        format!("{:?}", j.header().alg).to_string()
+    }
+}
+
 //Java SDK wrapper functions for doing unnatural things with the JNI.
-fn user_verify(jwt: &str, timeout: Option<&Duration>) -> Result<Option<UserResult>, String> {
+fn user_verify(jwt: &Jwt, timeout: Option<&Duration>) -> Result<Option<UserResult>, String> {
     Ok(IronOxide::user_verify(jwt, timeout.copied())?)
 }
 fn user_create(
-    jwt: &str,
+    jwt: &Jwt,
     password: &str,
     opts: &UserCreateOpts,
     timeout: Option<&Duration>,
@@ -924,7 +962,7 @@ fn initialize_and_rotate(
     )
 }
 fn generate_new_device(
-    jwt: &str,
+    jwt: &Jwt,
     password: &str,
     opts: &DeviceCreateOpts,
     timeout: Option<&Duration>,

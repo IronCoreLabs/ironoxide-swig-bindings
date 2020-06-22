@@ -129,6 +129,44 @@ class DeviceId {
 });
 
 foreigner_class!(
+/// Claims required to form a valid `Jwt`.
+class JwtClaims{
+    self_type JwtClaims;
+    private constructor = empty;
+    /// Unique user ID
+    method jwt_claims::sub(&self) -> String; alias getSub;
+    /// Project ID
+    method jwt_claims::pid(&self) -> usize; alias getPid;
+    /// Segment ID
+    method jwt_claims::sid(&self) -> String; alias getSid;
+    /// Service key ID
+    method jwt_claims::kid(&self) -> usize; alias getKid;
+    /// Issued time (seconds)
+    method jwt_claims::iat(&self) -> u64; alias getIat;
+    /// Expiration time (seconds)
+    method jwt_claims::exp(&self) -> u64; alias getExp;
+    pre_build_generate_equals_and_hashcode JwtClaims;
+});
+
+foreigner_class!(
+/// IronCore JWT.
+///
+/// Must be either ES256 or RS256 and have a payload similar to `JwtClaims`, but could be
+/// generated from an external source.
+class Jwt {
+    self_type Jwt;
+    private constructor = empty;
+    static_method jwt::validate(jwt: &str) -> Result<Jwt, String>;
+    /// Raw JWT string
+    method jwt::jwt(&self) -> String; alias getJwt;
+    /// Payload of the JWT
+    method jwt::claims(&self) -> JwtClaims; alias getClaims;
+    /// Algorithm used by the JWT
+    method jwt::algorithm(&self) -> String; alias getAlgorithm;
+    pre_build_generate_equals_and_hashcode Jwt;
+});
+
+foreigner_class!(
 class UserUpdatePrivateKeyResult {
     self_type UserUpdatePrivateKeyResult;
     private constructor = empty;
@@ -769,7 +807,7 @@ class IronOxide {
     /// @param jwt      valid IronCore JWT
     /// @param timeout  timeout for this operation or `null` for no timeout
     /// @return option of whether the user's account record exists in the IronCore system or not. Error if the request couldn't be made.
-    static_method user_verify(jwt:&str, timeout: Option<&Duration>) -> Result<Option<UserResult>, String>; alias userVerify;
+    static_method user_verify(jwt:&Jwt, timeout: Option<&Duration>) -> Result<Option<UserResult>, String>; alias userVerify;
     /// Create a new user within the IronCore system.
     ///
     /// @param jwt       valid IronCore or Auth0 JWT
@@ -778,7 +816,7 @@ class IronOxide {
     /// @param timeout   timeout for this operation or `null` for no timeout
     /// @return see {@link UserCreateResult}. For most use cases, the public key can be discarded as IronCore escrows your user's keys.
     ///         The escrowed keys are unlocked by the provided password.
-    static_method user_create(jwt:&str, password:&str, options:&UserCreateOpts, timeout: Option<&Duration>) -> Result<UserCreateResult, String>; alias userCreate;
+    static_method user_create(jwt:&Jwt, password:&str, options:&UserCreateOpts, timeout: Option<&Duration>) -> Result<UserCreateResult, String>; alias userCreate;
     /// Initialize IronOxide with a device. Verifies that the provided user/segment exists and the provided device
     /// keys are valid and exist for the provided account.
     ///
@@ -810,7 +848,7 @@ class IronOxide {
     /// @param deviceCreateOptions  optional values, like device name
     /// @param timeout              timeout for this operation or `null` for no timeout
     /// @return details about the newly created device
-    static_method generate_new_device(jwt:&str, password:&str, deviceCreateOptions: &DeviceCreateOpts, timeout: Option<&Duration>) -> Result<DeviceAddResult, String>; alias generateNewDevice;
+    static_method generate_new_device(jwt:&Jwt, password:&str, deviceCreateOptions: &DeviceCreateOpts, timeout: Option<&Duration>) -> Result<DeviceAddResult, String>; alias generateNewDevice;
     /// Get all the devices for the current user
     ///
     /// @return all devices for the current user, sorted by the device id
