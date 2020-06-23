@@ -726,7 +726,7 @@ dependencies = [
 
 [[package]]
 name = "ironoxide-android"
-version = "0.14.0"
+version = "0.14.1"
 dependencies = [
  "bindgen",
  "cfg-if",
@@ -743,7 +743,7 @@ dependencies = [
 
 [[package]]
 name = "ironoxide-cpp"
-version = "0.14.0"
+version = "0.14.1"
 dependencies = [
  "bindgen",
  "cfg-if",
@@ -759,7 +759,7 @@ dependencies = [
 
 [[package]]
 name = "ironoxide-java"
-version = "0.14.0"
+version = "0.14.1"
 dependencies = [
  "bindgen",
  "cfg-if",
