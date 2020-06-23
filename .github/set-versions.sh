@@ -58,11 +58,13 @@ for FILE in ${EDITEDFILES} ; do
     git diff --cached "${FILE}"
     # Verify that we've changed either one or zero lines.
     git diff --cached --numstat "${FILE}" > "${TEMPFILE}"
-    # shellcheck disable=SC2034
-    read -r ADDED REMOVED FILENAME < "${TEMPFILE}"
-    if [ "${ADDED}" -gt 1 ] || [ "${REMOVED}" -gt 1 ] || [ "${ADDED}" -ne "${REMOVED}" ]; then
-        echo "Changes to ${FILE} must be exactly one line; aborting." >&2
-        exit 1
+    if [ -n "${TEMPFILE}" ] ; then
+        # shellcheck disable=SC2034
+        read -r ADDED REMOVED FILENAME < "${TEMPFILE}"
+        if [ "${ADDED}" -ne 1 ] || [ "${REMOVED}" -ne 1 ]; then
+            echo "Changes to ${FILE} must be exactly one line; aborting." >&2
+            exit 1
+        fi
     fi
     # If we're in verify mode, put the file back.
     if [ -n "${VERIFY}" ] ; then
