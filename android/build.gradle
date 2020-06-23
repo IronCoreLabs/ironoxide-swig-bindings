@@ -2,12 +2,15 @@ buildscript {
     repositories {
         google()
         jcenter()
-        
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.2"
     }
 }
+
+apply plugin: 'io.codearte.nexus-staging'
 
 allprojects {
     repositories {
