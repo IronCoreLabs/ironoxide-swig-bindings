@@ -1,6 +1,6 @@
 [package]
 name = "ironoxide-android"
-version = "0.14.0"
+version = "0.14.1"
 authors = ["IronCore Labs <info@ironcorelabs.com>"]
 build = "../common/build.rs"
 edition = "2018"
