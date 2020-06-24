@@ -8,5 +8,6 @@
 
 # Re-Release
 
-If you need to re-release something, look at the last step of `release1.yaml` or the `if:` statements in `release2.yaml`. Manually
-create a PR that matches what `release2.yaml` expects. Then merge the PR, and it'll take over.
+If you need to re-release something, try restarting just the failed release workflow. Each workflow is independent of the others,
+and each one has a non-idempotent step near the end. So if one fails due to external dependencies like network problems, there
+should be no need to rerun the others.
