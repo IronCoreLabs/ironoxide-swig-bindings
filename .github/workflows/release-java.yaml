@@ -1,0 +1,46 @@
+name: Build release
+
+# This is triggered by merging a PR from a branch named release-*. This workflow builds and publishes the Java release artifacts
+# to Maven Central.
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  java:
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Decrypt PGP key
+        uses: IronCoreLabs/ironhide-actions/decrypt@v1
+        with:
+          keys: ${{ secrets.IRONHIDE_KEYS }}
+          input: .github/signing-key.asc.iron
+      - name: Import PGP key
+        run: gpg --batch --import .github/signing-key.asc
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Install llvm (ubuntu)
+        if: startsWith(matrix.target, 'ubuntu')
+        run: sudo apt-get update && sudo apt-get install -y llvm
+      - name: Cargo build
+        run: cargo build -p ironoxide-java
+      - name: Decrypt sonatype auth
+        uses: IronCoreLabs/ironhide-actions/decrypt@v1
+        with:
+          keys: ${{ secrets.IRONHIDE_KEYS }}
+          input: .github/sonatype.sbt.iron
+      - name: Install sonatype auth
+        run: |
+          mkdir -p ~/.sbt/1.0
+          cp .github/sonatype.sbt ~/.sbt/1.0/sonatype.sbt
+      - name: Java release
+        run: sbt release
+        working-directory: java/tests
