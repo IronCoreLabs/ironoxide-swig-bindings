@@ -5,3 +5,6 @@ members = [
     "android",
     "cpp"
 ]
+
+[profile.release]
+lto = true

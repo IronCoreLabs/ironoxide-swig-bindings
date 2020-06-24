@@ -24,7 +24,7 @@ jobs:
       - name: Install cross
         run: cargo install cross
       - name: Run build script
-        run: ./build.sh
+        run: ./build-aar.sh
         working-directory: android
       - name: Decrypt PGP key
         uses: IronCoreLabs/ironhide-actions/decrypt@v1
