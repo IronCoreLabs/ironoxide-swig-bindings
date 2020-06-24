@@ -12,6 +12,10 @@ buildscript {
 
 apply plugin: 'io.codearte.nexus-staging'
 
+nexusStaging {
+    packageGroup = "com.ironcorelabs"
+}
+
 allprojects {
     repositories {
         google()
