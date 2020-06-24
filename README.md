@@ -95,26 +95,41 @@ To make calls, you must create a project and segment in the IronCore Admin Conso
 
 ### Prerequisites
 
-- [Rust toolchain](https://www.rust-lang.org/tools/install) installed.
-- [cross](https://github.com/rust-embedded/cross) installed.
-- Android SDK 29. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only") and then use `sdkmanager` (found in tools/bin) to install additional prerequisites:
+- Install [Rust toolchain](https://www.rust-lang.org/tools/install).
+- Install [cross](https://github.com/rust-embedded/cross).
+- Install Android SDK 29. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only").
+  - Note: **The extracted `tools` folder must follow a specific folder hierarchy. We recommend `AndroidCLI/cmdline-tools/tools`**.
+- Install Android 29 build and platform tools. This can be done with `sdkmanager` (found in `tools/bin`):
 
   ```bash
-  ./sdkmanager --sdk_root=PATH_TO_SDK_INSTALL_LOCATION --install "build-tools;29.0.3" platform-tools "platforms;android-29"
+  ./sdkmanager "build-tools;29.0.3" "platform-tools" "platforms;android-29"
   ```
 
-- Edit `$HOME/.gradle/gradle.properties` to point the `sdk.dir` to the location of the Android SDK.
+- Create the file `$HOME/.gradle/gradle.properties` and add the line `sdk.dir=PATH_TO_ANDROID_CLI_FOLDER`.
 
 ### Building
 
-From `ironoxide-java/android`, run `build.sh`. The output AAR file will be in `android/ironoxide-android/build/outputs/aar`.
+From the repository root, run `android/build.sh`. This will put the compiled library and generated Java files into `android/ironoxide-android/src/main`.
 
-## Running Connected Tests
+## Testing
 
-To run Android connected tests, you must either have an emulator running or a compatible Android phone connected. The tests will require artifacts from the `cross` build, so begin by running the steps in [Build from Source](#build-from-source-1). This will create the java files and the `.so` files required for the `x86`, `x86_64`, and `arm64-v8a` architectures. If testing on a different architecture, you can find the Rust target to compile to [here](https://forge.rust-lang.org/release/platform-support.html). Run the tests from the repository root with this command:
+### Prerequisites
+
+- Successfully run `build.sh` by following the steps in [Build from Source](#build-from-source-1).
+  - This will create the java files and the `.so` files required for the `x86`, `x86_64`, and `arm64-v8a` architectures. If testing on a different architecture, you can find the Rust target to compile to [here](https://forge.rust-lang.org/release/platform-support.html).
+- An Android emulator running, or a compatible Android phone connected.
+  - To start an emulator using the command line tools, follow these steps from the folder `AndroidCLI/cmdline-tools/tools/bin`:
+    1. `./sdkmanager "emulator" "system-images;android-29;google_apis;x86_64"`
+    2. `./avdmanager create avd -n pixel_3 -k "system-images;android-29;google_apis;x86_64" -d pixel_3`
+    3. `../../../emulator/emulator -avd pixel_3 -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim`
+  - The emulator may take some time to boot, but the output will include `emulator: INFO: boot completed` when it has completed. You will need to use a different terminal to run the tests.
+
+### Running the Connected Android Tests
+
+Run the tests from the `android` folder with:
 
 ```bash
-android/gradlew connectedCheck
+./gradlew connectedAndroidTest
 ```
 
 # License

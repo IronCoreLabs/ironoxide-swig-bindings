@@ -226,7 +226,7 @@ jobs:
       - name: Install cross
         run: cargo install cross
       - name: Run build script
-        run: ./build.sh
+        run: ./build-aar.sh
         working-directory: android
       - name: Upload release artifact for android
         uses: actions/upload-artifact@v1
