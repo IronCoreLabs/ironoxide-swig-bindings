@@ -1,15 +1,14 @@
 # IronOxide-Cpp
 
-The building of the C++ library is currently not done by CI, so if you want to produce C/C++ bindings and the associated
-library, you will need to build them from the source.
+## Build from Source
 
-## Prerequisites
+### Prerequisites
 
 - C++ 17 or greater installed. Most modern gcc or clang compilers should do.
 - CMake >= 3.9.
 - Make
 
-## Building
+### Building
 
 From the `cpp` directory, run:
 

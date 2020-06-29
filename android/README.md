@@ -8,19 +8,7 @@ In order to make calls to the IronCore service, you must add a dependency for ir
 
 ### Adding a dependency
 
-IronOxide-Android is published to a custom maven repository. To pull from this repository, add the following to your project's "build.gradle":
-
-```java
-allprojects {
-    repositories {
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots"
-        }
-    }
-}
-```
-
-Then add the following to your module's "build.gradle":
+Add the following to your module's "build.gradle":
 
 ```java
 dependencies {
@@ -58,14 +46,16 @@ To make calls, you must create a project and segment in the IronCore Admin Conso
 
 ### Building
 
-From the repository root, run `android/build.sh`. This will put the compiled library and generated Java files into `android/ironoxide-android/src/main`.
+From the repository root, run `android/build.sh`.
+
+This will compile IronOxide-Android for `x86_64` Android phones. If building for a different architecture, you can find the Rust target to compile to
+[here](https://forge.rust-lang.org/release/platform-support.html) and modify the `cross build` command in `build.sh`. The compiled library and generated Java files will be put into `android/ironoxide-android/src/main`.
 
 ## Testing
 
 ### Prerequisites
 
 - Successfully run `build.sh` by following the steps in [Build from Source](#build-from-source-1).
-  - This will create the java files and the `.so` files required for the `x86`, `x86_64`, and `arm64-v8a` architectures. If testing on a different architecture, you can find the Rust target to compile to [here](https://forge.rust-lang.org/release/platform-support.html).
 - An Android emulator running, or a compatible Android phone connected.
   - To start an emulator using the command line tools, follow these steps from the folder `AndroidCLI/cmdline-tools/tools/bin`:
     1. `./sdkmanager "emulator" "system-images;android-29;google_apis;x86_64"`

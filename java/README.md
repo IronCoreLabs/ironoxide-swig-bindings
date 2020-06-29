@@ -28,7 +28,7 @@ The SDK is [published to Maven](https://search.maven.org/artifact/com.ironcorela
 
 ## Usage
 
-All the SDK classes can be imported from the `com.ironcorelabs.sdk` namespace.
+All of the SDK classes can be imported from the `com.ironcorelabs.sdk` package.
 
 ## Documentation
 
