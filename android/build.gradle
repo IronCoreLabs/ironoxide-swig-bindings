@@ -12,6 +12,11 @@ buildscript {
 
 apply plugin: 'io.codearte.nexus-staging'
 
+nexusStaging {
+    packageGroup = "com.ironcorelabs"
+    numberOfRetries = 150
+}
+
 allprojects {
     repositories {
         google()
@@ -31,6 +36,10 @@ if (file(authPropsFile).exists()) {
     file(authPropsFile).withInputStream { is -> props.load(is) }
     project.ext.NEXUS_USERNAME = props.getProperty("NEXUS_USERNAME")
     project.ext.NEXUS_PASSWORD = props.getProperty("NEXUS_PASSWORD")
+    nexusStaging {
+        username = NEXUS_USERNAME
+        password = NEXUS_PASSWORD
+    }
 } else {
     project.ext.NEXUS_USERNAME = ""
     project.ext.NEXUS_PASSWORD = ""
@@ -45,7 +54,7 @@ try {
         }
         if (!file(sdkDir).isDirectory()) throw new Exception()
         // Couldn't find this documented anywhere; see https://android.googlesource.com/platform/tools/build/+/6d7fd0d2eff092abf1aaf44d03756b24570b390c/gradle/src/main/groovy/com/android/build/gradle/internal/Sdk.groovy#187
-        System.properties["android.home"] = property("sdk.dir")
+        System.properties["android.home"] = sdkDir
     }
 } catch (Exception e) {
     // throw new GradleException("sdk.dir must point to the Android SDK. Set it in \$HOME/.gradle/gradle.properties")
