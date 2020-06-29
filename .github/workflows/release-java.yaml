@@ -1,4 +1,4 @@
-name: Build release
+name: Build Java release
 
 # This is triggered by merging a PR from a branch named release-*. This workflow builds and publishes the Java release artifacts
 # to Maven Central.
@@ -28,7 +28,6 @@ jobs:
         with:
           java-version: 11
       - name: Install llvm (ubuntu)
-        if: startsWith(matrix.target, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y llvm
       - name: Cargo build
         run: cargo build -p ironoxide-java

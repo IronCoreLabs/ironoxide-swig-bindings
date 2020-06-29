@@ -1,4 +1,4 @@
-name: Build release
+name: Build Android release
 
 # This is triggered by merging a PR from a branch named release-*. This workflow builds and publishes the Android release artifacts
 # to Maven Central.

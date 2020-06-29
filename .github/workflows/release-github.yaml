@@ -1,4 +1,4 @@
-name: Build release
+name: Build GitHub releases
 
 # This is triggered by merging a PR from a branch named release-*. This workflow builds and publishes the release artifacts to
 # GitHub. Then it changes the version to *-SNAPSHOT in various Java-related files.
