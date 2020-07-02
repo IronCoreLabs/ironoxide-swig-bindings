@@ -26,7 +26,12 @@ java.lang.System.loadLibrary("ironoxide_android");
 
 ### Authenticating
 
-To make calls, you must create a project and segment in the IronCore Admin Console. Once created, you can use a tool such as [ironoxide-cli](https://github.com/IronCoreLabs/ironoxide-cli) to create users and devices. You can then read in a device with the `DeviceContext.fromJsonString()` function and use it to initialize an IronOxide instance. An example of this is available in the [Example Application](/android/examples/Example_Application/) in "MainActivity.java".
+To make calls, you must create a project and segment in the IronCore [Admin Console](https://admin.ironcorelabs.com). These are necessary to create an IronCore JWT that can be used to create users and generate devices.
+The JWT must use either the ES256 or RS256 algorithm and have a payload similar to IronOxide's [JwtClaims](https://docs.rs/ironoxide/0.23.0/ironoxide/user/struct.JwtClaims.html).
+
+Alternatively, once you have created a project and a segment, you can use a tool such as [ironoxide-cli](https://github.com/IronCoreLabs/ironoxide-cli) to create users and devices directly.
+You can then read in a device with the `DeviceContext.fromJsonString()` function and use it to initialize an `IronOxide` instance. An example of this is available in the
+[Example Application](/android/examples/Example_Application/) in "MainActivity.java".
 
 ## Build from Source
 

@@ -14,7 +14,7 @@ This application provides a simple UI for encrypting/decrypting data with IronCo
   ```bash
   ./sdkmanager "build-tools;29.0.3" "platform-tools" "platforms;android-29"
   ```
-- Create the file `$HOME/.gradle/gradle.properties` and add the line `sdk.dir=PATH_TO_ANDROID_CLI_FOLDER`.
+- Create/edit the file `$HOME/.gradle/gradle.properties` and add the line `sdk.dir=PATH_TO_ANDROID_CLI_FOLDER`.
 - An Android emulator running, or a compatible Android phone connected.
   - To start an emulator using the command line tools, follow these steps from the folder `AndroidCLI/cmdline-tools/tools/bin`:
     1. `./sdkmanager "emulator" "system-images;android-29;google_apis;x86_64"`
