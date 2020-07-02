@@ -44,9 +44,6 @@ fi
 sed -i"${VERIFY}" -e 's/^VERSION_NAME=.*/VERSION_NAME='"${VERS}"'/' android/gradle.properties
 EDITEDFILES="${EDITEDFILES} android/gradle.properties"
 
-sed -i"${VERIFY}" -e 's/com.ironcorelabs:ironoxide-android:.*@aar/com.ironcorelabs:ironoxide-android:'"${VERS}"'@aar/' android/examples/Example_Application/app/build.gradle
-EDITEDFILES="${EDITEDFILES} android/examples/Example_Application/app/build.gradle"
-
 sed -i"${VERIFY}" -e 's/^version in ThisBuild := ".*"$/version in ThisBuild := "'"${VERS}"'"/' java/tests/version.sbt
 EDITEDFILES="${EDITEDFILES} java/tests/version.sbt"
 
