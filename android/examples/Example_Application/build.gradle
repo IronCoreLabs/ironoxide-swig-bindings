@@ -4,7 +4,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.2'
+        classpath 'com.android.tools.build:gradle:4.0.0'
     }
 }
 
@@ -12,12 +12,23 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots"
-        }
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+// Ensure we know where the Android SDK is.
+try {
+    String sdkDir = findProperty("sdk.dir")
+    if (sdkDir == null) {
+        sdkDir = System.getenv("ANDROID_HOME")
+    }
+    if (!file(sdkDir).isDirectory()) throw new Exception()
+    // Couldn't find this documented anywhere; see https://android.googlesource.com/platform/tools/build/+/6d7fd0d2eff092abf1aaf44d03756b24570b390c/gradle/src/main/groovy/com/android/build/gradle/internal/Sdk.groovy#187
+    System.properties["android.home"] = property("sdk.dir")
+} catch (Exception e) {
+    // throw new GradleException("sdk.dir must point to the Android SDK. Set it in \$HOME/.gradle/gradle.properties")
+    throw e
 }
