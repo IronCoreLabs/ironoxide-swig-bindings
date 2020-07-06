@@ -155,11 +155,6 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: ${{ matrix.arch }}
-      - name: Delete artifact after download
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: ${{ matrix.arch }}
-          failOnError: false
       - name: Unzip Android build
         run: unzip -o ${{ matrix.arch }}/android_build.zip -d android/ironoxide-android/src/main
       - name: Run tests
@@ -169,6 +164,22 @@ jobs:
           arch: ${{ matrix.arch }}
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedAndroidTest
+
+  android-delete-artifacts:
+    needs: android-test
+    if: always()
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Delete artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: |
+            a
+            b
+            x86
+            x86_64
+            arm64-v8a
+          failOnError: false
 
   cpp-build:
     strategy:
