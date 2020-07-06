@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - delete-artifacts
   pull_request:
 
 jobs:
@@ -154,7 +153,7 @@ jobs:
       - name: Download android build
         uses: actions/download-artifact@v1
         with:
-          name: blah${{ matrix.arch }}
+          name: ${{ matrix.arch }}
       - name: Unzip Android build
         run: unzip -o ${{ matrix.arch }}/android_build.zip -d android/ironoxide-android/src/main
       - name: Run tests
