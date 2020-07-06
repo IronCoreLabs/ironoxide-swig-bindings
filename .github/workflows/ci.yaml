@@ -155,7 +155,7 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: ${{ matrix.arch }}
-      - name: Delete artifact
+      - name: Delete artifact after download
         uses: geekyeggo/delete-artifact@v1
         with:
           name: ${{ matrix.arch }}
