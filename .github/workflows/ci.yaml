@@ -135,11 +135,6 @@ jobs:
         with:
           name: ${{ matrix.folder-name }}
           path: android/ironoxide-android/src/main/android_build.zip
-      - name: Delete artifact when done
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: ${{ matrix.folder-name }}
-          failOnError: false
 
   # As the currently available emulators cannot use arm64-v8a architecture, we are currently only testing x86/x86_64.
   # This can be added in when either of the following happens:
@@ -160,6 +155,11 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: ${{ matrix.arch }}
+      - name: Delete artifact
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: ${{ matrix.arch }}
+          failOnError: false
       - name: Unzip Android build
         run: unzip -o ${{ matrix.arch }}/android_build.zip -d android/ironoxide-android/src/main
       - name: Run tests
