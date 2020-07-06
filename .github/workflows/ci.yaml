@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - delete-artifacts
   pull_request:
 
 jobs:
