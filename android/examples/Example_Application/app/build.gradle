@@ -3,6 +3,8 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
+    // This is the same NDK version as used in ironoxide-android.
+    // We should keep these in sync for best compatibility.
     ndkVersion "21.3.6528147"
 
     defaultConfig {
