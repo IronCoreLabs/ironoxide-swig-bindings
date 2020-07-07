@@ -134,12 +134,6 @@ jobs:
         with:
           name: ${{ matrix.folder-name }}
           path: android/ironoxide-android/src/main/android_build.zip
-      # We aren't doing anything with this build, but it's the best place to check that
-      # the build will be successful if we go on to release. In particular, it will catch if the
-      # NDK version we have specified is different than the one installed on the machine.
-      - name: Run gradle build
-        run: ./gradlew build
-        working-directory: android
 
   # As the currently available emulators cannot use arm64-v8a architecture, we are currently only testing x86/x86_64.
   # This can be added in when either of the following happens:
@@ -169,6 +163,19 @@ jobs:
           arch: ${{ matrix.arch }}
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedAndroidTest
+
+  # This tests the scripts and tasks that are needed to release ironoxide-android.
+  android-release-test:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install cross
+        run: cargo install cross
+      # Because this script runs `./gradlew build`, this will test that we're able to build the .aar files required for release.
+      # In particular, it will catch if the NDK version we have specified is different than the one installed on the machine.
+      - name: Run build script
+        run: ./build-aar.sh
+        working-directory: android
 
   cpp-build:
     strategy:
