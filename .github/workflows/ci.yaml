@@ -134,6 +134,12 @@ jobs:
         with:
           name: ${{ matrix.folder-name }}
           path: android/ironoxide-android/src/main/android_build.zip
+      # We aren't doing anything with this build, but it's the best place to check that
+      # the build will be successful if we go on to release. In particular, it will catch if the
+      # NDK version we have specified is different than the one installed on the machine.
+      - name: Run gradle build
+        run: ./gradlew build
+        working-directory: android
 
   # As the currently available emulators cannot use arm64-v8a architecture, we are currently only testing x86/x86_64.
   # This can be added in when either of the following happens:
