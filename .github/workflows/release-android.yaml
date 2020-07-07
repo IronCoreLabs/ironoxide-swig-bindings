@@ -4,13 +4,15 @@ name: Build Android release
 # to Maven Central.
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
+    branches: trigger-me
+  # pull_request:
+  #   types:
+  #     - closed
 
 jobs:
   android:
-    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
+    # if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
