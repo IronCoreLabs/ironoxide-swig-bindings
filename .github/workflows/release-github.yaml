@@ -60,6 +60,11 @@ jobs:
         with:
           name: release-ubuntu-18.04
           path: release/ubuntu-18.04
+      - name: Delete artifact
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: release-ubuntu-18.04
+          failOnError: false
       - name: Sign java artifact for ubuntu-18.04
         run: |
           gpg --batch --detach-sign -a release/ubuntu-18.04/libironoxide_java.so
@@ -88,6 +93,11 @@ jobs:
         with:
           name: release-macos-10.15
           path: release/macos-10.15
+      - name: Delete artifact
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: release-macos-10.15
+          failOnError: false
       - name: Sign java artifact for macos-10.15
         run: |
           gpg --batch --detach-sign -a release/macos-10.15/libironoxide_java.dylib
@@ -116,6 +126,11 @@ jobs:
         with:
           name: release-iOS
           path: release/release-iOS
+      - name: Delete artifact
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: release-macos-10.15
+          failOnError: false
       - name: Sign iOS artifact
         run: |
           gpg --batch --detach-sign -a release/release-iOS/ironoxide-homebrew.tar.gz

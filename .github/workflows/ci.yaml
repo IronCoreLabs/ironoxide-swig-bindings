@@ -95,6 +95,8 @@ jobs:
     strategy:
       matrix:
         arch: [i686-linux-android, x86_64-linux-android, aarch64-linux-android]
+        # These folder names will be used as the names of artifacts uploaded by this job.
+        # In order to delete these artifacts, the same names must go into the list in the `android-delete-artifacts` job.
         include:
           - arch: i686-linux-android
             folder-name: x86
@@ -129,6 +131,8 @@ jobs:
         run: |
           cd android/ironoxide-android/src/main
           zip -r android_build.zip *
+        # Uploads the src/main as an artifact with the provided folder name as its name.
+        # In order to delete this artifact, the same name must go into the list in the `android-delete-artifacts` job.
       - name: Upload src/main as artifact
         uses: actions/upload-artifact@v1
         with:
@@ -163,6 +167,24 @@ jobs:
           arch: ${{ matrix.arch }}
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedAndroidTest
+
+  # This job cleans up the artifacts uploaded in `android-build` as they are not needed outside of the workflow.
+  # It will run even if `android-test` fails, ensuring that the artifacts get deleted.
+  # If deletion fails, the workflow is still able to succeed, and the artifacts will automatically expire after 90 days.
+  android-delete-artifacts:
+    needs: android-test
+    if: always()
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Delete artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          # These are the names of the artifacts uploaded in `android-build` and should be kept in sync with them
+          name: |
+            x86
+            x86_64
+            arm64-v8a
+          failOnError: false
 
   # This tests that gradle can build ironoxide-android so we can catch issues before release.
   android-release-test:
