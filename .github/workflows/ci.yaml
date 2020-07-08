@@ -164,6 +164,22 @@ jobs:
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedAndroidTest
 
+  # This tests that gradle can build ironoxide-android so we can catch issues before release.
+  android-release-test:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install cross
+        run: cargo install cross
+      - name: Run build script
+        run: ./build.sh
+        working-directory: android
+      # This will test that we're able to build the .aar file required for release.
+      # In particular, it will catch if the NDK version we have specified is different than the one installed on the machine.
+      - name: Run gradle build
+        run: ./gradlew build
+        working-directory: android
+
   cpp-build:
     strategy:
       matrix:
