@@ -131,7 +131,7 @@ jobs:
         with:
           name: release-macos-10.15
           failOnError: false
-      - name: Sign artifact for release-iOS
+      - name: Sign iOS artifact
         run: |
           gpg --batch --detach-sign -a release/release-iOS/ironoxide-homebrew.tar.gz
           gpg --batch --verify release/release-iOS/ironoxide-homebrew.tar.gz.asc release/release-iOS/ironoxide-homebrew.tar.gz
