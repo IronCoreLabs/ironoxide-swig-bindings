@@ -13,8 +13,8 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-18.04
     needs:
-      - build
-      - cpp
+      - build-java
+      - build-cpp
     steps:
       - uses: actions/checkout@v2
         with:
@@ -55,7 +55,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           release_name: Version ${{ steps.version.outputs.tag }}
 
-      - name: Download release artifacts from ubuntu-18.04
+      - name: Download java release artifacts from ubuntu-18.04
         uses: actions/download-artifact@v1
         with:
           name: release-ubuntu-18.04
@@ -65,11 +65,11 @@ jobs:
         with:
           name: release-ubuntu-18.04
           failOnError: false
-      - name: Sign artifact for ubuntu-18.04
+      - name: Sign java artifact for ubuntu-18.04
         run: |
           gpg --batch --detach-sign -a release/ubuntu-18.04/libironoxide_java.so
           gpg --batch --verify release/ubuntu-18.04/libironoxide_java.so.asc release/ubuntu-18.04/libironoxide_java.so
-      - name: Upload lib for ubuntu-18.04
+      - name: Upload java lib for ubuntu-18.04
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -78,7 +78,7 @@ jobs:
           asset_path: release/ubuntu-18.04/libironoxide_java.so
           asset_name: libironoxide_java.so
           asset_content_type: application/data
-      - name: Upload signature for ubuntu-18.04
+      - name: Upload java signature for ubuntu-18.04
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,7 +88,7 @@ jobs:
           asset_name: libironoxide_java.so.asc
           asset_content_type: application/pgp-signature
 
-      - name: Download release artifacts from macos-10.15
+      - name: Download java release artifacts from macos-10.15
         uses: actions/download-artifact@v1
         with:
           name: release-macos-10.15
@@ -98,11 +98,11 @@ jobs:
         with:
           name: release-macos-10.15
           failOnError: false
-      - name: Sign artifact for macos-10.15
+      - name: Sign java artifact for macos-10.15
         run: |
           gpg --batch --detach-sign -a release/macos-10.15/libironoxide_java.dylib
           gpg --batch --verify release/macos-10.15/libironoxide_java.dylib.asc release/macos-10.15/libironoxide_java.dylib
-      - name: Upload lib for macos-10.15
+      - name: Upload java lib for macos-10.15
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -111,7 +111,7 @@ jobs:
           asset_path: release/macos-10.15/libironoxide_java.dylib
           asset_name: libironoxide_java.dylib
           asset_content_type: application/data
-      - name: Upload signature for macos-10.15
+      - name: Upload java signature for macos-10.15
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -121,35 +121,7 @@ jobs:
           asset_name: libironoxide_java.dylib.asc
           asset_content_type: application/pgp-signature
 
-      - name: Download release artifacts from android-release
-        uses: actions/download-artifact@v1
-        with:
-          name: android-release
-          path: release/android-release
-      - name: Sign artifact for android-release
-        run: |
-          gpg --batch --detach-sign -a release/android-release/ironoxide-android-release.aar
-          gpg --batch --verify release/android-release/ironoxide-android-release.aar.asc release/android-release/ironoxide-android-release.aar
-      - name: Upload aar for android-release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/android-release/ironoxide-android-release.aar
-          asset_name: ironoxide-android-release.aar
-          asset_content_type: application/data
-      - name: Upload signature for android-release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/android-release/ironoxide-android-release.aar.asc
-          asset_name: ironoxide-android-release.aar.asc
-          asset_content_type: application/pgp-signature
-
-      - name: Download release artifacts from release-iOS
+      - name: Download iOS release artifacts from build-cpp
         uses: actions/download-artifact@v1
         with:
           name: release-iOS
@@ -189,7 +161,7 @@ jobs:
       - run: git commit -m "Set next -SNAPSHOT version for Java."
       - run: git push
 
-  build:
+  build-java:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
@@ -224,7 +196,7 @@ jobs:
           name: release-macos-10.15
           path: target/release/libironoxide_java.dylib
 
-  cpp:
+  build-cpp:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: macos-10.15
     steps:
