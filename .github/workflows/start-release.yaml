@@ -11,6 +11,7 @@ name: Start release
 on: create
 
 jobs:
+  # Starts the release process for this repository.
   kickoff:
     if: github.event.ref_type == 'branch' && startsWith(github.event.ref, 'release-')
     runs-on: ubuntu-18.04
@@ -53,3 +54,44 @@ jobs:
               "body": "The release will be built when this PR is merged. Or close the PR to abort the release process."
               }' \
             https://api.github.com/repos/${{ github.repository }}/pulls
+
+  # Creates a PR to update homebrew-ironcore, which depends on releases from this repository.
+  homebrew-ironcore:
+    if: github.event.ref_type == 'branch' && startsWith(github.event.ref, 'release-')
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The DEPLOYMENT_TOKEN is a personal
+          # access token with "repo" permissions.
+          token: ${{ secrets.DEPLOYMENT_TOKEN }}
+          repository: IronCoreLabs/homebrew-ironcore
+      - name: Configure git
+        run: |
+          git config --local user.email ops@ironcorelabs.com
+          git config --local user.name "Leeroy Travis"
+      - name: Calculate versions from github.ref
+        id: version
+        run: |
+          CURRENT=$(basename ${{ github.ref }})
+          NAME=$(echo ${CURRENT} | sed 's/release-//')
+          echo "::set-output name=tag::${NAME}"
+          echo "::set-output name=pr_branch::ironoxide-swig-bindings-${NAME}
+      - name: Edit files for pending release
+        run: |
+          sed -i -e 's,^\( *url "\)[^"]*\("\)$,\1https://github.com/IronCoreLabs/ironoxide-swig-bindings/releases/download/${{ steps.version.outputs.tag }}/ironoxide-homebrew.tar.gz\2,' Formula/ironoxide.rb
+      - run: git add Formula/ironoxide.rb
+      - run: git checkout -b ${{ steps.version.outputs.pr_branch }}
+      - run: git commit -m "Use new ironoxide-swig-bindings ${{ steps.version.outputs.tag }}"
+      - run: git push origin ${{ steps.version.outputs.pr_branch }}
+      - name: Create PR
+        run: |
+          curl --silent --show-error --fail -X POST \
+            -H "Authorization: token ${{ github.token }}" \
+            -H "Content-Type: application/json" \
+            --data '{"title": "Use new ironoxide-swig-bindings ${{ steps.version.outputs.tag }}",
+              "head": "${{ steps.version.outputs.pr_branch }}",
+              "base": "master",
+              "body": "Don't merge this PR until ironoxide-swig-bindings release ${{ steps.version.outputs.tag }} has been built."
+              }' \
+            https://api.github.com/repos/IronCoreLabs/homebrew-ironcore/pulls
