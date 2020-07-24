@@ -248,7 +248,7 @@ jobs:
           NAME=$(echo ${CURRENT} | sed 's/release-//')
           ARTIFACT=https://github.com/IronCoreLabs/ironoxide-swig-bindings/releases/download/${NAME}/ironoxide-homebrew.tar.gz
           wget -q ${ARTIFACT}
-          SHA256=$(sha256sum -b "${ARTIFACT}" | awk '{print $1}')
+          SHA256=$(sha256sum -b ironoxide-homebrew.tar.gz | awk '{print $1}')
           echo "::set-output name=tag::${NAME}"
           echo "::set-output name=pr_branch::ironoxide-swig-bindings-${NAME}
           echo "::set-output name=artifact::${ARTIFACT}"
