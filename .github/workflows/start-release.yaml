@@ -11,6 +11,7 @@ name: Start release
 on: create
 
 jobs:
+  # Starts the release process for this repository.
   kickoff:
     if: github.event.ref_type == 'branch' && startsWith(github.event.ref, 'release-')
     runs-on: ubuntu-18.04
