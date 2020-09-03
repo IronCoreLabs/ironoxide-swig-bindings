@@ -891,13 +891,13 @@ mod jwt_claims {
     pub fn sub(j: &JwtClaims) -> String {
         j.sub.clone()
     }
-    pub fn pid(j: &JwtClaims) -> usize {
+    pub fn pid(j: &JwtClaims) -> u32 {
         j.pid
     }
     pub fn sid(j: &JwtClaims) -> String {
         j.sid.clone()
     }
-    pub fn kid(j: &JwtClaims) -> usize {
+    pub fn kid(j: &JwtClaims) -> u32 {
         j.kid
     }
     pub fn iat(j: &JwtClaims) -> u64 {

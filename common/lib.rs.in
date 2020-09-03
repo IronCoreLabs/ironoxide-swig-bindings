@@ -136,11 +136,11 @@ class JwtClaims{
     /// Unique user ID
     method jwt_claims::sub(&self) -> String; alias getSub;
     /// Project ID
-    method jwt_claims::pid(&self) -> usize; alias getPid;
+    method jwt_claims::pid(&self) -> u32; alias getPid;
     /// Segment ID
     method jwt_claims::sid(&self) -> String; alias getSid;
     /// Service key ID
-    method jwt_claims::kid(&self) -> usize; alias getKid;
+    method jwt_claims::kid(&self) -> u32; alias getKid;
     /// Issued time (seconds)
     method jwt_claims::iat(&self) -> u64; alias getIat;
     /// Expiration time (seconds)
