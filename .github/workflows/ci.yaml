@@ -59,7 +59,7 @@ jobs:
         # end up with two directories of generated code, and the tests will fail. So we clean that up now and force code
         # generation to always happen.
         run: rm -rf target/debug/build/ironoxide-java-*
-      - uses: olafurpg/setup-scala@v7
+      - uses: olafurpg/setup-scala@v10
         with:
           java-version: 11
       - name: Set up centos
