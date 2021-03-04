@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          # base_ref will typically be master. We'll need to commit a change to that branch and push it.
+          # base_ref will typically be main. We'll need to commit a change to that branch and push it.
           ref: ${{ github.base_ref }}
           # If we use the default GITHUB_TOKEN then CI won't run after we push our changes. This DEPLOYMENT_TOKEN is a personal
           # access token with "repo" permissions.
@@ -268,7 +268,7 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{"title": "Use new ironoxide-swig-bindings ${{ steps.vars.outputs.tag }}",
               "head": "${{ steps.vars.outputs.pr_branch }}",
-              "base": "master",
+              "base": "main",
               "body": ""
               }' \
             https://api.github.com/repos/IronCoreLabs/homebrew-ironcore/pulls

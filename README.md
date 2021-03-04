@@ -4,5 +4,5 @@ This library is a thin Rust shim that wraps the [IronOxide Rust SDK](https://git
 
 # License
 
-Copyright (c) 2020 IronCore Labs, Inc.
+Copyright (c) 2021 IronCore Labs, Inc.
 All rights reserved.
