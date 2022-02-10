@@ -71,6 +71,8 @@ jobs:
           gpg --batch --verify release/ubuntu-18.04/libironoxide_java.so.asc release/ubuntu-18.04/libironoxide_java.so
       - name: Upload java lib for ubuntu-18.04
         run: gh release upload ${{ steps.version.outputs.tag }} release/ubuntu-18.04/libironoxide_java.so release/ubuntu-18.04/libironoxide_java.so.asc --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download java release artifacts from macos-10.15
         uses: actions/download-artifact@v1
@@ -88,6 +90,8 @@ jobs:
           gpg --batch --verify release/macos-10.15/libironoxide_java.dylib.asc release/macos-10.15/libironoxide_java.dylib
       - name: Upload java lib for macos-10.15
         run: gh release upload ${{ steps.version.outputs.tag }} release/macos-10.15/libironoxide_java.dylib release/macos-10.15/libironoxide_java.dylib.asc --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download iOS release artifacts from build-cpp
         uses: actions/download-artifact@v1
@@ -105,6 +109,8 @@ jobs:
           gpg --batch --verify release/release-iOS/ironoxide-homebrew.tar.gz.asc release/release-iOS/ironoxide-homebrew.tar.gz
       - name: Upload tar for release-iOS
         run: gh release upload ${{ steps.version.outputs.tag }} release/release-iOS/ironoxide-homebrew.tar.gz release/release-iOS/ironoxide-homebrew.tar.gz.asc --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Increment to next -SNAPSHOT version for Java.
         run: |
