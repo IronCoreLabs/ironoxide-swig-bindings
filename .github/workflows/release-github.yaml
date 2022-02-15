@@ -70,23 +70,9 @@ jobs:
           gpg --batch --detach-sign -a release/ubuntu-18.04/libironoxide_java.so
           gpg --batch --verify release/ubuntu-18.04/libironoxide_java.so.asc release/ubuntu-18.04/libironoxide_java.so
       - name: Upload java lib for ubuntu-18.04
-        uses: actions/upload-release-asset@v1
+        run: gh release upload ${{ steps.version.outputs.tag }} release/ubuntu-18.04/libironoxide_java.so release/ubuntu-18.04/libironoxide_java.so.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/ubuntu-18.04/libironoxide_java.so
-          asset_name: libironoxide_java.so
-          asset_content_type: application/data
-      - name: Upload java signature for ubuntu-18.04
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/ubuntu-18.04/libironoxide_java.so.asc
-          asset_name: libironoxide_java.so.asc
-          asset_content_type: application/pgp-signature
 
       - name: Download java release artifacts from macos-10.15
         uses: actions/download-artifact@v1
@@ -103,23 +89,9 @@ jobs:
           gpg --batch --detach-sign -a release/macos-10.15/libironoxide_java.dylib
           gpg --batch --verify release/macos-10.15/libironoxide_java.dylib.asc release/macos-10.15/libironoxide_java.dylib
       - name: Upload java lib for macos-10.15
-        uses: actions/upload-release-asset@v1
+        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-10.15/libironoxide_java.dylib release/macos-10.15/libironoxide_java.dylib.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/macos-10.15/libironoxide_java.dylib
-          asset_name: libironoxide_java.dylib
-          asset_content_type: application/data
-      - name: Upload java signature for macos-10.15
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/macos-10.15/libironoxide_java.dylib.asc
-          asset_name: libironoxide_java.dylib.asc
-          asset_content_type: application/pgp-signature
 
       - name: Download iOS release artifacts from build-cpp
         uses: actions/download-artifact@v1
@@ -136,23 +108,9 @@ jobs:
           gpg --batch --detach-sign -a release/release-iOS/ironoxide-homebrew.tar.gz
           gpg --batch --verify release/release-iOS/ironoxide-homebrew.tar.gz.asc release/release-iOS/ironoxide-homebrew.tar.gz
       - name: Upload tar for release-iOS
-        uses: actions/upload-release-asset@v1
+        run: gh release upload ${{ steps.version.outputs.tag }} release/release-iOS/ironoxide-homebrew.tar.gz release/release-iOS/ironoxide-homebrew.tar.gz.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/release-iOS/ironoxide-homebrew.tar.gz
-          asset_name: ironoxide-homebrew.tar.gz
-          asset_content_type: application/data
-      - name: Upload signature for release-iOS
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/release-iOS/ironoxide-homebrew.tar.gz.asc
-          asset_name: ironoxide-homebrew.tar.gz.asc
-          asset_content_type: application/pgp-signature
 
       - name: Increment to next -SNAPSHOT version for Java.
         run: |
