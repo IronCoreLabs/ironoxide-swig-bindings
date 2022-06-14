@@ -194,7 +194,7 @@ class DocumentTests extends TestSuite {
 
       doc.getId shouldBe encryptResult.getId
       doc.getName.isPresent shouldBe false
-      doc.getAssociationType shouldBe AssociationType.Owner
+      doc.getAssociationType shouldBe AssociationType.FromUser
       doc.getAssociationType shouldBe doc2.getAssociationType
       doc.getAssociationType.hashCode shouldBe doc2.getAssociationType.hashCode
       doc.getVisibleToUsers should have length 1
