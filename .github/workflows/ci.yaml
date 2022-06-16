@@ -133,7 +133,7 @@ jobs:
     runs-on: macos-10.15
     strategy:
       matrix:
-        api-level: [24, 30]
+        api-level: [24, 29]
         arch: [x86, x86_64]
         include:
           - api-level: 30
