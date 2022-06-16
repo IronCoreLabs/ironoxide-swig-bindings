@@ -2,7 +2,6 @@ use crate::{
     document_access_change_result::{DocumentAccessChange, FailedResult, SucceededResult},
     document_decrypt_unmanaged_result::UserOrGroupId,
 };
-use chrono::{DateTime, Utc};
 
 #[cfg(feature = "java")]
 use crate::jni_c_header::*;
@@ -14,141 +13,141 @@ use jni_sys::*;
 /// Classes for Common Types
 ///
 
-foreigner_class!(
+foreign_class!(
 /// Represents an asymmetric public key that wraps the underlying bytes
 /// of the key.
 class PublicKey {
     self_type PublicKey;
     private constructor = empty;
-    static_method public_key::validate(bytes: &[i8]) -> Result<PublicKey, String>;
-    method public_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
+    fn public_key::validate(bytes: &[i8]) -> Result<PublicKey, String>;
+    fn public_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
     pre_build_generate_equals_and_hashcode PublicKey;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Represents an asymmetric private key that wraps the underlying bytes
 /// of the key.
 class PrivateKey {
     self_type PrivateKey;
     private constructor = empty;
-    static_method private_key::validate(bytes: &[i8]) -> Result<PrivateKey, String>;
-    method private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
+    fn private_key::validate(bytes: &[i8]) -> Result<PrivateKey, String>;
+    fn private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
     pre_build_generate_equals_and_hashcode PrivateKey;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Signing keypair specific to a device. Used to sign all requests to the IronCore API
 /// endpoints. Needed to create a `DeviceContext`.
 class DeviceSigningKeyPair {
     self_type DeviceSigningKeyPair;
     private constructor = empty;
-    static_method device_signing_keys::validate(bytes: &[i8]) -> Result<DeviceSigningKeyPair, String>;
-    method device_signing_keys::as_bytes(&self) -> Vec<i8>; alias asBytes;
+    fn device_signing_keys::validate(bytes: &[i8]) -> Result<DeviceSigningKeyPair, String>;
+    fn device_signing_keys::as_bytes(&self) -> Vec<i8>; alias asBytes;
     pre_build_generate_equals_and_hashcode DeviceSigningKeyPair;
 });
 
-foreigner_class!(
+foreign_class!(
 /// ID of a user. Unique with in a segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`.
 #[derive(Clone)]
 class UserId {
     self_type UserId;
     private constructor = empty;
-    static_method user_id::validate(s: &str) -> Result<UserId, String>;
-    method user_id::id(&self) -> String; alias getId;
+    fn user_id::validate(s: &str) -> Result<UserId, String>;
+    fn user_id::id(&self) -> String; alias getId;
     pre_build_generate_equals_and_hashcode UserId;
 });
 
-foreigner_class!(
+foreign_class!(
 /// ID of a group. Unique within a segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`
 #[derive(Clone)]
 class GroupId {
     self_type GroupId;
     private constructor = empty;
-    static_method group_id::validate(s: &str) -> Result<GroupId, String>;
-    method group_id::id(&self) -> String; alias getId;
+    fn group_id::validate(s: &str) -> Result<GroupId, String>;
+    fn group_id::id(&self) -> String; alias getId;
     pre_build_generate_equals_and_hashcode GroupId;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Either a user id or a group id
 class UserOrGroupId {
     self_type UserOrGroupId;
     private constructor = empty;
-    method UserOrGroupId::id(&self) -> String; alias getId;
-    method UserOrGroupId::is_user(&self) -> bool; alias isUser;
-    method UserOrGroupId::is_group(&self) -> bool; alias isGroup;
+    fn UserOrGroupId::id(&self) -> String; alias getId;
+    fn UserOrGroupId::is_user(&self) -> bool; alias isUser;
+    fn UserOrGroupId::is_group(&self) -> bool; alias isGroup;
     pre_build_generate_equals_and_hashcode UserOrGroupId;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Group's user-assigned name. (non-unique)
 class GroupName {
     self_type GroupName;
     private constructor = empty;
-    static_method group_name::validate(s: &str) -> Result<GroupName, String>;
-    method group_name::name(&self) -> String; alias getName;
+    fn group_name::validate(s: &str) -> Result<GroupName, String>;
+    fn group_name::name(&self) -> String; alias getName;
     pre_build_generate_equals_and_hashcode GroupName;
 });
 
-foreigner_class!(
+foreign_class!(
 class NullableBoolean{
     self_type NullableBoolean;
     private constructor = empty;
-    method NullableBoolean::boolean(&self) -> bool; alias getBoolean;
+    fn NullableBoolean::boolean(&self) -> bool; alias getBoolean;
     pre_build_generate_equals_and_hashcode NullableBoolean;
 });
 
-foreigner_class!(
+foreign_class!(
 /// ID of a document. Unique within the segment. Must match the regex `^[a-zA-Z0-9_.$#|@/:;=+'-]+$`.
 class DocumentId {
     self_type DocumentId;
     private constructor = empty;
-    static_method document_id::validate(s: &str) -> Result<DocumentId, String>;
-    method document_id::id(&self) -> String; alias getId;
+    fn document_id::validate(s: &str) -> Result<DocumentId, String>;
+    fn document_id::id(&self) -> String; alias getId;
     pre_build_generate_equals_and_hashcode DocumentId;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Document name type. Validates that the provided document name isn't an empty string
 class DocumentName {
     self_type DocumentName;
     private constructor = empty;
-    static_method document_name::validate(s: &str) -> Result<DocumentName, String>;
-    method document_name::name(&self) -> String; alias getName;
+    fn document_name::validate(s: &str) -> Result<DocumentName, String>;
+    fn document_name::name(&self) -> String; alias getName;
     pre_build_generate_equals_and_hashcode DocumentName;
 });
 
-foreigner_class!(
+foreign_class!(
 /// ID of a device. Device IDs are numeric and will always be greater than 0.
 class DeviceId {
     self_type DeviceId;
     private constructor = empty;
-    static_method device_id::validate(s: i64) -> Result<DeviceId, String>;
-    method device_id::id(&self) -> i64; alias getId;
+    fn device_id::validate(s: i64) -> Result<DeviceId, String>;
+    fn device_id::id(&self) -> i64; alias getId;
     pre_build_generate_equals_and_hashcode DeviceId;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Claims required to form a valid `Jwt`.
 class JwtClaims{
     self_type JwtClaims;
     private constructor = empty;
     /// Unique user ID
-    method jwt_claims::sub(&self) -> String; alias getSub;
+    fn jwt_claims::sub(&self) -> String; alias getSub;
     /// Project ID
-    method jwt_claims::pid(&self) -> u32; alias getPid;
+    fn jwt_claims::pid(&self) -> u32; alias getPid;
     /// Segment ID
-    method jwt_claims::sid(&self) -> String; alias getSid;
+    fn jwt_claims::sid(&self) -> String; alias getSid;
     /// Service key ID
-    method jwt_claims::kid(&self) -> u32; alias getKid;
+    fn jwt_claims::kid(&self) -> u32; alias getKid;
     /// Issued time (seconds)
-    method jwt_claims::iat(&self) -> u64; alias getIat;
+    fn jwt_claims::iat(&self) -> u64; alias getIat;
     /// Expiration time (seconds)
-    method jwt_claims::exp(&self) -> u64; alias getExp;
+    fn jwt_claims::exp(&self) -> u64; alias getExp;
     pre_build_generate_equals_and_hashcode JwtClaims;
 });
 
-foreigner_class!(
+foreign_class!(
 /// IronCore JWT.
 ///
 /// Must be either ES256 or RS256 and have a payload similar to `JwtClaims`, but could be
@@ -156,97 +155,97 @@ foreigner_class!(
 class Jwt {
     self_type Jwt;
     private constructor = empty;
-    static_method jwt::validate(jwt: &str) -> Result<Jwt, String>;
+    fn jwt::validate(jwt: &str) -> Result<Jwt, String>;
     /// Raw JWT string
-    method jwt::jwt(&self) -> String; alias getJwt;
+    fn jwt::jwt(&self) -> String; alias getJwt;
     /// Payload of the JWT
-    method jwt::claims(&self) -> JwtClaims; alias getClaims;
+    fn jwt::claims(&self) -> JwtClaims; alias getClaims;
     /// Algorithm used by the JWT
-    method jwt::algorithm(&self) -> String; alias getAlgorithm;
+    fn jwt::algorithm(&self) -> String; alias getAlgorithm;
     pre_build_generate_equals_and_hashcode Jwt;
 });
 
-foreigner_class!(
+foreign_class!(
 class UserUpdatePrivateKeyResult {
     self_type UserUpdatePrivateKeyResult;
     private constructor = empty;
     /// Updated encrypted user private key
-    method user_update_private_key_result::user_master_private_key(&self) -> EncryptedPrivateKey; alias getUserMasterPrivateKey;
+    fn user_update_private_key_result::user_master_private_key(&self) -> EncryptedPrivateKey; alias getUserMasterPrivateKey;
     /// True if this user's master key requires rotation
-    method user_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    fn user_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
     pre_build_generate_equals_and_hashcode UserUpdatePrivateKeyResult;
 });
 
-foreigner_class!(
+foreign_class!(
     class EncryptedPrivateKey {
     self_type EncryptedPrivateKey;
     private constructor = empty;
-    method encrypted_private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
+    fn encrypted_private_key::as_bytes(&self) -> Vec<i8>; alias asBytes;
     pre_build_generate_equals_and_hashcode EncryptedPrivateKey;
 
 });
 
-foreigner_class!(
+foreign_class!(
 /// Device name type. Validates that the provided name isn't an empty string
 class DeviceName {
     self_type DeviceName;
     private constructor = empty;
-    static_method device_name::validate(s: &str) -> Result<DeviceName, String>;
-    method device_name::name(&self) -> String; alias getName;
+    fn device_name::validate(s: &str) -> Result<DeviceName, String>;
+    fn device_name::name(&self) -> String; alias getName;
     pre_build_generate_equals_and_hashcode DeviceName;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Represents a User struct which is returned from document get to show the IDs of users the document is visible to
 class VisibleUser {
     self_type VisibleUser;
     private constructor = empty;
-    method visible_user::id(&self) -> UserId; alias getId;
+    fn visible_user::id(&self) -> UserId; alias getId;
     pre_build_generate_equals_and_hashcode VisibleUser;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Represents a Group struct which is returned from document get to show the IDs and names of groups the document is visible to
 class VisibleGroup {
     self_type VisibleGroup;
     private constructor = empty;
-    method visible_group::id(&self) -> GroupId; alias getId;
-    method visible_group::name(&self) -> Option<GroupName>; alias getName;
+    fn visible_group::id(&self) -> GroupId; alias getId;
+    fn visible_group::name(&self) -> Option<GroupName>; alias getName;
     pre_build_generate_equals_and_hashcode VisibleGroup;
 });
 
-foreigner_class!(
+foreign_class!(
 /// A single grant/remove failure for a user.
 class UserAccessErr {
     self_type UserAccessErr;
     private constructor = empty;
-    method UserAccessErr::id(&self) -> UserId; alias getId;
-    method UserAccessErr::err(&self) -> String; alias getErr;
+    fn UserAccessErr::id(&self) -> UserId; alias getId;
+    fn UserAccessErr::err(&self) -> String; alias getErr;
     pre_build_generate_equals_and_hashcode UserAccessErr;
 });
 
-foreigner_class!(
+foreign_class!(
 /// A single grant/remove failure for a group.
 class GroupAccessErr {
     self_type GroupAccessErr;
     private constructor = empty;
-    method GroupAccessErr::id(&self) -> GroupId; alias getId;
-    method GroupAccessErr::err(&self) -> String; alias getErr;
+    fn GroupAccessErr::id(&self) -> GroupId; alias getId;
+    fn GroupAccessErr::err(&self) -> String; alias getErr;
     pre_build_generate_equals_and_hashcode GroupAccessErr;
 });
 
-foreigner_class!(class UserWithKey {
+foreign_class!(class UserWithKey {
     self_type UserWithKey;
     private constructor = empty;
-    method UserWithKey::user(&self) -> UserId; alias getUser;
-    method UserWithKey::public_key(&self) -> PublicKey; alias getPublicKey;
+    fn UserWithKey::user(&self) -> UserId; alias getUser;
+    fn UserWithKey::public_key(&self) -> PublicKey; alias getPublicKey;
     pre_build_generate_equals_and_hashcode UserWithKey;
 });
 
-foreigner_class!(class GroupUserList {
+foreign_class!(class GroupUserList {
     self_type GroupUserList;
     private constructor = empty;
-    method GroupUserList::list(&self) -> Vec<UserId>; alias getList;
+    fn GroupUserList::list(&self) -> Vec<UserId>; alias getList;
     pre_build_generate_equals_and_hashcode GroupUserList;
 });
 
@@ -254,42 +253,42 @@ foreigner_class!(class GroupUserList {
 /// SDK Initialization Structure
 ///
 
-foreigner_class!(
+foreign_class!(
 /// Account's device context. Needed to initialize the Sdk with a set of device keys. See `Sdk.initialize()`
 class DeviceContext {
     self_type DeviceContext;
     constructor device_context::new(accountId: &UserId, segmentId: i64, devicePrivateKey: &PrivateKey, signingPrivateKey: &DeviceSigningKeyPair) -> DeviceContext;
     constructor device_context::new_from_dar(dar: &DeviceAddResult) -> DeviceContext;
-    method device_context::account_id(&self) -> UserId; alias getAccountId;
-    method device_context::segment_id(&self) -> usize; alias getSegmentId;
-    method device_context::device_private_key(&self) -> PrivateKey; alias getDevicePrivateKey;
-    method device_context::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
-    method device_context::to_json_string(&self) -> String; alias toJsonString;
-    static_method device_context::from_json_string(jsonString: &str) -> Result<DeviceContext, String>; alias fromJsonString;
+    fn device_context::account_id(&self) -> UserId; alias getAccountId;
+    fn device_context::segment_id(&self) -> usize; alias getSegmentId;
+    fn device_context::device_private_key(&self) -> PrivateKey; alias getDevicePrivateKey;
+    fn device_context::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
+    fn device_context::to_json_string(&self) -> String; alias toJsonString;
+    fn device_context::from_json_string(jsonString: &str) -> Result<DeviceContext, String>; alias fromJsonString;
     pre_build_generate_equals_and_hashcode DeviceContext;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Result from adding a new device
 class DeviceAddResult {
     self_type DeviceAddResult;
     private constructor = empty;
     /// The user's given id, which uniquely identifies them inside the segment.
-    method device_add_result::account_id(&self) -> UserId; alias getAccountId;
+    fn device_add_result::account_id(&self) -> UserId; alias getAccountId;
     /// The user's segment id
-    method device_add_result::segment_id(&self) -> usize; alias getSegmentId;
+    fn device_add_result::segment_id(&self) -> usize; alias getSegmentId;
     /// The private key which was generated for a particular device for the user. Not the user's master private key.
-    method device_add_result::device_private_key(&self) -> PrivateKey; alias getDevicePrivateKey;
+    fn device_add_result::device_private_key(&self) -> PrivateKey; alias getDevicePrivateKey;
     /// The signing key which was generated for the device
-    method device_add_result::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
+    fn device_add_result::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
     /// The id of the device that was added
-    method device_add_result::device_id(&self) -> DeviceId; alias getDeviceId;
+    fn device_add_result::device_id(&self) -> DeviceId; alias getDeviceId;
     /// The name of the device that was added
-    method device_add_result::name(&self) -> Option<DeviceName>; alias getName;
+    fn device_add_result::name(&self) -> Option<DeviceName>; alias getName;
     /// The date and time that the device was created
-    method device_add_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    fn device_add_result::created(&self) -> OffsetDateTime; alias getCreated;
     /// The date and time that the device was last updated
-    method device_add_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    fn device_add_result::last_updated(&self) -> OffsetDateTime; alias getLastUpdated;
     pre_build_generate_equals_and_hashcode DeviceAddResult;
 });
 
@@ -297,49 +296,49 @@ class DeviceAddResult {
 /// User Operation Classes
 ///
 
-foreigner_class!(
+foreign_class!(
 /// Keypair for a newly created user.
 class UserCreateResult {
     self_type UserCreateResult;
     private constructor = empty;
-    method user_create_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
+    fn user_create_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
     /// True if the private key of the user's keypair needs to be rotated, else false.
-    method user_create_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    fn user_create_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
     pre_build_generate_equals_and_hashcode UserCreateResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// IDs and public key for existing user on verify result
 class UserResult {
     self_type UserResult;
     private constructor = empty;
-    method user_result::account_id(&self) -> UserId; alias getAccountId;
-    method user_result::segment_id(&self) -> usize; alias getSegmentId;
-    method user_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
-    method user_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    fn user_result::account_id(&self) -> UserId; alias getAccountId;
+    fn user_result::segment_id(&self) -> usize; alias getSegmentId;
+    fn user_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
+    fn user_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
     pre_build_generate_equals_and_hashcode UserResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Metadata about a user device.
 class UserDevice {
     self_type UserDevice;
     private constructor = empty;
     /// Get the unique id for the device
-    method user_device::id(&self) -> DeviceId; alias getId;
+    fn user_device::id(&self) -> DeviceId; alias getId;
     /// Get the devices optional non-unique readable name
-    method user_device::name(&self) -> Option<DeviceName>; alias getName;
+    fn user_device::name(&self) -> Option<DeviceName>; alias getName;
     /// Get the time the device was created
-    method user_device::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    fn user_device::last_updated(&self) -> OffsetDateTime; alias getLastUpdated;
     /// Get the time the device was last updated
-    method user_device::created(&self) -> DateTime<Utc>; alias getCreated;
+    fn user_device::created(&self) -> OffsetDateTime; alias getCreated;
     /// True if this device instance is the one that was used to make
     /// the API request
-    method UserDevice::is_current_device(&self) -> bool; alias isCurrentDevice;
+    fn UserDevice::is_current_device(&self) -> bool; alias isCurrentDevice;
     pre_build_generate_equals_and_hashcode UserDevice;
 });
 
-foreigner_class!(class DeviceCreateOpts {
+foreign_class!(class DeviceCreateOpts {
     self_type DeviceCreateOpts;
     //Construct the DeviceCreateOpts with `null` for name.
     constructor DeviceCreateOpts::default() -> DeviceCreateOpts;
@@ -347,7 +346,7 @@ foreigner_class!(class DeviceCreateOpts {
     pre_build_generate_equals_and_hashcode DeviceCreateOpts;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Options that can be specified creating a user.
 class UserCreateOpts {
     self_type UserCreateOpts;
@@ -357,12 +356,12 @@ class UserCreateOpts {
     pre_build_generate_equals_and_hashcode UserCreateOpts;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Devices for a user, sorted by the device id.
 class UserDeviceListResult {
     self_type UserDeviceListResult;
     private constructor = empty;
-    method user_device_list_result::result(&self) -> Vec<UserDevice>; alias getResult;
+    fn user_device_list_result::result(&self) -> Vec<UserDevice>; alias getResult;
     pre_build_generate_equals_and_hashcode UserDeviceListResult;
 });
 
@@ -370,104 +369,104 @@ class UserDeviceListResult {
 /// Group Operation Classes
 ///
 
-foreigner_class!(
+foreign_class!(
 /// Abbreviated group meta information.
 class GroupMetaResult{
     self_type GroupMetaResult;
     private constructor = empty;
     /// get the unique id of the group
-    method group_meta_result::id(&self) -> GroupId; alias getId;
+    fn group_meta_result::id(&self) -> GroupId; alias getId;
     /// null if the group has no name, else the group's name
-    method group_meta_result::name(&self) -> Option<GroupName>; alias getName;
+    fn group_meta_result::name(&self) -> Option<GroupName>; alias getName;
     /// true if the calling user is a group admin
-    method GroupMetaResult::is_admin(&self) -> bool; alias isAdmin;
+    fn GroupMetaResult::is_admin(&self) -> bool; alias isAdmin;
     /// true if the calling user is a group member
-    method GroupMetaResult::is_member(&self) -> bool; alias isMember;
+    fn GroupMetaResult::is_member(&self) -> bool; alias isMember;
     /// get the date and time that the group was created
-    method group_meta_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    fn group_meta_result::created(&self) -> OffsetDateTime; alias getCreated;
     /// get the date and time that the group was last updated
-    method group_meta_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    fn group_meta_result::last_updated(&self) -> OffsetDateTime; alias getLastUpdated;
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
-    method group_meta_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
+    fn group_meta_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
     pre_build_generate_equals_and_hashcode GroupMetaResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Group information from creation.
 class GroupCreateResult{
     self_type GroupCreateResult;
     private constructor = empty;
     /// get the unique id of the group
-    method group_create_result::id(&self) -> GroupId; alias getId;
+    fn group_create_result::id(&self) -> GroupId; alias getId;
     /// null if the group has no name, else the group's name
-    method group_create_result::name(&self) -> Option<GroupName>; alias getName;
+    fn group_create_result::name(&self) -> Option<GroupName>; alias getName;
     /// public key for encrypting to the group
-    method group_create_result::group_master_public_key(&self) -> PublicKey; alias getGroupMasterPublicKey;
+    fn group_create_result::group_master_public_key(&self) -> PublicKey; alias getGroupMasterPublicKey;
     /// true if the calling user is a group admin
-    method GroupCreateResult::is_admin(&self) -> bool; alias isAdmin;
+    fn GroupCreateResult::is_admin(&self) -> bool; alias isAdmin;
     /// true if the calling user is a group member
-    method GroupCreateResult::is_member(&self) -> bool; alias isMember;
+    fn GroupCreateResult::is_member(&self) -> bool; alias isMember;
     /// owner of the group
-    method group_create_result::owner(&self) -> UserId; alias getOwner;
+    fn group_create_result::owner(&self) -> UserId; alias getOwner;
     /// a GroupUserList of group admins. Group admins can change group membership.
-    method group_create_result::admin_list(&self) -> GroupUserList; alias getAdminList;
+    fn group_create_result::admin_list(&self) -> GroupUserList; alias getAdminList;
     /// a GroupUserList of group members. Members of a group can decrypt values encrypted to the group.
-    method group_create_result::member_list(&self) -> GroupUserList; alias getMemberList;
+    fn group_create_result::member_list(&self) -> GroupUserList; alias getMemberList;
     /// date and time that the group was created
-    method group_create_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    fn group_create_result::created(&self) -> OffsetDateTime; alias getCreated;
     /// date and time that the group was last updated
-    method group_create_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    fn group_create_result::last_updated(&self) -> OffsetDateTime; alias getLastUpdated;
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
-    method group_create_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
+    fn group_create_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
     pre_build_generate_equals_and_hashcode GroupCreateResult;
 });
 
-foreigner_class!(class GroupListResult{
+foreign_class!(class GroupListResult{
     self_type GroupListResult;
     private constructor = empty;
-    method group_list_result::result(&self) -> Vec<GroupMetaResult>; alias getResult;
+    fn group_list_result::result(&self) -> Vec<GroupMetaResult>; alias getResult;
     pre_build_generate_equals_and_hashcode GroupListResult;
 });
 
-foreigner_class!(class GroupGetResult{
+foreign_class!(class GroupGetResult{
     self_type GroupGetResult;
     private constructor = empty;
     /// get the unique id of the group
-    method group_get_result::id(&self) -> GroupId; alias getId;
+    fn group_get_result::id(&self) -> GroupId; alias getId;
     /// null if the group has no name, else the group's name
-    method group_get_result::name(&self) -> Option<GroupName>; alias getName;
+    fn group_get_result::name(&self) -> Option<GroupName>; alias getName;
     /// get the public key of the group
-    method group_get_result::group_master_public_key(&self) -> PublicKey; alias getGroupMasterPublicKey;
+    fn group_get_result::group_master_public_key(&self) -> PublicKey; alias getGroupMasterPublicKey;
     /// true if the calling user is a group admin
-    method GroupGetResult::is_admin(&self) -> bool; alias isAdmin;
+    fn GroupGetResult::is_admin(&self) -> bool; alias isAdmin;
     /// true if the calling user is a group member
-    method GroupGetResult::is_member(&self) -> bool; alias isMember;
+    fn GroupGetResult::is_member(&self) -> bool; alias isMember;
     /// get the date and time that the group was created
-    method group_get_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    fn group_get_result::created(&self) -> OffsetDateTime; alias getCreated;
     /// get the date and time that the group was last updated
-    method group_get_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    fn group_get_result::last_updated(&self) -> OffsetDateTime; alias getLastUpdated;
     /// null if the calling user is not in the group, else a GroupUserList of group admins
-    method group_get_result::admin_list(&self) -> Option<GroupUserList>; alias getAdminList;
+    fn group_get_result::admin_list(&self) -> Option<GroupUserList>; alias getAdminList;
     /// null if the calling user is not in the group, else a GroupUserList of group members
-    method group_get_result::member_list(&self) -> Option<GroupUserList>; alias getMemberList;
+    fn group_get_result::member_list(&self) -> Option<GroupUserList>; alias getMemberList;
     /// null if the calling user is not a group admin, else a NullableBoolean of if the group private key needs rotation
-    method group_get_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
+    fn group_get_result::needs_rotation(&self) -> Option<NullableBoolean>; alias getNeedsRotation;
     pre_build_generate_equals_and_hashcode GroupGetResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Result of rotating group private key.
 class GroupUpdatePrivateKeyResult{
     self_type GroupUpdatePrivateKeyResult;
     private constructor = empty;
     /// true if the group still needs rotation, else false
-    method group_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    fn group_update_private_key_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
     /// the id of the group whose private key was rotated
-    method group_update_private_key_result::id(&self) -> GroupId; alias getId;
+    fn group_update_private_key_result::id(&self) -> GroupId; alias getId;
     pre_build_generate_equals_and_hashcode GroupUpdatePrivateKeyResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Options for group creation.
 class GroupCreateOpts {
     self_type GroupCreateOpts;
@@ -484,27 +483,27 @@ class GroupCreateOpts {
     pre_build_generate_equals_and_hashcode GroupCreateOpts;
 });
 
-foreigner_class!(
+foreign_class!(
 /// A failure to edit a group's administrator or membership lists
 class GroupAccessEditErr{
     self_type GroupAccessEditErr;
     private constructor = empty;
     /// Get user whose access was to be granted/revoked
-    method access_edit_failure::user(&self) -> UserId; alias getUser;
+    fn access_edit_failure::user(&self) -> UserId; alias getUser;
     /// Get the reason for grant/revoke failure
-    method access_edit_failure::error(&self) -> String; alias getError;
+    fn access_edit_failure::error(&self) -> String; alias getError;
     pre_build_generate_equals_and_hashcode GroupAccessEditErr;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Result from requesting changes to a group's membership or administrators. Partial success is supported.
 class GroupAccessEditResult{
     self_type GroupAccessEditResult;
     private constructor = empty;
     /// Get the list of users whose access was modified
-    method group_access_edit_result::succeeded(&self) -> Vec<UserId>; alias getSucceeded;
+    fn group_access_edit_result::succeeded(&self) -> Vec<UserId>; alias getSucceeded;
     /// Get the users whose access could not be modified
-    method group_access_edit_result::failed(&self) -> Vec<GroupAccessEditErr>; alias getFailed;
+    fn group_access_edit_result::failed(&self) -> Vec<GroupAccessEditErr>; alias getFailed;
     pre_build_generate_equals_and_hashcode GroupAccessEditResult;
 });
 
@@ -524,46 +523,46 @@ foreign_enum!(
     }
 );
 
-foreigner_class!(
+foreign_class!(
 class Category {
     self_type Category;
     private constructor = empty;
-    static_method category::validate(s: &str) -> Result<Category, String>;
-    method category::value(&self) -> String; alias getValue;
+    fn category::validate(s: &str) -> Result<Category, String>;
+    fn category::value(&self) -> String; alias getValue;
     pre_build_generate_equals_and_hashcode Category;
 });
 
-foreigner_class!(
+foreign_class!(
 class Sensitivity {
     self_type Sensitivity;
     private constructor = empty;
-    static_method sensitivity::validate(s: &str) -> Result<Sensitivity, String>;
-    method sensitivity::value(&self) -> String; alias getValue;
+    fn sensitivity::validate(s: &str) -> Result<Sensitivity, String>;
+    fn sensitivity::value(&self) -> String; alias getValue;
     pre_build_generate_equals_and_hashcode Sensitivity;
 });
 
-foreigner_class!(
+foreign_class!(
 class DataSubject {
     self_type DataSubject;
     private constructor = empty;
-    static_method data_subject::validate(s: &str) -> Result<DataSubject, String>;
-    method data_subject::value(&self) -> String; alias getValue;
+    fn data_subject::validate(s: &str) -> Result<DataSubject, String>;
+    fn data_subject::value(&self) -> String; alias getValue;
     pre_build_generate_equals_and_hashcode DataSubject;
 });
 
-foreigner_class!(
+foreign_class!(
 class PolicyGrant {
     self_type PolicyGrant;
     constructor PolicyGrant::default() -> PolicyGrant;
     constructor policy_grant::create(category:Option<&Category>,sensitivity:Option<&Sensitivity>,dataSubject:Option<&DataSubject>,substituteUser:Option<&UserId>) -> PolicyGrant;
-    method policy_grant::category(&self) -> Option<Category>; alias getCategory;
-    method policy_grant::sensitivity(&self) -> Option<Sensitivity>; alias getSensitivity;
-    method policy_grant::data_subject(&self) -> Option<DataSubject>; alias getDataSubject;
-    method policy_grant::substitute_id(&self) -> Option<UserId>; alias getSubstituteId;
+    fn policy_grant::category(&self) -> Option<Category>; alias getCategory;
+    fn policy_grant::sensitivity(&self) -> Option<Sensitivity>; alias getSensitivity;
+    fn policy_grant::data_subject(&self) -> Option<DataSubject>; alias getDataSubject;
+    fn policy_grant::substitute_id(&self) -> Option<UserId>; alias getSubstituteId;
     pre_build_generate_equals_and_hashcode PolicyGrant;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Options for document creation.
 class DocumentEncryptOpts {
     self_type DocumentEncryptOpts;
@@ -578,152 +577,152 @@ class DocumentEncryptOpts {
     pre_build_generate_equals_and_hashcode DocumentEncryptOpts;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Single document's (abbreviated) metadata. Returned as part of a `DocumentListResult`.
 ///
 /// @see DocumentMetadataResult for full metadata
 class DocumentListMeta{
     self_type DocumentListMeta;
     private constructor = empty;
-    method document_list_meta::id(&self) -> DocumentId; alias getId;
-    method document_list_meta::name(&self) -> Option<DocumentName>; alias getName;
-    method document_list_meta::association_type(&self) -> AssociationType; alias getAssociationType;
-    method document_list_meta::created(&self) -> DateTime<Utc>; alias getCreated;
-    method document_list_meta::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    fn document_list_meta::id(&self) -> DocumentId; alias getId;
+    fn document_list_meta::name(&self) -> Option<DocumentName>; alias getName;
+    fn document_list_meta::association_type(&self) -> AssociationType; alias getAssociationType;
+    fn document_list_meta::created(&self) -> OffsetDateTime; alias getCreated;
+    fn document_list_meta::last_updated(&self) -> OffsetDateTime; alias getLastUpdated;
     pre_build_generate_equals_and_hashcode DocumentListMeta;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Metadata for each of the documents that the current user has access to decrypt.
 class DocumentListResult{
     self_type DocumentListResult;
     private constructor = empty;
-    method document_list_result::result(&self) -> Vec<DocumentListMeta>; alias getResult;
+    fn document_list_result::result(&self) -> Vec<DocumentListMeta>; alias getResult;
     pre_build_generate_equals_and_hashcode DocumentListResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Full metadata for a document.
 class DocumentMetadataResult{
     self_type DocumentMetadataResult;
     private constructor = empty;
-    method document_metadata_result::id(&self) -> DocumentId; alias getId;
-    method document_metadata_result::name(&self) -> Option<DocumentName>; alias getName;
-    method document_metadata_result::created(&self) -> DateTime<Utc>; alias getCreated;
-    method document_metadata_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
-    method document_metadata_result::association_type(&self) -> AssociationType; alias getAssociationType;
-    method document_metadata_result::visible_to_users(&self) -> Vec<VisibleUser>; alias getVisibleToUsers;
-    method document_metadata_result::visible_to_groups(&self) -> Vec<VisibleGroup>; alias getVisibleToGroups;
+    fn document_metadata_result::id(&self) -> DocumentId; alias getId;
+    fn document_metadata_result::name(&self) -> Option<DocumentName>; alias getName;
+    fn document_metadata_result::created(&self) -> OffsetDateTime; alias getCreated;
+    fn document_metadata_result::last_updated(&self) -> OffsetDateTime; alias getLastUpdated;
+    fn document_metadata_result::association_type(&self) -> AssociationType; alias getAssociationType;
+    fn document_metadata_result::visible_to_users(&self) -> Vec<VisibleUser>; alias getVisibleToUsers;
+    fn document_metadata_result::visible_to_groups(&self) -> Vec<VisibleGroup>; alias getVisibleToGroups;
     pre_build_generate_equals_and_hashcode DocumentMetadataResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Result for encrypt operations.
 class DocumentEncryptResult{
     self_type DocumentEncryptResult;
     private constructor = empty;
     /// Unique (within the segment) id of the document
-    method document_encrypt_result::id(&self) -> DocumentId; alias getId;
+    fn document_encrypt_result::id(&self) -> DocumentId; alias getId;
     /// Non-unique document name
-    method document_encrypt_result::name(&self) -> Option<DocumentName>; alias getName;
+    fn document_encrypt_result::name(&self) -> Option<DocumentName>; alias getName;
     /// Bytes of encrypted document content
-    method document_encrypt_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
+    fn document_encrypt_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
     /// When the document was created
-    method document_encrypt_result::created(&self) -> DateTime<Utc>; alias getCreated;
+    fn document_encrypt_result::created(&self) -> OffsetDateTime; alias getCreated;
     /// When the document was last updated
-    method document_encrypt_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    fn document_encrypt_result::last_updated(&self) -> OffsetDateTime; alias getLastUpdated;
     /// Get the users and groups whose access was successfully changed
-    method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
+    fn DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
-    method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
+    fn DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
     pre_build_generate_equals_and_hashcode DocumentEncryptResult;
 });
 
-foreigner_class!(
+foreign_class!(
 class DocumentEncryptUnmanagedResult {
     self_type DocumentEncryptUnmanagedResult;
     private constructor = empty;
     /// Unique (within the segment) id of the document
-    method document_encrypt_unmanaged_result::id(&self) -> DocumentId; alias getId;
+    fn document_encrypt_unmanaged_result::id(&self) -> DocumentId; alias getId;
     /// Bytes of encrypted document content
-    method document_encrypt_unmanaged_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
+    fn document_encrypt_unmanaged_result::encrypted_data(&self) -> Vec<i8>; alias getEncryptedData;
     /// Bytes of encrypted document encryption keys (EDEKs)
-    method document_encrypt_unmanaged_result::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks;
+    fn document_encrypt_unmanaged_result::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks;
     /// Get the users and groups whose access was successfully changed
-    method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
+    fn DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
-    method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
+    fn DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
     pre_build_generate_equals_and_hashcode DocumentEncryptUnmanagedResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Result of decrypting a document. Includes minimal metadata as well as the decrypted bytes.
 class DocumentDecryptResult{
     self_type DocumentDecryptResult;
     private constructor = empty;
-    method document_decrypt_result::id(&self) -> DocumentId; alias getId;
-    method document_decrypt_result::name(&self) -> Option<DocumentName>; alias getName;
-    method document_decrypt_result::decrypted_data(&self) -> Vec<i8>; alias getDecryptedData;
-    method document_decrypt_result::created(&self) -> DateTime<Utc>; alias getCreated;
-    method document_decrypt_result::last_updated(&self) -> DateTime<Utc>; alias getLastUpdated;
+    fn document_decrypt_result::id(&self) -> DocumentId; alias getId;
+    fn document_decrypt_result::name(&self) -> Option<DocumentName>; alias getName;
+    fn document_decrypt_result::decrypted_data(&self) -> Vec<i8>; alias getDecryptedData;
+    fn document_decrypt_result::created(&self) -> OffsetDateTime; alias getCreated;
+    fn document_decrypt_result::last_updated(&self) -> OffsetDateTime; alias getLastUpdated;
     pre_build_generate_equals_and_hashcode DocumentDecryptResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Result of decrypting an unmanaged document. Includes the id and the decrypted bytes.
 class DocumentDecryptUnmanagedResult{
     self_type DocumentDecryptUnmanagedResult;
     private constructor = empty;
     /// Unique (within the segment) id of the document
-    method document_decrypt_unmanaged_result::id(&self) -> DocumentId; alias getId;
+    fn document_decrypt_unmanaged_result::id(&self) -> DocumentId; alias getId;
     /// Get the bytes of the decrypted document
-    method document_decrypt_unmanaged_result::decrypted_data(&self) -> Vec<i8>; alias getDecryptedData;
+    fn document_decrypt_unmanaged_result::decrypted_data(&self) -> Vec<i8>; alias getDecryptedData;
     /// User/Group that granted access to the encrypted data. More specifically,
     /// this is the user/group associated with the edek that was chosen and transformed by the webservice.
-    method document_decrypt_unmanaged_result::access_via(&self) -> UserOrGroupId; alias getAccessViaUserOrGroup;
+    fn document_decrypt_unmanaged_result::access_via(&self) -> UserOrGroupId; alias getAccessViaUserOrGroup;
     pre_build_generate_equals_and_hashcode DocumentDecryptUnmanagedResult;
 });
 
-foreigner_class!(
+foreign_class!(
 // A successful edit of the access list of a document.
 class SucceededResult {
     self_type SucceededResult;
     private constructor = empty;
     /// Get list of users whose access was granted/revoked
-    method document_access_change_result::SucceededResult::users(&self) -> Vec<UserId>; alias getUsers;
+    fn document_access_change_result::SucceededResult::users(&self) -> Vec<UserId>; alias getUsers;
     /// Get list of groups whose access was granted/revoked
-    method document_access_change_result::SucceededResult::groups(&self) -> Vec<GroupId>; alias getGroups;
+    fn document_access_change_result::SucceededResult::groups(&self) -> Vec<GroupId>; alias getGroups;
     pre_build_generate_equals_and_hashcode SucceededResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// A failure to edit the access list of a document.
 class FailedResult {
     self_type FailedResult;
     private constructor = empty;
     /// Get list of users whose access was to be granted/revoked
-    method document_access_change_result::FailedResult::users(&self) -> Vec<UserAccessErr>; alias getUsers;
+    fn document_access_change_result::FailedResult::users(&self) -> Vec<UserAccessErr>; alias getUsers;
     /// Get list of groups whose access was to be granted/revoked
-    method document_access_change_result::FailedResult::groups(&self) -> Vec<GroupAccessErr>; alias getGroups;
-    /// Utility method to check if the list of failures is empty
-    method document_access_change_result::FailedResult::is_empty(&self) -> bool; alias isEmpty;
+    fn document_access_change_result::FailedResult::groups(&self) -> Vec<GroupAccessErr>; alias getGroups;
+    /// Utility fn to check if the list of failures is empty
+    fn document_access_change_result::FailedResult::is_empty(&self) -> bool; alias isEmpty;
     pre_build_generate_equals_and_hashcode FailedResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Result of granting or revoking access to a document. Both grant and revoke support partial
 /// success.
 class DocumentAccessResult {
     self_type DocumentAccessResult;
     private constructor = empty;
     /// Get the users and groups whose access was successfully changed
-    method DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
+    fn DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
     /// Get the users and groups whose access failed to be modified
-    method DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
+    fn DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
     pre_build_generate_equals_and_hashcode DocumentAccessResult;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Policy evaluation caching config
 ///
 /// Since policies are evaluated by the webservice, caching the result can greatly speed
@@ -734,11 +733,11 @@ class PolicyCachingConfig{
     ///                    If the maximum number is exceeded, the cache will be cleared prior to storing the next entry.
     constructor policy_caching_config::create(maxEntries: usize) -> PolicyCachingConfig;
     constructor PolicyCachingConfig::default() -> PolicyCachingConfig;
-    method policy_caching_config::get_max_entries(&self) -> usize; alias getMaxEntries;
+    fn policy_caching_config::get_max_entries(&self) -> usize; alias getMaxEntries;
     pre_build_generate_equals_and_hashcode PolicyCachingConfig;
 });
 
-foreigner_class!(
+foreign_class!(
 /// Top-level configuration object for IronOxide
 class IronOxideConfig{
     self_type IronOxideConfig;
@@ -746,19 +745,19 @@ class IronOxideConfig{
     /// @param policyCaching        policy caching configuration for IronOxide
     /// @param sdkOperationTimeout  timeout for all SDK methods
     constructor ironoxide_config::create(policyCaching: &PolicyCachingConfig, sdkOperationTimeout: Option<&Duration>) -> IronOxideConfig;
-    method ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig;
-    method ironoxide_config::get_timeout(&self) -> Option<Duration>; alias getSdkOperationTimeout;
+    fn ironoxide_config::get_policy_caching(&self) -> PolicyCachingConfig; alias getPolicyCachingConfig;
+    fn ironoxide_config::get_timeout(&self) -> Option<Duration>; alias getSdkOperationTimeout;
     pre_build_generate_equals_and_hashcode IronOxideConfig;
 });
 
-foreigner_class!(
+foreign_class!(
 class Duration{
     self_type Duration;
     private constructor = empty;
-    static_method Duration::from_millis(millis: u64) -> Duration; alias fromMillis;
-    static_method Duration::from_secs(secs: u64) -> Duration; alias fromSecs;
-    method duration::get_millis(&self) -> u64; alias getMillis;
-    method duration::get_secs(&self) -> u64; alias getSecs;
+    fn Duration::from_millis(millis: u64) -> Duration; alias fromMillis;
+    fn Duration::from_secs(secs: u64) -> Duration; alias fromSecs;
+    fn duration::get_millis(&self) -> u64; alias getMillis;
+    fn duration::get_secs(&self) -> u64; alias getSecs;
     pre_build_generate_equals_and_hashcode Duration;
 });
 
@@ -766,8 +765,8 @@ foreign_class!(
 class EncryptedBlindIndexSalt {
     self_type EncryptedBlindIndexSalt;
     constructor encrypted_blind_index_salt::create(encrypted_deks: &[i8], encrypted_salt_bytes: &[i8]) -> EncryptedBlindIndexSalt;
-    method encrypted_blind_index_salt::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks;
-    method encrypted_blind_index_salt::encrypted_salt_bytes(&self) -> Vec<i8>; alias getEncryptedSaltBytes;
+    fn encrypted_blind_index_salt::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks;
+    fn encrypted_blind_index_salt::encrypted_salt_bytes(&self) -> Vec<i8>; alias getEncryptedSaltBytes;
     pre_build_generate_equals_and_hashcode EncryptedBlindIndexSalt;
 });
 
@@ -779,19 +778,19 @@ class BlindIndexSearch {
     ///
     /// @param query        the string you want to tokenize and hash
     /// @param partitionId  an extra string to include in every hash, allowing 2 queries with different partitionIds to produce a different set of tokens for the same query
-    method blind_index_search::tokenize_query(&self, query: &str, partitionId: Option<&str>) -> Result<Vec<i32>, String>; alias tokenizeQuery;
+    fn blind_index_search::tokenize_query(&self, query: &str, partitionId: Option<&str>) -> Result<Vec<i32>, String>; alias tokenizeQuery;
     /// Generate the list of tokens to use to find entries that match the search query, given the specified partitionId.
     ///
     /// @param query        the string you want to tokenize and hash
     /// @param partitionId  an extra string to include in every hash, allowing 2 queries with different partitionIds to produce a different set of tokens for the same query
-    method blind_index_search::tokenize_data(&self, query: &str, partitionId: Option<&str>) -> Result<Vec<i32>, String>; alias tokenizeData;
+    fn blind_index_search::tokenize_data(&self, query: &str, partitionId: Option<&str>) -> Result<Vec<i32>, String>; alias tokenizeData;
 });
 
 ///
 /// Full SDK Class Structure
 ///
 
-foreigner_class!(
+foreign_class!(
 /// Struct that is used to make authenticated requests to the IronCore API. Instantiated with the details
 /// of an accounts various ids, device, and signing keys. Once instantiated all operations will be
 /// performed in the context of the account provided.
@@ -801,13 +800,13 @@ class IronOxide {
     /// Clears all entries from the policy cache
     ///
     /// @return number of entries cleared from the cache
-    method IronOxide::clear_policy_cache(&self) -> usize; alias clearPolicyCache;
+    fn IronOxide::clear_policy_cache(&self) -> usize; alias clearPolicyCache;
     /// Verify a user given a JWT for their user record.
     ///
     /// @param jwt      valid IronCore JWT
     /// @param timeout  timeout for this operation or `null` for no timeout
     /// @return option of whether the user's account record exists in the IronCore system or not. Error if the request couldn't be made.
-    static_method user_verify(jwt:&Jwt, timeout: Option<&Duration>) -> Result<Option<UserResult>, String>; alias userVerify;
+    fn user_verify(jwt:&Jwt, timeout: Option<&Duration>) -> Result<Option<UserResult>, String>; alias userVerify;
     /// Create a new user within the IronCore system.
     ///
     /// @param jwt       valid IronCore or Auth0 JWT
@@ -816,7 +815,7 @@ class IronOxide {
     /// @param timeout   timeout for this operation or `null` for no timeout
     /// @return see {@link UserCreateResult}. For most use cases, the public key can be discarded as IronCore escrows your user's keys.
     ///         The escrowed keys are unlocked by the provided password.
-    static_method user_create(jwt:&Jwt, password:&str, options:&UserCreateOpts, timeout: Option<&Duration>) -> Result<UserCreateResult, String>; alias userCreate;
+    fn user_create(jwt:&Jwt, password:&str, options:&UserCreateOpts, timeout: Option<&Duration>) -> Result<UserCreateResult, String>; alias userCreate;
     /// Initialize IronOxide with a device. Verifies that the provided user/segment exists and the provided device
     /// keys are valid and exist for the provided account.
     ///
@@ -824,7 +823,7 @@ class IronOxide {
     /// @param config  configuration for policy caching and SDK operation timeouts
     /// @throws java.lang.Exception if the provided `DeviceContext` is invalid
     /// @return an instance of the IronOxide
-    static_method initialize(init:&DeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String>;
+    fn initialize(init:&DeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String>;
     /// Initialize IronOxide with a device. Verifies that the provided user/segment exists and the provided device
     /// keys are valid and exist for the provided account.
     /// After initialization, checks whether the calling user's private key needs rotation and rotates it
@@ -837,7 +836,7 @@ class IronOxide {
     ///                  from the SDK-wide timeout as it is expected that this operation might take significantly
     ///                  longer than other operations. If `null`, defaults to the SDK operation timeout in `config`.
     /// @return an instance of the IronOxide
-    static_method initialize_and_rotate(init: &DeviceContext, password: &str, config: &IronOxideConfig, timeout: Option<&Duration>) -> Result<IronOxide, String>; alias initializeAndRotate;
+    fn initialize_and_rotate(init: &DeviceContext, password: &str, config: &IronOxideConfig, timeout: Option<&Duration>) -> Result<IronOxide, String>; alias initializeAndRotate;
     /// Generates a new device for the user specified in the signed JWT.
     ///
     /// This will result in a new transform key (from the user's master private key to the new device's public key)
@@ -848,17 +847,17 @@ class IronOxide {
     /// @param deviceCreateOptions  optional values, like device name
     /// @param timeout              timeout for this operation or `null` for no timeout
     /// @return details about the newly created device
-    static_method generate_new_device(jwt:&Jwt, password:&str, deviceCreateOptions: &DeviceCreateOpts, timeout: Option<&Duration>) -> Result<DeviceAddResult, String>; alias generateNewDevice;
+    fn generate_new_device(jwt:&Jwt, password:&str, deviceCreateOptions: &DeviceCreateOpts, timeout: Option<&Duration>) -> Result<DeviceAddResult, String>; alias generateNewDevice;
     /// Get all the devices for the current user
     ///
     /// @return all devices for the current user, sorted by the device id
-    method user_list_devices(&self) -> Result<UserDeviceListResult, String>; alias userListDevices;
+    fn user_list_devices(&self) -> Result<UserDeviceListResult, String>; alias userListDevices;
     /// Get a list of user public keys given their IDs. Allows discovery of which user IDs have keys in the
     /// IronCore system to determine of they can be added to groups or have documents shared with them.
     ///
     /// @param users list of user IDs to check
     /// @return map from user ID to users public key. Only users who have public keys will be returned in the map
-    method user_get_public_key(&self, users: &[UserId]) -> Result<Vec<UserWithKey>, String>; alias userGetPublicKey;
+    fn user_get_public_key(&self, users: &[UserId]) -> Result<Vec<UserWithKey>, String>; alias userGetPublicKey;
     /// Delete a user device.
     ///
     /// If deleting the currently signed in device (`null` for `deviceId`), the sdk will need to be
@@ -866,50 +865,50 @@ class IronOxide {
     ///
     /// @param deviceId id of the device to delete. If `null`, delete the currently signed in device {@link #userListDevices()} to get ids
     /// @return id of deleted device
-    method user_delete_device(&self, deviceId: Option<&DeviceId>) -> Result<DeviceId, String>; alias userDeleteDevice;
+    fn user_delete_device(&self, deviceId: Option<&DeviceId>) -> Result<DeviceId, String>; alias userDeleteDevice;
     /// Rotate the current user's private key, but leave the public key the same.
     /// There's no black magic here! This is accomplished via multi-party computation with the
     /// IronCore webservice.
     ///
     /// @param password password to unlock the current user's master private key
     /// @return The (encrypted) updated private key and associated metadata
-    method user_rotate_private_key(&self, password: &str) -> Result<UserUpdatePrivateKeyResult, String>; alias userRotatePrivateKey;
+    fn user_rotate_private_key(&self, password: &str) -> Result<UserUpdatePrivateKeyResult, String>; alias userRotatePrivateKey;
     /// List all of the documents that the current user is able to decrypt.
     ///
     /// @return {@link DocumentListResult} struct with vec of metadata about each document the user can decrypt.
-    method document_list(&self) -> Result<DocumentListResult, String>; alias documentList;
+    fn document_list(&self) -> Result<DocumentListResult, String>; alias documentList;
     /// Get the metadata for a specific document given its id.
     ///
     /// @param id unique id of the document to retrieve
     /// @return {@link DocumentMetadataResult} with details about the requested document.
-    method document_get_metadata(&self, id :&DocumentId) -> Result<DocumentMetadataResult, String>; alias documentGetMetadata;
+    fn document_get_metadata(&self, id :&DocumentId) -> Result<DocumentMetadataResult, String>; alias documentGetMetadata;
     /// Attempt to parse the document id out of an encrypted document.
     ///
     /// @param encryptedDocument encrypted document bytes
     /// @throws java.lang.Exception if provided encrypted document has no header
     /// @return extracted id
-    method document_get_id_from_bytes(&self, encryptedDocument:&[i8]) -> Result<DocumentId, String>; alias documentGetIdFromBytes;
+    fn document_get_id_from_bytes(&self, encryptedDocument:&[i8]) -> Result<DocumentId, String>; alias documentGetIdFromBytes;
     /// Encrypt the provided document bytes.
     ///
     /// @param documentData  bytes of the document to encrypt
     /// @param encryptOpts   optional document encrypt parameters
-    method document_encrypt(&self, documentData: &[i8], encryptOpts: &DocumentEncryptOpts) -> Result<DocumentEncryptResult, String>; alias documentEncrypt;
+    fn document_encrypt(&self, documentData: &[i8], encryptOpts: &DocumentEncryptOpts) -> Result<DocumentEncryptResult, String>; alias documentEncrypt;
     /// Update the encrypted content of an existing document. Persists any existing access to other users and groups.
     ///
     /// @param id               id of document to update
     /// @param newDocumentData  updated document content to encrypt
-    method document_update_bytes(&self, id: &DocumentId, newDocumentData: &[i8]) -> Result<DocumentEncryptResult, String>; alias documentUpdateBytes;
+    fn document_update_bytes(&self, id: &DocumentId, newDocumentData: &[i8]) -> Result<DocumentEncryptResult, String>; alias documentUpdateBytes;
     /// Decrypts the provided encrypted document and returns details about the document as well as its decrypted bytes.
     ///
     /// @param encryptedDocument bytes of encrypted document. Should be the same bytes returned from {@link #documentEncrypt(byte[], DocumentEncryptOpts)}
     /// @return {@link DocumentDecryptResult} includes metadata about the provided document as well as the decrypted document bytes
-    method document_decrypt(&self, encryptedDocument: &[i8]) -> Result<DocumentDecryptResult, String>; alias documentDecrypt;
+    fn document_decrypt(&self, encryptedDocument: &[i8]) -> Result<DocumentDecryptResult, String>; alias documentDecrypt;
     /// Update a document name to a new value or clear its value.
     ///
     /// @param id    id of the document to update
     /// @param name  new name for the document. Provide a {@link DocumentName} to update to a new name or `null` to clear the name field
     /// @return metadata about the document that was updated.
-    method document_update_name(&self, id: &DocumentId, name: Option<&DocumentName>) -> Result<DocumentMetadataResult, String>; alias documentUpdateName;
+    fn document_update_name(&self, id: &DocumentId, name: Option<&DocumentName>) -> Result<DocumentMetadataResult, String>; alias documentUpdateName;
     /// Grant access to a document. Recipients of document access can be either users or groups.
     ///
     /// @param documentId   id of the document whose access is is being modified
@@ -917,7 +916,7 @@ class IronOxide {
     /// @param groupGrants  list of group grants
     /// @throws java.lang.Exception the request failed either on the client or the server rejected the whole request
     /// @return each individual grant to a user/group succeeded or failed
-    method document_grant_access(&self, documentId: &DocumentId, userGrants: &[UserId], groupGrants: &[GroupId])
+    fn document_grant_access(&self, documentId: &DocumentId, userGrants: &[UserId], groupGrants: &[GroupId])
         -> Result<DocumentAccessResult, String>; alias documentGrantAccess;
     /// Revoke access from a document. Revocation of document access can be either users or groups.
     ///
@@ -926,57 +925,57 @@ class IronOxide {
     /// @param groupRevokes  list of group revokes
     /// @throws java.lang.Exception the request failed either on the client or the server rejected the whole request
     /// @return each individual revoke from a user/group either succeeded or failed
-    method document_revoke_access(&self, documentId: &DocumentId, userRevokes: &[UserId], groupRevokes: &[GroupId])
+    fn document_revoke_access(&self, documentId: &DocumentId, userRevokes: &[UserId], groupRevokes: &[GroupId])
         -> Result<DocumentAccessResult, String>; alias documentRevokeAccess;
     /// List all of the groups that the current user is either an admin or member of.
     ///
     /// @return list of (abbreviated) metadata about each group the user is a part of
-    method group_list(&self) -> Result<GroupListResult, String>; alias groupList;
+    fn group_list(&self) -> Result<GroupListResult, String>; alias groupList;
     /// Get the full metadata for a specific group given its ID.
     ///
     /// @param id unique id of the group to retrieve
     /// @return details about the requested group
-    method group_get_metadata(&self, id:&GroupId) -> Result<GroupGetResult, String>; alias groupGetMetadata;
+    fn group_get_metadata(&self, id:&GroupId) -> Result<GroupGetResult, String>; alias groupGetMetadata;
     /// Create a group. The creating user will become a group admin.
     ///
     /// @param groupCreateOpts see {@link GroupCreateOpts}. Use `new GroupCreateOpts()` for defaults
-    method group_create(&self, groupCreateOpts: &GroupCreateOpts) -> Result<GroupCreateResult, String>; alias groupCreate;
+    fn group_create(&self, groupCreateOpts: &GroupCreateOpts) -> Result<GroupCreateResult, String>; alias groupCreate;
     /// Update a group name to a new value or clear its value.
     ///
     /// @param id    id of the group to update
     /// @param name  new name for the group. Provide a {@link GroupName} to update to a new name or `null` to clear the name field
     /// @return metadata about the group that was updated
-    method group_update_name(&self, id: &GroupId, name: Option<&GroupName>) -> Result<GroupMetaResult, String>; alias groupUpdateName;
+    fn group_update_name(&self, id: &GroupId, name: Option<&GroupName>) -> Result<GroupMetaResult, String>; alias groupUpdateName;
     /// Delete the identified group.
     ///
     /// @param id unique id of group
     /// @throws java.lang.Exception if it wasn't able to delete the group
     /// @return the deleted group id
-    method group_delete(&self, id: &GroupId) -> Result<GroupId, String>; alias groupDelete;
+    fn group_delete(&self, id: &GroupId) -> Result<GroupId, String>; alias groupDelete;
     /// Add the users as members of a group.
     ///
     /// @param id     id of the group to add members to
     /// @param users  the list of users that will be added to the group as members
     /// @return all the users that were added and all the users that were not added with the reason they were not
-    method group_add_members(&self, id:&GroupId, users: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupAddMembers;
+    fn group_add_members(&self, id:&GroupId, users: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupAddMembers;
     /// Remove a list of users as members from the group.
     ///
     /// @param id           id of the group to remove members from
     /// @param userRevokes  list of user ids to remove as members
     /// @return list of users that were removed and the users that failed to be removed with the reason they were not
-    method group_remove_members(&self, id:&GroupId, userRevokes: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupRemoveMembers;
+    fn group_remove_members(&self, id:&GroupId, userRevokes: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupRemoveMembers;
     /// Add the users as admins of a group.
     ///
     /// @param id     id of the group to add admins to
     /// @param users  the list of users that will be added to the group as admins
     /// @return all the users that were added and the users that were not added with the reason they were not
-    method group_add_admins(&self, id: &GroupId, users: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupAddAdmins;
+    fn group_add_admins(&self, id: &GroupId, users: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupAddAdmins;
     /// Remove a list of users as admins from the group.
     ///
     /// @param id           id of the group
     /// @param userRevokes  list of user ids to remove as admins
     /// @return list of users that were removed and the users that failed to be removed with the reason they were not
-    method group_remove_admins(&self, id:&GroupId, userRevokes: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupRemoveAdmins;
+    fn group_remove_admins(&self, id:&GroupId, userRevokes: &[UserId]) -> Result<GroupAccessEditResult, String>; alias groupRemoveAdmins;
     /// Rotate the provided group's private key, but leave the public key the same.
     /// There's no black magic here! This is accomplished via multi-party computation with the
     /// IronCore webservice.
@@ -984,22 +983,22 @@ class IronOxide {
     ///
     /// @param id id of the group you wish to rotate the private key of
     /// @return The id of the group whose private key got updated and associated metadata
-    method group_rotate_private_key(&self, id:&GroupId) -> Result<GroupUpdatePrivateKeyResult, String>; alias groupRotatePrivateKey;
+    fn group_rotate_private_key(&self, id:&GroupId) -> Result<GroupUpdatePrivateKeyResult, String>; alias groupRotatePrivateKey;
     /// Encrypt the provided document bytes. Return the encrypted document encryption keys (EDEKs) instead of creating a document entry in the IronCore webservice.
     ///
     /// @param documentData  bytes of the document to encrypt
     /// @param encryptOpts   optional document encrypt parameters
-    method advanced_document_encrypt_unmanaged(&self, documentData: &[i8], encryptOpts: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias advancedDocumentEncryptUnmanaged;
+    fn advanced_document_encrypt_unmanaged(&self, documentData: &[i8], encryptOpts: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias advancedDocumentEncryptUnmanaged;
     /// Decrypt the provided encrypted document with the encrypted document encryption keys (EDEKs).
     ///
     /// @param encryptedData  bytes of encrypted document. Should be the same bytes returned from {@link #advancedDocumentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
     /// @param encryptedDeks  encrypted document encryption keys. Should be the same edeks returned from {@link #advancedDocumentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
     /// @return {@link DocumentDecryptResult} includes the id of the provided document as well as the decrypted document bytes
-    method advanced_document_decrypt_unmanaged(&self, encryptedData: &[i8], encryptedDeks: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias advancedDocumentDecryptUnmanaged;
+    fn advanced_document_decrypt_unmanaged(&self, encryptedData: &[i8], encryptedDeks: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias advancedDocumentDecryptUnmanaged;
     /// Create an index and encrypt it to the provided groupId.
     ///
     /// @param groupId group to encrypt to
-    method create_blind_index(&self, groupId: &GroupId) -> Result<EncryptedBlindIndexSalt, String>; alias createBlindIndex;
-    method encrypted_blind_index_salt::initialize_blind_index_search(&self, encrypted_salt: &EncryptedBlindIndexSalt) -> Result<BlindIndexSearch, String>; alias initializeBlindIndexSearch;
+    fn create_blind_index(&self, groupId: &GroupId) -> Result<EncryptedBlindIndexSalt, String>; alias createBlindIndex;
+    fn encrypted_blind_index_salt::initialize_blind_index_search(&self, encrypted_salt: &EncryptedBlindIndexSalt) -> Result<BlindIndexSearch, String>; alias initializeBlindIndexSearch;
 
 });

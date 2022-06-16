@@ -12,12 +12,11 @@ crate-type = ["cdylib"]
 
 [dependencies]
 log = "0.4"
-itertools = "0.10.0"
-ironoxide = { version = "0.26", features = ["blocking", "beta", "tls-rustls"], default-features = false }
-chrono = "0.4"
-serde_json = "1.0"
-jni-sys = "0.3.0"
-tokio = { version = "1", features = ["rt-multi-thread"] }
+itertools = "0.10"
+ironoxide = { version = "1", features = ["blocking", "beta", "tls-rustls"], default-features = false }
+serde_json = "1"
+jni-sys = "0.3"
+time = "0.3"
 
 [build-dependencies]
 env_logger = "0.9"

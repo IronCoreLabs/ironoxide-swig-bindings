@@ -2,6 +2,7 @@ package ironoxide
 
 import scala.util.Try
 import com.ironcorelabs.sdk._
+import java.util.Date
 
 class DocumentTests extends TestSuite {
   "Document List" should {
@@ -21,6 +22,11 @@ class DocumentTests extends TestSuite {
       encryptResult.getErrors.getUsers.isEmpty shouldBe true
       encryptResult.getErrors.getGroups.isEmpty shouldBe true
       encryptResult.getChanged.getUsers.length shouldBe 1
+      val createdTime = encryptResult.getCreated().toInstant().toEpochMilli
+      val updatedTime = encryptResult.getLastUpdated().toInstant().toEpochMilli
+      val currentTime = java.lang.System.currentTimeMillis
+      (currentTime - createdTime) should be < 10000L // sanity check the document was created in the last 10 seconds
+      (currentTime - updatedTime) should be < 10000L // sanity check the document was last updated in the last 10 seconds
 
       val decryptResult = Try(primarySdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
       decryptResult.getDecryptedData shouldBe bytes
