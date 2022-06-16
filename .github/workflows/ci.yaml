@@ -18,19 +18,12 @@ jobs:
   java-test:
     strategy:
       matrix:
-        # target: [ubuntu-18.04, macos-10.15, centos7, centos8]
         target: [ubuntu-18.04, macos-10.15]
         include:
           - target: ubuntu-18.04
             host: ubuntu-18.04
           - target: macos-10.15
             host: macos-10.15
-          # - target: centos7
-          #   host: ubuntu-latest
-          #   image: centos:centos7
-          # - target: centos8
-          #   host: ubuntu-latest
-          #   image: centos:centos8
     runs-on: ${{ matrix.host }}
     container: ${{ matrix.image }}
     env:
@@ -63,12 +56,6 @@ jobs:
       - uses: olafurpg/setup-scala@v10
         with:
           java-version: 11
-      # - name: Set up centos
-      #   if: matrix.image != ''
-      #   run: |
-      #     # Note that yum will fail if these are run in an order that makes more sense.
-      #     yum install -y clang llvm-devel openssl-devel
-      #     yum group install -y "Development Tools"
       - name: Install llvm (ubuntu)
         if: startsWith(matrix.target, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y llvm
@@ -140,18 +127,17 @@ jobs:
           name: ${{ matrix.folder-name }}
           path: android/ironoxide-android/src/main/android_build.zip
 
-  # As the currently available emulators cannot use arm64-v8a architecture, we are currently only testing x86/x86_64.
-  # This can be added in when either of the following happens:
-  #   - reactivecircus/android-emulator-runner@v2 supports the arm64-v8a architecture for testing
-  #   - api-level 30 is stabilized, as that allows x86_64 to run arm64-v8a
   android-test:
     needs: android-build
     # reactivecircus/android-emulator-runner@v2 only works on Mac.
     runs-on: macos-10.15
     strategy:
       matrix:
-        api-level: [24, 29]
+        api-level: [24, 30]
         arch: [x86, x86_64]
+        - include:
+          - api-level: 30
+          - arch: arm64-v8a # only supported on api-level 30
     steps:
       - name: Checkout
         uses: actions/checkout@v2
