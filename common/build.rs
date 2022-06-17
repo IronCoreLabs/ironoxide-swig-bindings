@@ -4,13 +4,13 @@ use std::{
     time::Instant,
 };
 
-use rust_swig::LanguageConfig;
+use flapigen::LanguageConfig;
 
 cfg_if::cfg_if! {
 if #[cfg(feature = "cpp")] {
-    use rust_swig::CppConfig;
+    use flapigen::CppConfig;
 }else{
-    use rust_swig::JavaConfig;
+    use flapigen::JavaConfig;
 }}
 
 fn main() {
@@ -50,10 +50,10 @@ fn main() {
 
     let now = Instant::now();
     let icl_expanded_lib_rs = format!("{}icl-expanded-lib.rs.in", out_dir);
-    // Just before rust_swig expands "lib.rs.in", we do our own expansion
-    // This takes in "lib.rs.in" and outputs "icl-expanded-lib.rs.in", which is then fed to rust_swig.
+    // Just before flapigen expands "lib.rs.in", we do our own expansion
+    // This takes in "lib.rs.in" and outputs "icl-expanded-lib.rs.in", which is then fed to flapigen.
     expand_equals_and_hashcode_macro(&icl_expanded_lib_rs);
-    rust_swig_expand(Path::new(&icl_expanded_lib_rs), &out_path);
+    flapigen_expand(Path::new(&icl_expanded_lib_rs), out_path);
     let expand_time = now.elapsed();
     println!(
         "rust swig expand time: {}",
@@ -96,19 +96,19 @@ fn gen_binding<P: AsRef<Path>>(
     Ok(())
 }
 
-fn rust_swig_expand(from: &Path, out_dir: &Path) {
-    println!("Run rust_swig_expand");
+fn flapigen_expand(from: &Path, out_dir: &Path) {
+    println!("Run flapigen_expand");
     cfg_if::cfg_if! {
         if #[cfg(feature = "cpp")]{
             let name = "ironoxide_cpp";
             let config = CppConfig::new(get_cpp_codegen_output_directory(), "sdk".into());
 
-            let swig_gen = rust_swig::Generator::new(LanguageConfig::CppConfig(config))
+            let swig_gen = flapigen::Generator::new(LanguageConfig::CppConfig(config))
               .merge_type_map("chrono_support", include_str!("../cpp/cpp_typemaps.rs"));
         } else{
             let name = "ironoxide_jvm";
-            let swig_gen = rust_swig::Generator::new(LanguageConfig::JavaConfig(JavaConfig::new(
-                get_java_codegen_output_directory(&out_dir),
+            let swig_gen = flapigen::Generator::new(LanguageConfig::JavaConfig(JavaConfig::new(
+                get_java_codegen_output_directory(out_dir),
                 "com.ironcorelabs.sdk".into(),
             )))
             .merge_type_map("chrono_support", include_str!("jni_typemaps.rs"));
@@ -140,11 +140,9 @@ cfg_if::cfg_if! {
                 .join("ironcorelabs")
                 .join("sdk");
             if !path.exists() {
-                std::fs::create_dir_all(&path).expect(
-                    format!("Couldn't create codegen output directory at {:?}.", path).as_str(),
-                );
+                std::fs::create_dir_all(&path).unwrap_or_else(|_| panic!("Couldn't create codegen output directory at {:?}.", path));
             }
-            path.to_path_buf()
+            path
         }
     }
 }
@@ -153,7 +151,7 @@ fn expand_equals_and_hashcode_macro(out: &str) {
     cfg_if::cfg_if! {
         if #[cfg(feature="cpp")] {
             let equals_and_hashcode = r##"
-                private method eq(&self, o: &$1) -> bool; alias rustEq;
+                private fn eq(&self, o: &$1) -> bool; alias rustEq;
                 foreign_code r#"
                 friend bool operator==(const ${1}Wrapper &lhs, const ${1}Wrapper &rhs) {
                     return lhs.rustEq(rhs);
@@ -164,8 +162,8 @@ fn expand_equals_and_hashcode_macro(out: &str) {
                 }
             "#;"##;        
         } else {
-            let equals_and_hashcode = r##"method hash(&self) -> i32; alias hashCode;
-                private method eq(&self, o: &$1) -> bool; alias rustEq;
+            let equals_and_hashcode = r##"fn hash(&self) -> i32; alias hashCode;
+                private fn eq(&self, o: &$1) -> bool; alias rustEq;
                 foreign_code r#"
                 public boolean equals(Object obj) {
                     if(obj instanceof $1){
