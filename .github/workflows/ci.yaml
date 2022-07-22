@@ -18,12 +18,12 @@ jobs:
   java-test:
     strategy:
       matrix:
-        target: [ubuntu-18.04, macos-10.15]
+        target: [ubuntu-18.04, macos-11]
         include:
           - target: ubuntu-18.04
             host: ubuntu-18.04
-          - target: macos-10.15
-            host: macos-10.15
+          - target: macos-11
+            host: macos-11
     runs-on: ${{ matrix.host }}
     container: ${{ matrix.image }}
     env:
@@ -134,7 +134,7 @@ jobs:
   android-test:
     needs: android-build
     # reactivecircus/android-emulator-runner@v2 only works on Mac.
-    runs-on: macos-10.15
+    runs-on: macos-11
     strategy:
       matrix:
         api-level: [24, 29]
@@ -193,7 +193,7 @@ jobs:
   cpp-build:
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-10.15]
+        os: [ubuntu-18.04, macos-11]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
