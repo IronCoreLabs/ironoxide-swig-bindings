@@ -16,11 +16,11 @@ jobs:
     if: github.event.ref_type == 'branch' && startsWith(github.event.ref, 'release-')
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
-          # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The DEPLOYMENT_TOKEN is a personal
+          # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The WORKFLOW_PAT is a personal
           # access token with "repo" permissions.
-          token: ${{ secrets.DEPLOYMENT_TOKEN }}
+          token: ${{ secrets.WORKFLOW_PAT }}
       - name: Configure git
         run: |
           git config --local user.email ops@ironcorelabs.com

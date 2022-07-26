@@ -10,7 +10,7 @@ jobs:
   validate:
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Validate version files
         # Make sure we still know how to edit the version files. (But discard the changes.)
         run: .github/set-versions.sh -n 0.0.1
@@ -29,7 +29,7 @@ jobs:
     env:
       COURSIER_CACHE: /tmp/.cache/coursier/v1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Restore rust cache
         uses: actions/cache@v2
         with:
@@ -94,7 +94,7 @@ jobs:
             folder-name: arm64-v8a
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Restore rust cache
         uses: actions/cache@v2
         with:
@@ -141,7 +141,7 @@ jobs:
         arch: [x86, x86_64]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Download android build
         uses: actions/download-artifact@v1
         with:
@@ -178,7 +178,7 @@ jobs:
   android-release-test:
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install cross
         run: cargo install cross
       - name: Run build script
@@ -197,7 +197,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Restore rust cache
         uses: actions/cache@v2
         with:
