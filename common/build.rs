@@ -116,7 +116,7 @@ fn flapigen_expand(from: &Path, out_dir: &Path) {
     }
 
     swig_gen
-        .rustfmt_bindings(true)
+        .rustfmt_bindings(false)
         .remove_not_generated_files_from_output_directory(true) //remove outdated *.java or cpp files
         .expand(name, from, out_dir.join("lib.rs"));
 }

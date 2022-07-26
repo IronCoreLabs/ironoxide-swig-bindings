@@ -74,22 +74,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download java release artifacts from macos-10.15
+      - name: Download java release artifacts from macos-11
         uses: actions/download-artifact@v1
         with:
-          name: release-macos-10.15
-          path: release/macos-10.15
+          name: release-macos-11
+          path: release/macos-11
       - name: Delete artifact
         uses: geekyeggo/delete-artifact@v1
         with:
-          name: release-macos-10.15
+          name: release-macos-11
           failOnError: false
-      - name: Sign java artifact for macos-10.15
+      - name: Sign java artifact for macos-11
         run: |
-          gpg --batch --detach-sign -a release/macos-10.15/libironoxide_java.dylib
-          gpg --batch --verify release/macos-10.15/libironoxide_java.dylib.asc release/macos-10.15/libironoxide_java.dylib
-      - name: Upload java lib for macos-10.15
-        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-10.15/libironoxide_java.dylib release/macos-10.15/libironoxide_java.dylib.asc --clobber
+          gpg --batch --detach-sign -a release/macos-11/libironoxide_java.dylib
+          gpg --batch --verify release/macos-11/libironoxide_java.dylib.asc release/macos-11/libironoxide_java.dylib
+      - name: Upload java lib for macos-11
+        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-11/libironoxide_java.dylib release/macos-11/libironoxide_java.dylib.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -101,7 +101,7 @@ jobs:
       - name: Delete artifact
         uses: geekyeggo/delete-artifact@v1
         with:
-          name: release-macos-10.15
+          name: release-macos-11
           failOnError: false
       - name: Sign iOS artifact
         run: |
@@ -123,7 +123,7 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-10.15]
+        os: [ubuntu-18.04, macos-11]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -147,16 +147,16 @@ jobs:
         with:
           name: release-ubuntu-18.04
           path: target/release/libironoxide_java.so
-      - name: Upload artifacts for macos-10.15
+      - name: Upload artifacts for macos-11
         if: startsWith(matrix.os, 'macos')
         uses: actions/upload-artifact@v1
         with:
-          name: release-macos-10.15
+          name: release-macos-11
           path: target/release/libironoxide_java.dylib
 
   build-cpp:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
-    runs-on: macos-10.15
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - name: Install Rust
