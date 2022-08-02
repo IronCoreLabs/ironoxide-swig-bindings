@@ -12,7 +12,7 @@ pomIncludeRepository := { _ => false }
 
 useGpg := true
 
-usePgpKeyHex("62F57B1B")
+usePgpKeyHex("1F6210B39FA43559")
 
 pomExtra := (
     <scm>
