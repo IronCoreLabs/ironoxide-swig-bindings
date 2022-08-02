@@ -1,6 +1,6 @@
 [package]
 name = "ironoxide-cpp"
-version = "0.14.4"
+version = "0.14.5"
 authors = ["IronCore Labs <info@ironcorelabs.com>"]
 build = "../common/build.rs"
 edition = "2021"
