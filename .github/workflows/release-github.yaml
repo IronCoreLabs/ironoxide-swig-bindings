@@ -208,7 +208,7 @@ jobs:
           wget -q ${ARTIFACT}
           SHA256=$(sha256sum -b ironoxide-homebrew.tar.gz | awk '{print $1}')
           echo "::set-output name=tag::${NAME}"
-          echo "::set-output name=pr_branch::ironoxide-swig-bindings-${NAME}
+          echo "::set-output name=pr_branch::ironoxide-swig-bindings-${NAME}"
           echo "::set-output name=artifact::${ARTIFACT}"
           echo "::set-output name=sha256::${SHA256}"
       - name: Edit files for pending release
