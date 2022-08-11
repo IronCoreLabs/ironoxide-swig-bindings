@@ -11,7 +11,7 @@ on:
 jobs:
   release:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     needs:
       - build-java
       - build-cpp
@@ -55,22 +55,22 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           release_name: Version ${{ steps.version.outputs.tag }}
 
-      - name: Download java release artifacts from ubuntu-18.04
+      - name: Download java release artifacts from ubuntu-22.04
         uses: actions/download-artifact@v1
         with:
-          name: release-ubuntu-18.04
-          path: release/ubuntu-18.04
+          name: release-ubuntu-22.04
+          path: release/ubuntu-22.04
       - name: Delete artifact
         uses: geekyeggo/delete-artifact@v1
         with:
-          name: release-ubuntu-18.04
+          name: release-ubuntu-22.04
           failOnError: false
-      - name: Sign java artifact for ubuntu-18.04
+      - name: Sign java artifact for ubuntu-22.04
         run: |
-          gpg --batch --detach-sign -a release/ubuntu-18.04/libironoxide_java.so
-          gpg --batch --verify release/ubuntu-18.04/libironoxide_java.so.asc release/ubuntu-18.04/libironoxide_java.so
-      - name: Upload java lib for ubuntu-18.04
-        run: gh release upload ${{ steps.version.outputs.tag }} release/ubuntu-18.04/libironoxide_java.so release/ubuntu-18.04/libironoxide_java.so.asc --clobber
+          gpg --batch --detach-sign -a release/ubuntu-22.04/libironoxide_java.so
+          gpg --batch --verify release/ubuntu-22.04/libironoxide_java.so.asc release/ubuntu-22.04/libironoxide_java.so
+      - name: Upload java lib for ubuntu-22.04
+        run: gh release upload ${{ steps.version.outputs.tag }} release/ubuntu-22.04/libironoxide_java.so release/ubuntu-22.04/libironoxide_java.so.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -123,7 +123,7 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-11]
+        os: [ubuntu-22.04, macos-11]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -141,11 +141,11 @@ jobs:
         with:
           command: build
           args: --release
-      - name: Upload artifacts for ubuntu-18.04
+      - name: Upload artifacts for ubuntu-22.04
         if: startsWith(matrix.os, 'ubuntu')
         uses: actions/upload-artifact@v1
         with:
-          name: release-ubuntu-18.04
+          name: release-ubuntu-22.04
           path: target/release/libironoxide_java.so
       - name: Upload artifacts for macos-11
         if: startsWith(matrix.os, 'macos')
@@ -185,7 +185,7 @@ jobs:
   # Creates a PR to update homebrew-ironcore, which depends on releases from this repository.
   homebrew-ironcore:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     needs:
       - release
     steps:

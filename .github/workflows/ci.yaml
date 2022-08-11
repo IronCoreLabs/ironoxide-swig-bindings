@@ -8,7 +8,7 @@ on:
 
 jobs:
   validate:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - name: Validate version files
@@ -18,10 +18,10 @@ jobs:
   java-test:
     strategy:
       matrix:
-        target: [ubuntu-18.04, macos-11]
+        target: [ubuntu-22.04, macos-11]
         include:
-          - target: ubuntu-18.04
-            host: ubuntu-18.04
+          - target: ubuntu-22.04
+            host: ubuntu-22.04
           - target: macos-11
             host: macos-11
     runs-on: ${{ matrix.host }}
@@ -79,7 +79,7 @@ jobs:
         run: find ${HOME}/.sbt -name '*.lock' -print -delete
 
   android-build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         arch: [i686-linux-android, x86_64-linux-android, aarch64-linux-android]
@@ -162,7 +162,7 @@ jobs:
   android-delete-artifacts:
     needs: android-test
     if: always()
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Delete artifacts
         uses: geekyeggo/delete-artifact@v1
@@ -176,7 +176,7 @@ jobs:
 
   # This tests that gradle can build ironoxide-android so we can catch issues before release.
   android-release-test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - name: Install cross
@@ -193,7 +193,7 @@ jobs:
   cpp-build:
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-11]
+        os: [ubuntu-22.04, macos-11]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
