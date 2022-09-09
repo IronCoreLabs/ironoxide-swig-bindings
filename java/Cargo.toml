@@ -13,7 +13,7 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 itertools = "0.10.0"
-ironoxide = { version = "1", features = ["blocking", "beta", "tls-rustls"], default-features = false }
+ironoxide = { version = "2", features = ["blocking", "beta", "tls-rustls"], default-features = false }
 serde_json = "1.0"
 time = "0.3"
 

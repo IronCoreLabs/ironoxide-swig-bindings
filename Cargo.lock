@@ -638,9 +638,9 @@ dependencies = [
 
 [[package]]
 name = "ironoxide"
-version = "1.1.1"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7a491a2a9775d17e4f57a6e537511ac7dfd40c8ff18c8e830af4a8e9257f6e5"
+checksum = "a2b8f3444741f50a9542e13a8f34bc1b73ac718ded201267cd7c3c7fe7cb6056"
 dependencies = [
  "async-trait",
  "base64",
