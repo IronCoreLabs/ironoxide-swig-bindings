@@ -135,11 +135,17 @@ class JwtClaims{
     /// Unique user ID
     fn jwt_claims::sub(&self) -> String; alias getSub;
     /// Project ID
-    fn jwt_claims::pid(&self) -> u32; alias getPid;
+    fn jwt_claims::pid(&self) -> Option<i64>; alias getPid;
+    fn jwt_claims::prefixed_pid(&self) -> Option<i64>; alias getPrefixedPid;
     /// Segment ID
-    fn jwt_claims::sid(&self) -> String; alias getSid;
+    fn jwt_claims::sid(&self) -> Option<String>; alias getSid;
+    fn jwt_claims::prefixed_sid(&self) -> Option<String>; alias getPrefixedSid;
     /// Service key ID
-    fn jwt_claims::kid(&self) -> u32; alias getKid;
+    fn jwt_claims::kid(&self) -> Option<i64>; alias getKid;
+    fn jwt_claims::prefixed_kid(&self) -> Option<i64>; alias getPrefixedKid;
+    /// User ID
+    fn jwt_claims::uid(&self) -> Option<String>; alias getUid;
+    fn jwt_claims::prefixed_uid(&self) -> Option<String>; alias getPrefixedUid;
     /// Issued time (seconds)
     fn jwt_claims::iat(&self) -> u64; alias getIat;
     /// Expiration time (seconds)

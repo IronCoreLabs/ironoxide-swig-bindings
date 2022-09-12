@@ -62,10 +62,10 @@ void test_user_id(void)
 {
     auto str = "hello";
     auto value = UserId::validate(str);
-    //These don't seem to work and I don't know why.
+    // These don't seem to work and I don't know why.
     auto user_id = unwrap(std::move(value));
 
-    //This is to check that equals is defined and that it's working.
+    // This is to check that equals is defined and that it's working.
     TEST_CHECK(user_id == user_id);
     TEST_CHECK(user_id.getId().to_std_string() == "hello");
 }
@@ -128,7 +128,7 @@ void group_create_passing_args(void)
     TEST_CHECK_(group_create_result.getMemberList() == group_create_result.getMemberList(), "Member lists should be equal.");
 }
 
-//This test is just a confirmation that passing nulls works, so we don't assert about much in it.
+// This test is just a confirmation that passing nulls works, so we don't assert about much in it.
 void group_create_passing_nulls(void)
 {
     DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
@@ -143,8 +143,60 @@ void group_list(void)
     DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
     auto group_list_result = unwrap(sdk.groupList());
-    //We don't create new users in these tests, so all we can do is assert that there is some.
+    // We don't create new users in these tests, so all we can do is assert that there is some.
     TEST_CHECK_(group_list_result.getResult().as_slice().size() > 1, "Group list failed.");
+}
+
+//{
+// "sub": "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945",
+// "pid": 438,
+// "sid": "ironoxide-dev1",
+// "kid": 593,
+// "iat": 1591901740,
+// "exp": 1591901860
+// }
+void jwt_test_no_prefixes(void)
+{
+    Jwt j = unwrap(Jwt::validate("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJhYmNBQkMwMTJfLiQjfEAvOjs9KyctZDEyMjZkMWItNGMzOS00OWRhLTkzM2MtNjQyZTIzYWMxOTQ1IiwicGlkIjo0MzgsInNpZCI6Imlyb25veGlkZS1kZXYxIiwia2lkIjo1OTMsImlhdCI6MTU5MTkwMTc0MCwiZXhwIjoxNTkxOTAxODYwfQ.wgs_tnh89SlKnIkoQHdlC0REjkxTl1P8qtDSQwWTFKwo8KQKXUQdpp4BfwqUqLcxA0BW6_XfVRlqMX5zcvCc6w"));
+    TEST_CHECK_(j.getAlgorithm().to_std_string() == "ES256", "Wrong jwt algorithm");
+    JwtClaims claims = j.getClaims();
+    TEST_CHECK_(claims.getSub().to_std_string() == "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945", "Wrong jwt sub");
+    TEST_CHECK_(claims.getPid() == 438, "Wrong jwt pid");
+    TEST_CHECK_(claims.getPrefixedPid().has_value() == false, "Wrong jwt prefixed pid");
+    TEST_CHECK_(claims.getSid().value().to_std_string() == "ironoxide-dev1", "Wrong jwt sid");
+    TEST_CHECK_(claims.getPrefixedSid().has_value() == false, "Wrong jwt prefixed sid");
+    TEST_CHECK_(claims.getKid() == 593, "Wrong jwt kid");
+    TEST_CHECK_(claims.getPrefixedKid().has_value() == false, "Wrong jwt prefixed kid");
+    TEST_CHECK_(claims.getUid().has_value() == false, "Wrong jwt uid");
+    TEST_CHECK_(claims.getPrefixedUid().has_value() == false, "Wrong jwt prefixed uid");
+    TEST_CHECK_(claims.getIat() == 1591901740, "Wrong jwt iat");
+    TEST_CHECK_(claims.getExp() == 1591901860, "Wrong jwt exp");
+}
+
+//{
+// "sub": "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945",
+// "http://ironcore/pid": 438,
+// "http://ironcore/sid": "ironoxide-dev1",
+// "http://ironcore/kid": 593,
+// "iat": 1591901740,
+// "exp": 1591901860
+// }
+void jwt_test_prefixes(void)
+{
+    Jwt j = unwrap(Jwt::validate("eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYmNBQkMwMTJfLiQjfEAvOjs9KyctZDEyMjZkMWItNGMzOS00OWRhLTkzM2MtNjQyZTIzYWMxOTQ1IiwiaHR0cDovL2lyb25jb3JlL3BpZCI6NDM4LCJodHRwOi8vaXJvbmNvcmUvc2lkIjoiaXJvbm94aWRlLWRldjEiLCJodHRwOi8vaXJvbmNvcmUva2lkIjo1OTMsImlhdCI6MTU5MTkwMTc0MCwiZXhwIjoxNTkxOTAxODYwfQ.bCIDkN6bXaz85pl9s55MoAByzm0LPlMPlT5WqjT-R6F80EKFO0gqGT1m7330gxnN-LWtxonBVv1IoK9tl-NEvg"));
+    TEST_CHECK_(j.getAlgorithm().to_std_string() == "ES256", "Wrong jwt algorithm");
+    JwtClaims claims = j.getClaims();
+    TEST_CHECK_(claims.getSub().to_std_string() == "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945", "Wrong jwt sub");
+    TEST_CHECK_(claims.getPrefixedPid() == 438, "Wrong jwt prefixed pid");
+    TEST_CHECK_(claims.getPid().has_value() == false, "Wrong jwt pid");
+    TEST_CHECK_(claims.getPrefixedSid().value().to_std_string() == "ironoxide-dev1", "Wrong jwt prefixed sid");
+    TEST_CHECK_(claims.getSid().has_value() == false, "Wrong jwt sid");
+    TEST_CHECK_(claims.getPrefixedKid() == 593, "Wrong jwt prefixed kid");
+    TEST_CHECK_(claims.getKid().has_value() == false, "Wrong jwt kid");
+    TEST_CHECK_(claims.getPrefixedUid().has_value() == false, "Wrong jwt prefixed uid");
+    TEST_CHECK_(claims.getUid().has_value() == false, "Wrong jwt uid");
+    TEST_CHECK_(claims.getIat() == 1591901740, "Wrong jwt iat");
+    TEST_CHECK_(claims.getExp() == 1591901860, "Wrong jwt exp");
 }
 
 TEST_LIST = {
@@ -156,4 +208,6 @@ TEST_LIST = {
     {"group_create_passing_args", group_create_passing_args},
     {"group_create_passing_nulls", group_create_passing_nulls},
     {"group_list", group_list},
+    {"jwt_test", jwt_test_no_prefixes},
+    {"jwt_test", jwt_test_prefixes},
     {NULL, NULL}};
