@@ -159,17 +159,18 @@ void jwt_test_no_prefixes(void)
 {
     Jwt j = unwrap(Jwt::validate("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJhYmNBQkMwMTJfLiQjfEAvOjs9KyctZDEyMjZkMWItNGMzOS00OWRhLTkzM2MtNjQyZTIzYWMxOTQ1IiwicGlkIjo0MzgsInNpZCI6Imlyb25veGlkZS1kZXYxIiwia2lkIjo1OTMsImlhdCI6MTU5MTkwMTc0MCwiZXhwIjoxNTkxOTAxODYwfQ.wgs_tnh89SlKnIkoQHdlC0REjkxTl1P8qtDSQwWTFKwo8KQKXUQdpp4BfwqUqLcxA0BW6_XfVRlqMX5zcvCc6w"));
     TEST_CHECK_(j.getAlgorithm().to_std_string() == "ES256", "Wrong jwt algorithm");
-    TEST_CHECK_(j.getClaims().getSub().to_std_string() == "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945", "Wrong jwt sub");
-    TEST_CHECK_(j.getClaims().getPid() == 438, "Wrong jwt pid");
-    TEST_CHECK_(j.getClaims().getPrefixedPid().has_value() == false, "Wrong jwt prefixed pid");
-    TEST_CHECK_(j.getClaims().getSid().value().to_std_string() == "ironoxide-dev1", "Wrong jwt sid");
-    TEST_CHECK_(j.getClaims().getPrefixedSid().has_value() == false, "Wrong jwt prefixed sid");
-    TEST_CHECK_(j.getClaims().getKid() == 593, "Wrong jwt kid");
-    TEST_CHECK_(j.getClaims().getPrefixedKid().has_value() == false, "Wrong jwt prefixed kid");
-    TEST_CHECK_(j.getClaims().getUid().has_value() == false, "Wrong jwt uid");
-    TEST_CHECK_(j.getClaims().getPrefixedUid().has_value() == false, "Wrong jwt prefixed uid");
-    TEST_CHECK_(j.getClaims().getIat() == 1591901740, "Wrong jwt iat");
-    TEST_CHECK_(j.getClaims().getExp() == 1591901860, "Wrong jwt exp");
+    JwtClaims claims = j.getClaims();
+    TEST_CHECK_(claims.getSub().to_std_string() == "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945", "Wrong jwt sub");
+    TEST_CHECK_(claims.getPid() == 438, "Wrong jwt pid");
+    TEST_CHECK_(claims.getPrefixedPid().has_value() == false, "Wrong jwt prefixed pid");
+    TEST_CHECK_(claims.getSid().value().to_std_string() == "ironoxide-dev1", "Wrong jwt sid");
+    TEST_CHECK_(claims.getPrefixedSid().has_value() == false, "Wrong jwt prefixed sid");
+    TEST_CHECK_(claims.getKid() == 593, "Wrong jwt kid");
+    TEST_CHECK_(claims.getPrefixedKid().has_value() == false, "Wrong jwt prefixed kid");
+    TEST_CHECK_(claims.getUid().has_value() == false, "Wrong jwt uid");
+    TEST_CHECK_(claims.getPrefixedUid().has_value() == false, "Wrong jwt prefixed uid");
+    TEST_CHECK_(claims.getIat() == 1591901740, "Wrong jwt iat");
+    TEST_CHECK_(claims.getExp() == 1591901860, "Wrong jwt exp");
 }
 
 //{
@@ -184,17 +185,18 @@ void jwt_test_prefixes(void)
 {
     Jwt j = unwrap(Jwt::validate("eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYmNBQkMwMTJfLiQjfEAvOjs9KyctZDEyMjZkMWItNGMzOS00OWRhLTkzM2MtNjQyZTIzYWMxOTQ1IiwiaHR0cDovL2lyb25jb3JlL3BpZCI6NDM4LCJodHRwOi8vaXJvbmNvcmUvc2lkIjoiaXJvbm94aWRlLWRldjEiLCJodHRwOi8vaXJvbmNvcmUva2lkIjo1OTMsImlhdCI6MTU5MTkwMTc0MCwiZXhwIjoxNTkxOTAxODYwfQ.bCIDkN6bXaz85pl9s55MoAByzm0LPlMPlT5WqjT-R6F80EKFO0gqGT1m7330gxnN-LWtxonBVv1IoK9tl-NEvg"));
     TEST_CHECK_(j.getAlgorithm().to_std_string() == "ES256", "Wrong jwt algorithm");
-    TEST_CHECK_(j.getClaims().getSub().to_std_string() == "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945", "Wrong jwt sub");
-    TEST_CHECK_(j.getClaims().getPrefixedPid() == 438, "Wrong jwt prefixed pid");
-    TEST_CHECK_(j.getClaims().getPid().has_value() == false, "Wrong jwt pid");
-    TEST_CHECK_(j.getClaims().getPrefixedSid().value().to_std_string() == "ironoxide-dev1", "Wrong jwt prefixed sid");
-    TEST_CHECK_(j.getClaims().getSid().has_value() == false, "Wrong jwt sid");
-    TEST_CHECK_(j.getClaims().getPrefixedKid() == 593, "Wrong jwt prefixed kid");
-    TEST_CHECK_(j.getClaims().getKid().has_value() == false, "Wrong jwt kid");
-    TEST_CHECK_(j.getClaims().getPrefixedUid().has_value() == false, "Wrong jwt prefixed uid");
-    TEST_CHECK_(j.getClaims().getUid().has_value() == false, "Wrong jwt uid");
-    TEST_CHECK_(j.getClaims().getIat() == 1591901740, "Wrong jwt iat");
-    TEST_CHECK_(j.getClaims().getExp() == 1591901860, "Wrong jwt exp");
+    JwtClaims claims = j.getClaims();
+    TEST_CHECK_(claims.getSub().to_std_string() == "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945", "Wrong jwt sub");
+    TEST_CHECK_(claims.getPrefixedPid() == 438, "Wrong jwt prefixed pid");
+    TEST_CHECK_(claims.getPid().has_value() == false, "Wrong jwt pid");
+    TEST_CHECK_(claims.getPrefixedSid().value().to_std_string() == "ironoxide-dev1", "Wrong jwt prefixed sid");
+    TEST_CHECK_(claims.getSid().has_value() == false, "Wrong jwt sid");
+    TEST_CHECK_(claims.getPrefixedKid() == 593, "Wrong jwt prefixed kid");
+    TEST_CHECK_(claims.getKid().has_value() == false, "Wrong jwt kid");
+    TEST_CHECK_(claims.getPrefixedUid().has_value() == false, "Wrong jwt prefixed uid");
+    TEST_CHECK_(claims.getUid().has_value() == false, "Wrong jwt uid");
+    TEST_CHECK_(claims.getIat() == 1591901740, "Wrong jwt iat");
+    TEST_CHECK_(claims.getExp() == 1591901860, "Wrong jwt exp");
 }
 
 TEST_LIST = {

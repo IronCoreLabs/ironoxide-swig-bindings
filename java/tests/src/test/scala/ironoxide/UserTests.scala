@@ -27,17 +27,18 @@ class UserTests extends TestSuite {
         )
       ).toEither.value
       jwt.getAlgorithm shouldBe "ES256"
-      jwt.getClaims.getSub shouldBe "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945"
-      jwt.getClaims.getPid shouldBe OptionalLong.of(438)
-      jwt.getClaims.getPrefixedPid shouldBe OptionalLong.empty
-      jwt.getClaims.getSid shouldBe Optional.of("ironoxide-dev1")
-      jwt.getClaims.getPrefixedSid shouldBe Optional.empty
-      jwt.getClaims.getKid shouldBe OptionalLong.of(593)
-      jwt.getClaims.getPrefixedKid shouldBe OptionalLong.empty
-      jwt.getClaims.getUid shouldBe Optional.empty
-      jwt.getClaims.getPrefixedUid shouldBe Optional.empty
-      jwt.getClaims.getIat shouldBe 1591901740
-      jwt.getClaims.getExp shouldBe 1591901860
+      val claims = jwt.getClaims
+      claims.getSub shouldBe "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945"
+      claims.getPid shouldBe OptionalLong.of(438)
+      claims.getPrefixedPid shouldBe OptionalLong.empty
+      claims.getSid shouldBe Optional.of("ironoxide-dev1")
+      claims.getPrefixedSid shouldBe Optional.empty
+      claims.getKid shouldBe OptionalLong.of(593)
+      claims.getPrefixedKid shouldBe OptionalLong.empty
+      claims.getUid shouldBe Optional.empty
+      claims.getPrefixedUid shouldBe Optional.empty
+      claims.getIat shouldBe 1591901740
+      claims.getExp shouldBe 1591901860
     }
 
     //{
@@ -55,17 +56,18 @@ class UserTests extends TestSuite {
         )
       ).toEither.value
       jwt.getAlgorithm shouldBe "ES256"
-      jwt.getClaims.getSub shouldBe "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945"
-      jwt.getClaims.getPid shouldBe OptionalLong.empty
-      jwt.getClaims.getPrefixedPid shouldBe OptionalLong.of(438)
-      jwt.getClaims.getSid shouldBe Optional.empty
-      jwt.getClaims.getPrefixedSid shouldBe Optional.of("ironoxide-dev1")
-      jwt.getClaims.getKid shouldBe OptionalLong.empty
-      jwt.getClaims.getPrefixedKid shouldBe OptionalLong.of(593)
-      jwt.getClaims.getUid shouldBe Optional.empty
-      jwt.getClaims.getPrefixedUid shouldBe Optional.empty
-      jwt.getClaims.getIat shouldBe 1591901740
-      jwt.getClaims.getExp shouldBe 1591901860
+      val claims = jwt.getClaims
+      claims.getSub shouldBe "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945"
+      claims.getPid shouldBe OptionalLong.empty
+      claims.getPrefixedPid shouldBe OptionalLong.of(438)
+      claims.getSid shouldBe Optional.empty
+      claims.getPrefixedSid shouldBe Optional.of("ironoxide-dev1")
+      claims.getKid shouldBe OptionalLong.empty
+      claims.getPrefixedKid shouldBe OptionalLong.of(593)
+      claims.getUid shouldBe Optional.empty
+      claims.getPrefixedUid shouldBe Optional.empty
+      claims.getIat shouldBe 1591901740
+      claims.getExp shouldBe 1591901860
     }
 
   }
