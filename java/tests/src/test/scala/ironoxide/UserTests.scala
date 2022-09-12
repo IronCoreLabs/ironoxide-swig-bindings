@@ -2,6 +2,8 @@ package ironoxide
 
 import scala.util.Try
 import com.ironcorelabs.sdk._
+import java.util.OptionalLong
+import java.util.Optional
 
 class UserTests extends TestSuite {
   "Jwt" should {
@@ -9,6 +11,15 @@ class UserTests extends TestSuite {
       val badJwt = Try(Jwt.validate("foo")).toEither
       badJwt.isLeft shouldBe true
     }
+
+    //{
+    // "sub": "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945",
+    // "pid": 438,
+    // "sid": "ironoxide-dev1",
+    // "kid": 593,
+    // "iat": 1591901740,
+    // "exp": 1591901860
+    // }
     "accept valid jwt" in {
       val jwt = Try(
         Jwt.validate(
@@ -16,7 +27,47 @@ class UserTests extends TestSuite {
         )
       ).toEither.value
       jwt.getAlgorithm shouldBe "ES256"
+      jwt.getClaims.getSub shouldBe "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945"
+      jwt.getClaims.getPid shouldBe OptionalLong.of(438)
+      jwt.getClaims.getPrefixedPid shouldBe OptionalLong.empty
+      jwt.getClaims.getSid shouldBe Optional.of("ironoxide-dev1")
+      jwt.getClaims.getPrefixedSid shouldBe Optional.empty
+      jwt.getClaims.getKid shouldBe OptionalLong.of(593)
+      jwt.getClaims.getPrefixedKid shouldBe OptionalLong.empty
+      jwt.getClaims.getUid shouldBe Optional.empty
+      jwt.getClaims.getPrefixedUid shouldBe Optional.empty
+      jwt.getClaims.getIat shouldBe 1591901740
+      jwt.getClaims.getExp shouldBe 1591901860
     }
+
+    //{
+    // "sub": "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945",
+    // "http://ironcore/pid": 438,
+    // "http://ironcore/sid": "ironoxide-dev1",
+    // "http://ironcore/kid": 593,
+    // "iat": 1591901740,
+    // "exp": 1591901860
+    // }
+    "accept valid jwt with prefixed claims" in {
+      val jwt = Try(
+        Jwt.validate(
+          "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYmNBQkMwMTJfLiQjfEAvOjs9KyctZDEyMjZkMWItNGMzOS00OWRhLTkzM2MtNjQyZTIzYWMxOTQ1IiwiaHR0cDovL2lyb25jb3JlL3BpZCI6NDM4LCJodHRwOi8vaXJvbmNvcmUvc2lkIjoiaXJvbm94aWRlLWRldjEiLCJodHRwOi8vaXJvbmNvcmUva2lkIjo1OTMsImlhdCI6MTU5MTkwMTc0MCwiZXhwIjoxNTkxOTAxODYwfQ.bCIDkN6bXaz85pl9s55MoAByzm0LPlMPlT5WqjT-R6F80EKFO0gqGT1m7330gxnN-LWtxonBVv1IoK9tl-NEvg"
+        )
+      ).toEither.value
+      jwt.getAlgorithm shouldBe "ES256"
+      jwt.getClaims.getSub shouldBe "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945"
+      jwt.getClaims.getPid shouldBe OptionalLong.empty
+      jwt.getClaims.getPrefixedPid shouldBe OptionalLong.of(438)
+      jwt.getClaims.getSid shouldBe Optional.empty
+      jwt.getClaims.getPrefixedSid shouldBe Optional.of("ironoxide-dev1")
+      jwt.getClaims.getKid shouldBe OptionalLong.empty
+      jwt.getClaims.getPrefixedKid shouldBe OptionalLong.of(593)
+      jwt.getClaims.getUid shouldBe Optional.empty
+      jwt.getClaims.getPrefixedUid shouldBe Optional.empty
+      jwt.getClaims.getIat shouldBe 1591901740
+      jwt.getClaims.getExp shouldBe 1591901860
+    }
+
   }
 
   "User Create" should {

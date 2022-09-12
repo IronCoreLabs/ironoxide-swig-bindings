@@ -13,13 +13,13 @@ crate-type = ["cdylib", "staticlib"]
 [dependencies]
 log = "0.4"
 itertools = "0.10"
-ironoxide = { version = "1", features = ["blocking", "beta", "tls-rustls"], default-features = false }
+ironoxide = { version = "2", features = ["blocking", "beta", "tls-rustls"], default-features = false }
 serde_json = "1"
 time = "0.3"
 
 [build-dependencies]
 env_logger = "0.9"
-flapigen = { git = "https://github.com/Dushistov/flapigen-rs.git", rev = "6bf005adbaf810863aa42d4f590d9f82dc948916" }
+flapigen = { git = "https://github.com/Dushistov/flapigen-rs.git", rev = "d8167dbd6896b96bf1ae8c0db339d2f0adcfb1c4" }
 bindgen = "0.60"
 regex = "1.3"
 cfg-if = "1"

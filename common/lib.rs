@@ -892,14 +892,29 @@ mod jwt_claims {
     pub fn sub(j: &JwtClaims) -> String {
         j.sub.clone()
     }
-    pub fn pid(j: &JwtClaims) -> u32 {
-        j.pid
+    pub fn pid(j: &JwtClaims) -> Option<i64> {
+        j.pid.map(|u| u as i64)
     }
-    pub fn sid(j: &JwtClaims) -> String {
+    pub fn sid(j: &JwtClaims) -> Option<String> {
         j.sid.clone()
     }
-    pub fn kid(j: &JwtClaims) -> u32 {
-        j.kid
+    pub fn kid(j: &JwtClaims) -> Option<i64> {
+        j.kid.map(|u| u as i64)
+    }
+    pub fn uid(j: &JwtClaims) -> Option<String> {
+        j.uid.clone()
+    }
+    pub fn prefixed_pid(j: &JwtClaims) -> Option<i64> {
+        j.prefixed_pid.map(|u| u as i64)
+    }
+    pub fn prefixed_sid(j: &JwtClaims) -> Option<String> {
+        j.prefixed_sid.clone()
+    }
+    pub fn prefixed_kid(j: &JwtClaims) -> Option<i64> {
+        j.prefixed_kid.map(|u| u as i64)
+    }
+    pub fn prefixed_uid(j: &JwtClaims) -> Option<String> {
+        j.prefixed_uid.clone()
     }
     pub fn iat(j: &JwtClaims) -> u64 {
         j.iat
