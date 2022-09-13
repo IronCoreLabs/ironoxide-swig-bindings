@@ -222,7 +222,7 @@ jobs:
       - name: Create PR
         run: |
           curl --silent --show-error --fail -X POST \
-            -H "Authorization: token ${{ github.token }}" \
+            -H "Authorization: token ${{ secrets.WORKFLOW_PAT }}" \
             -H "Content-Type: application/json" \
             --data '{"title": "Use new ironoxide-swig-bindings ${{ steps.vars.outputs.tag }}",
               "head": "${{ steps.vars.outputs.pr_branch }}",
