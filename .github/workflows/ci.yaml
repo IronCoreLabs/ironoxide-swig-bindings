@@ -80,8 +80,8 @@ jobs:
 
   android-build:
     runs-on: ubuntu-22.04
-    fail-fast: false
     strategy:
+      fail-fast: false
       matrix:
         arch: [i686-linux-android, x86_64-linux-android, aarch64-linux-android]
         # These folder names will be used as the names of artifacts uploaded by this job.
@@ -136,8 +136,8 @@ jobs:
     needs: android-build
     # reactivecircus/android-emulator-runner@v2 only works on Mac.
     runs-on: macos-11
-    fail-fast: false
     strategy:
+      fail-fast: false
       matrix:
         api-level: [24, 29]
         arch: [x86, x86_64]
