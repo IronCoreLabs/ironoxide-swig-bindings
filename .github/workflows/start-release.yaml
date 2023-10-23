@@ -34,8 +34,8 @@ jobs:
           CURRENT=$(basename ${{ github.ref }})
           NAME=$(echo ${CURRENT} | sed 's/release-//')
           NUMBER=$(echo ${NAME} | sed -E -e 's/[^0-9.]+/./g' -e 's/\.+/./g' -e 's/^\.//' -e 's/\.$//')
-          echo "::set-output name=tag::${NAME}"
-          echo "::set-output name=dewey::${NUMBER}"
+          echo "tag=${NAME}" >> "$GITHUB_OUTPUT"
+          echo "dewey=${NUMBER}" >> "$GITHUB_OUTPUT"
       - name: Edit files for release
         run: .github/set-versions.sh ${{ steps.version.outputs.dewey }}
       - name: Update Cargo.lock
