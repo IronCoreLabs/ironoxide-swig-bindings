@@ -13,13 +13,12 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions/setup-java@v1
+      - uses: actions/checkout@v4
+      - uses: IronCoreLabs/rust-toolchain@v1
+      - uses: actions/setup-java@v3
         with:
           java-version: 8
+          distribution: adopt
       - run: sudo apt-get install -y clang
       - name: Install cross
         run: cargo install cross
@@ -27,15 +26,10 @@ jobs:
         run: ./build-aar.sh
         working-directory: android
       - name: Decrypt PGP key
-        uses: IronCoreLabs/ironhide-actions/decrypt@v1
+        uses: IronCoreLabs/ironhide-actions/decrypt@v3
         with:
           keys: ${{ secrets.IRONHIDE_KEYS }}
-          input: .github/signing-key.asc.iron
-      - name: Decrypt nexus credentials
-        uses: IronCoreLabs/ironhide-actions/decrypt@v1
-        with:
-          keys: ${{ secrets.IRONHIDE_KEYS }}
-          input: .github/auth.properties.iron
+          input: .github/signing-key.asc.iron .github/auth.properties.iron
       - name: Import PGP key
         run: gpg --batch --import .github/signing-key.asc
       - name: Export PGP signing key

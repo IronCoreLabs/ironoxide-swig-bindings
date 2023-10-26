@@ -16,7 +16,7 @@ jobs:
       - build-java
       - build-cpp
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # base_ref will typically be main. We'll need to commit a change to that branch and push it.
           ref: ${{ github.base_ref }}
@@ -24,7 +24,7 @@ jobs:
           # access token with "repo" permissions.
           token: ${{ secrets.WORKFLOW_PAT }}
       - name: Decrypt PGP key
-        uses: IronCoreLabs/ironhide-actions/decrypt@v1
+        uses: IronCoreLabs/ironhide-actions/decrypt@v3
         with:
           keys: ${{ secrets.IRONHIDE_KEYS }}
           input: .github/signing-key.asc.iron
@@ -54,14 +54,13 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           release_name: Version ${{ steps.version.outputs.tag }}
-
       - name: Download java release artifacts from ubuntu-22.04
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: release-ubuntu-22.04
           path: release/ubuntu-22.04
       - name: Delete artifact
-        uses: geekyeggo/delete-artifact@v1
+        uses: geekyeggo/delete-artifact@v2
         with:
           name: release-ubuntu-22.04
           failOnError: false
@@ -74,34 +73,34 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download java release artifacts from macos-11
-        uses: actions/download-artifact@v1
+      - name: Download java release artifacts from macos-12
+        uses: actions/download-artifact@v3
         with:
-          name: release-macos-11
-          path: release/macos-11
+          name: release-macos-12
+          path: release/macos-12
       - name: Delete artifact
-        uses: geekyeggo/delete-artifact@v1
+        uses: geekyeggo/delete-artifact@v2
         with:
-          name: release-macos-11
+          name: release-macos-12
           failOnError: false
-      - name: Sign java artifact for macos-11
+      - name: Sign java artifact for macos-12
         run: |
-          gpg --batch --detach-sign -a release/macos-11/libironoxide_java.dylib
-          gpg --batch --verify release/macos-11/libironoxide_java.dylib.asc release/macos-11/libironoxide_java.dylib
-      - name: Upload java lib for macos-11
-        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-11/libironoxide_java.dylib release/macos-11/libironoxide_java.dylib.asc --clobber
+          gpg --batch --detach-sign -a release/macos-12/libironoxide_java.dylib
+          gpg --batch --verify release/macos-12/libironoxide_java.dylib.asc release/macos-12/libironoxide_java.dylib
+      - name: Upload java lib for macos-12
+        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-12/libironoxide_java.dylib release/macos-12/libironoxide_java.dylib.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download iOS release artifacts from build-cpp
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: release-iOS
           path: release/release-iOS
       - name: Delete artifact
         uses: geekyeggo/delete-artifact@v1
         with:
-          name: release-macos-11
+          name: release-macos-12
           failOnError: false
       - name: Sign iOS artifact
         run: |
@@ -123,46 +122,41 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-11]
+        os: [ubuntu-22.04, macos-12]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: olafurpg/setup-scala@v10
+      - uses: actions/checkout@v4
+      - uses: olafurpg/setup-scala@v14
         with:
           java-version: 11
+      # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
       - name: Install llvm (ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y llvm
-        # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - uses: IronCoreLabs/rust-toolchain@v1
       - uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release
       - name: Upload artifacts for ubuntu-22.04
         if: startsWith(matrix.os, 'ubuntu')
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: release-ubuntu-22.04
           path: target/release/libironoxide_java.so
-      - name: Upload artifacts for macos-11
+      - name: Upload artifacts for macos-12
         if: startsWith(matrix.os, 'macos')
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
-          name: release-macos-11
+          name: release-macos-12
           path: target/release/libironoxide_java.dylib
 
   build-cpp:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - uses: actions/checkout@v4
+      - uses: IronCoreLabs/rust-toolchain@v1
       - name: Setup iOS build
         run: |
           rustup target add x86_64-apple-ios aarch64-apple-ios
@@ -177,7 +171,7 @@ jobs:
           tar -r -f ironoxide-homebrew.tar -C target/universal/release libironoxide.a
           gzip ironoxide-homebrew.tar
       - name: Upload iOS artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: release-iOS
           path: ironoxide-homebrew.tar.gz
@@ -189,7 +183,7 @@ jobs:
     needs:
       - release
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The WORKFLOW_PAT is a personal
           # access token with "repo" permissions.
