@@ -41,8 +41,8 @@ jobs:
           NAME=$(echo ${CURRENT} | sed 's/release-//')
           NUMBER=$(echo ${NAME} | sed -E -e 's/[^0-9.]+/./g' -e 's/\.+/./g' -e 's/^\.//' -e 's/\.$//')
           NEXT=$(echo ${NUMBER} | awk -F. -v OFS=. '{$NF++;print}')
-          echo "::set-output name=tag::${NAME}"
-          echo "::set-output name=next::${NEXT}"
+          echo "tag=${NAME}" >> "$GITHUB_OUTPUT"
+          echo "next=${NEXT}" >> "$GITHUB_OUTPUT"
       - name: Create release tag
         run: |
           git tag ${{ steps.version.outputs.tag }}
@@ -207,10 +207,10 @@ jobs:
           ARTIFACT=https://github.com/IronCoreLabs/ironoxide-swig-bindings/releases/download/${NAME}/ironoxide-homebrew.tar.gz
           wget -q ${ARTIFACT}
           SHA256=$(sha256sum -b ironoxide-homebrew.tar.gz | awk '{print $1}')
-          echo "::set-output name=tag::${NAME}"
-          echo "::set-output name=pr_branch::ironoxide-swig-bindings-${NAME}"
-          echo "::set-output name=artifact::${ARTIFACT}"
-          echo "::set-output name=sha256::${SHA256}"
+          echo "tag=${NAME}" >> "$GITHUB_OUTPUT"
+          echo "pr_branch=ironoxide-swig-bindings-${NAME}" >> "$GITHUB_OUTPUT"
+          echo "artifact=${ARTIFACT}" >> "$GITHUB_OUTPUT"
+          echo "sha256=${SHA256}" >> "$GITHUB_OUTPUT"
       - name: Edit files for pending release
         run: |
           sed -i -e 's,^\( *url "\)[^"]*\("\)$,\1${{ steps.vars.outputs.artifact }}\2,' Formula/ironoxide.rb
