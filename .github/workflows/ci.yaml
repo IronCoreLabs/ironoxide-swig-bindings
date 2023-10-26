@@ -103,24 +103,6 @@ jobs:
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedAndroidTest
 
-  # This job cleans up the artifacts uploaded in `android-build` as they are not needed outside of the workflow.
-  # It will run even if `android-test` fails, ensuring that the artifacts get deleted.
-  # If deletion fails, the workflow is still able to succeed, and the artifacts will automatically expire after 90 days.
-  android-delete-artifacts:
-    needs: android-test
-    if: always()
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Delete artifacts
-        uses: geekyeggo/delete-artifact@v2
-        with:
-          # These are the names of the artifacts uploaded in `android-build` and should be kept in sync with them
-          name: |
-            x86
-            x86_64
-            arm64-v8a
-          failOnError: false
-
   # This tests that gradle can build ironoxide-android so we can catch issues before release.
   android-release-test:
     runs-on: ubuntu-22.04
