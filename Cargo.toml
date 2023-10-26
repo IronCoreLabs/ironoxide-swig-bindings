@@ -1,10 +1,6 @@
 [workspace]
-
-members = [
-    "java",
-    "android",
-    "cpp"
-]
+resolver = "2"
+members = ["java", "android", "cpp"]
 
 [profile.release]
 lto = true
