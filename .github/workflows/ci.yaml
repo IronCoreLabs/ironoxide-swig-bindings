@@ -146,6 +146,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: IronCoreLabs/rust-toolchain@v1
+      - name: Get Cmake
+        uses: lukka/get-cmake@latest
       - name: Build and test
         run: |
           cargo build --release -p ironoxide-cpp
