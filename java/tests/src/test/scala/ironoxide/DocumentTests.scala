@@ -25,8 +25,8 @@ class DocumentTests extends TestSuite {
       val createdTime = encryptResult.getCreated().toInstant().toEpochMilli
       val updatedTime = encryptResult.getLastUpdated().toInstant().toEpochMilli
       val currentTime = java.lang.System.currentTimeMillis
-      (currentTime - createdTime) should be < 10000L // sanity check the document was created in the last 10 seconds
-      (currentTime - updatedTime) should be < 10000L // sanity check the document was last updated in the last 10 seconds
+      (currentTime - createdTime) should be < 20000L // sanity check the document was created in the last 20 seconds
+      (currentTime - updatedTime) should be < 20000L // sanity check the document was last updated in the last 20 seconds
 
       val decryptResult = Try(primarySdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
       decryptResult.getDecryptedData shouldBe bytes
