@@ -133,7 +133,8 @@ jobs:
         run: cargo lipo -p ironoxide-cpp
 
   cpp-test:
-    # Cmake on macos fails to find TargetConditionals.h, but testing on ubuntu should be sufficient
+    # Cmake on macos fails to find TargetConditionals.h
+    # See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
