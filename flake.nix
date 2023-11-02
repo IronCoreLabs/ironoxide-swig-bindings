@@ -25,7 +25,6 @@
               pkgs.openssl
               openjdk17
               sbt
-              cmake
             ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin
               [ pkgs.darwin.apple_sdk.frameworks.SystemConfiguration ];
         };
