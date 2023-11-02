@@ -119,9 +119,23 @@ jobs:
         working-directory: android
 
   cpp-build:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: IronCoreLabs/rust-toolchain@v1
+        with:
+          toolchain: stable
+      - name: Setup iOS build
+        run: |
+          rustup target add x86_64-apple-ios aarch64-apple-ios
+          cargo install cargo-lipo
+      - name: Build for iOS
+        run: cargo lipo -p ironoxide-cpp
+
+  cpp-test:
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-12]
+        os: [ubuntu-22.04, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -129,18 +143,9 @@ jobs:
         with:
           toolchain: stable
       - name: Build and test
-        if: startsWith(matrix.os, 'ubuntu')
         run: |
-          cargo build --release -p ironoxide-cpp
+          cargo build -p ironoxide-cpp
           cd cpp/
           cmake .
           make
           ./cpp-tests
-      - name: Setup iOS build
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          rustup target add x86_64-apple-ios aarch64-apple-ios
-          cargo install cargo-lipo
-      - name: Build for iOS
-        if: startsWith(matrix.os, 'macos')
-        run: cargo lipo --release -p ironoxide-cpp
