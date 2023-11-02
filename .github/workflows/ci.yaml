@@ -119,7 +119,7 @@ jobs:
         working-directory: android
 
   cpp-build:
-    runs-on: macos-13
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v4
       - uses: IronCoreLabs/rust-toolchain@v1
@@ -133,10 +133,8 @@ jobs:
         run: cargo lipo -p ironoxide-cpp
 
   cpp-test:
-    strategy:
-      matrix:
-        os: [ubuntu-22.04, macos-13]
-    runs-on: ${{ matrix.os }}
+    # Cmake on macos fails to find TargetConditionals.h, but testing on ubuntu should be sufficient
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: IronCoreLabs/rust-toolchain@v1
