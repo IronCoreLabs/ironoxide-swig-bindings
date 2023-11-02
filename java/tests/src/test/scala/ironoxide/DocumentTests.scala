@@ -18,7 +18,6 @@ class DocumentTests extends TestSuite {
     "roundtrip bytes" in {
       val bytes = Array(2, 3).map(_.toByte)
       val encryptResult = Try(primarySdk.documentEncrypt(bytes, new DocumentEncryptOpts)).toEither.value
-      val currentTime = java.lang.System.currentTimeMillis
       encryptResult.getName.isEmpty shouldBe true
       encryptResult.getErrors.getUsers.isEmpty shouldBe true
       encryptResult.getErrors.getGroups.isEmpty shouldBe true
