@@ -151,6 +151,7 @@ jobs:
         with:
           name: release-macos-12
           path: target/release/libironoxide_java.dylib
+# See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
 #   build-cpp:
 #     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
 #     runs-on: macos-12
@@ -176,6 +177,7 @@ jobs:
 #           name: release-iOS
 #           path: ironoxide-homebrew.tar.gz
 
+# See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
 # Creates a PR to update homebrew-ironcore, which depends on releases from this repository.
 #   homebrew-ironcore:
 #     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
