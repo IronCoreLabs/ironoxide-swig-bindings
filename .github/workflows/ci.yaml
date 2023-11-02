@@ -58,6 +58,7 @@ jobs:
       - name: Build
         run: |
           cargo install cargo-ndk
+          rustup target install rustup ${{ matrix.arch }}
           cargo ndk -t ${{ matrix.arch }} build
           cp -r target/${{ matrix.arch }}/debug/build/ironoxide-android*/out/java android/ironoxide-android/src/main/
           mkdir -p android/ironoxide-android/src/main/jniLibs/${{ matrix.folder-name }}/
