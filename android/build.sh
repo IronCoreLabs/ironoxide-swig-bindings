@@ -12,7 +12,9 @@ rm -rf ironoxide-android/src/main/jniLibs/x86_64
 cd ../
 
 cargo clean
-cross build -p ironoxide-android --target x86_64-linux-android 
+cargo install cargo-ndk
+rustup target install x86_64-linux-android
+cargo ndk -t x86_64-linux-android build -p ironoxide-android
 
 cp -r target/x86_64-linux-android/debug/build/ironoxide-android*/out/java android/ironoxide-android/src/main/
 mkdir -p android/ironoxide-android/src/main/jniLibs/x86_64/

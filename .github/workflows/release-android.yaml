@@ -20,8 +20,6 @@ jobs:
           java-version: 8
           distribution: adopt
       - run: sudo apt-get install -y clang
-      - name: Install cross
-        run: cargo install cross
       - name: Run build script
         run: ./build-aar.sh
         working-directory: android

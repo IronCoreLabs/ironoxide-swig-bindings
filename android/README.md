@@ -38,7 +38,6 @@ You can then read in a device with the `DeviceContext.fromJsonString()` function
 ### Prerequisites
 
 - Install [Rust toolchain](https://www.rust-lang.org/tools/install).
-- Install [cross](https://github.com/rust-embedded/cross).
 - Install Android SDK 29. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only").
   - Note: **The extracted `tools` folder must follow a specific folder hierarchy. We recommend `AndroidCLI/cmdline-tools/tools`**.
 - Install Android 29 build and platform tools. This can be done with `sdkmanager` (found in `tools/bin`):
@@ -54,7 +53,7 @@ You can then read in a device with the `DeviceContext.fromJsonString()` function
 From the repository root, run `android/build.sh`.
 
 This will compile IronOxide-Android for `x86_64` Android phones. If building for a different architecture, you can find the Rust target to compile to
-[here](https://forge.rust-lang.org/release/platform-support.html) and modify the `cross build` command in `build.sh`. The compiled library and generated Java files will be put into `android/ironoxide-android/src/main`.
+[here](https://forge.rust-lang.org/release/platform-support.html) and modify the `cargo ndk` command in `build.sh`. The compiled library and generated Java files will be put into `android/ironoxide-android/src/main`.
 
 ## Testing
 
