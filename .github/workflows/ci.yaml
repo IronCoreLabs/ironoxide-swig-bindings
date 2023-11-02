@@ -57,8 +57,9 @@ jobs:
       - uses: IronCoreLabs/rust-toolchain@v1
       - name: Build
         run: |
-          cargo install cross
-          cross build --target ${{ matrix.arch }} -p ironoxide-android
+          cargo install cargo-ndk
+          rustup target install ${{ matrix.arch }}
+          cargo ndk -t ${{ matrix.arch }} build -p ironoxide-android
           cp -r target/${{ matrix.arch }}/debug/build/ironoxide-android*/out/java android/ironoxide-android/src/main/
           mkdir -p android/ironoxide-android/src/main/jniLibs/${{ matrix.folder-name }}/
           cp -r target/${{ matrix.arch }}/debug/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/${{ matrix.folder-name }}/
@@ -108,8 +109,6 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: Install cross
-        run: cargo install cross
       - name: Run build script
         run: ./build.sh
         working-directory: android
@@ -120,10 +119,23 @@ jobs:
         working-directory: android
 
   cpp-build:
-    strategy:
-      matrix:
-        os: [ubuntu-22.04, macos-12]
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: IronCoreLabs/rust-toolchain@v1
+        with:
+          toolchain: stable
+      - name: Setup iOS build
+        run: |
+          rustup target add x86_64-apple-ios aarch64-apple-ios
+          cargo install cargo-lipo
+      - name: Build for iOS
+        run: cargo lipo -p ironoxide-cpp
+
+  cpp-test:
+    # Cmake on macos fails to find TargetConditionals.h
+    # See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: IronCoreLabs/rust-toolchain@v1
@@ -131,16 +143,8 @@ jobs:
           toolchain: stable
       - name: Build and test
         run: |
-          cargo build --release -p ironoxide-cpp
+          cargo build -p ironoxide-cpp
           cd cpp/
           cmake .
           make
           ./cpp-tests
-      - name: Setup iOS build
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          rustup target add x86_64-apple-ios aarch64-apple-ios
-          cargo install cargo-lipo
-      - name: Build for iOS
-        if: startsWith(matrix.os, 'macos')
-        run: cargo lipo --release -p ironoxide-cpp

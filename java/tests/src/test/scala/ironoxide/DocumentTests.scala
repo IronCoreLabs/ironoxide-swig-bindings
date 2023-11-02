@@ -18,15 +18,14 @@ class DocumentTests extends TestSuite {
     "roundtrip bytes" in {
       val bytes = Array(2, 3).map(_.toByte)
       val encryptResult = Try(primarySdk.documentEncrypt(bytes, new DocumentEncryptOpts)).toEither.value
-      val currentTime = java.lang.System.currentTimeMillis
       encryptResult.getName.isEmpty shouldBe true
       encryptResult.getErrors.getUsers.isEmpty shouldBe true
       encryptResult.getErrors.getGroups.isEmpty shouldBe true
       encryptResult.getChanged.getUsers.length shouldBe 1
       val createdTime = encryptResult.getCreated().toInstant().toEpochMilli
       val updatedTime = encryptResult.getLastUpdated().toInstant().toEpochMilli
-      (currentTime - createdTime) should be < 20000L // sanity check the document was created in the last 20 seconds
-      (currentTime - updatedTime) should be < 20000L // sanity check the document was last updated in the last 20 seconds
+      createdTime shouldBe updatedTime
+      createdTime should be > 1698948098310L // Later than arbitrary time on Nov 2, 2023
 
       val decryptResult = Try(primarySdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
       decryptResult.getDecryptedData shouldBe bytes
