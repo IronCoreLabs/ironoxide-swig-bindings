@@ -1,19 +1,19 @@
 mod swig_foreign_types_map {}
 
 foreign_typemap!(
-    ($p:r_type) DateTime<Utc> => jlong {
-        $out = $p.timestamp_millis();
+    ($p:r_type) OffsetDateTime => jlong {
+        $out = $p.unix_timestamp() * 1000 + $p.millisecond() as i64;
     };
-    ($p:f_type, option = "NoNullAnnotations", unique_prefix = "/*chrono*/") => "/*chrono*/java.util.Date" "$out = new java.util.Date($p);";
-    ($p:f_type, option = "NullAnnotations", unique_prefix = "/*chrono*/") => "/*chrono*/@NonNull java.util.Date" "$out = new java.util.Date($p);";
+    ($p:f_type, option = "NoNullAnnotations", unique_prefix = "/*offsetdatetime*/") => "/*offsetdatetime*/java.util.Date" "$out = new java.util.Date($p);";
+    ($p:f_type, option = "NullAnnotations", unique_prefix = "/*offsetdatetime*/") => "/*offsetdatetime*/@NonNull java.util.Date" "$out = new java.util.Date($p);";
 );
 
 foreign_typemap!(
-    ($p:r_type) Option<DateTime<Utc>> => internal_aliases::JOptionalLong {
-        let tmp: Option<i64> = $p.map(|x| x.timestamp_millis());
+    ($p:r_type) Option<OffsetDateTime> => internal_aliases::JOptionalLong {
+        let tmp: Option<i64> = $p.map(|x| $x.unix_timestamp() * 1000 + $x.millisecond() as i64);
         $out = to_java_util_optional_long(env, tmp);
     };
-    ($p:f_type, unique_prefix = "/*chrono*/") => "/*chrono*/java.util.Optional<java.util.Date>"
+    ($p:f_type, unique_prefix = "/*offsetdatetime*/") => "/*offsetdatetime*/java.util.Optional<java.util.Date>"
         r#"
         $out;
         if ($p.isPresent()) {

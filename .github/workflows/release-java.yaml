@@ -11,31 +11,25 @@ on:
 jobs:
   java:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-      - name: Decrypt PGP key
-        uses: IronCoreLabs/ironhide-actions/decrypt@v1
+      - uses: actions/checkout@v4
+      - name: Decrypt keys
+        uses: IronCoreLabs/ironhide-actions/decrypt@v3
         with:
           keys: ${{ secrets.IRONHIDE_KEYS }}
-          input: .github/signing-key.asc.iron
+          input: .github/signing-key.asc.iron .github/sonatype.sbt.iron
       - name: Import PGP key
         run: gpg --batch --import .github/signing-key.asc
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions/setup-java@v1
+      - uses: IronCoreLabs/rust-toolchain@v1
+      - uses: actions/setup-java@v3
         with:
           java-version: 11
+          distribution: adopt
       - name: Install llvm (ubuntu)
         run: sudo apt-get update && sudo apt-get install -y llvm
       - name: Cargo build
         run: cargo build -p ironoxide-java
-      - name: Decrypt sonatype auth
-        uses: IronCoreLabs/ironhide-actions/decrypt@v1
-        with:
-          keys: ${{ secrets.IRONHIDE_KEYS }}
-          input: .github/sonatype.sbt.iron
       - name: Install sonatype auth
         run: |
           mkdir -p ~/.sbt/1.0

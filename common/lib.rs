@@ -8,6 +8,7 @@ use std::{
     hash::{Hash, Hasher},
     time::Duration,
 };
+use time::OffsetDateTime;
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
 
@@ -269,13 +270,13 @@ mod document_create_opt {
         policy_grant: Option<&PolicyGrant>,
     ) -> DocumentEncryptOpts {
         let users_and_groups: Vec<UserOrGroup> = user_grants
-            .to_owned()
-            .into_iter()
+            .iter()
+            .cloned()
             .map(|u| UserOrGroup::User { id: u })
             .chain(
                 group_grants
-                    .to_owned()
-                    .into_iter()
+                    .iter()
+                    .cloned()
                     .map(|g| UserOrGroup::Group { id: g }),
             )
             .collect();
@@ -354,10 +355,10 @@ mod device_add_result {
     pub fn name(d: &DeviceAddResult) -> Option<DeviceName> {
         d.name().cloned()
     }
-    pub fn created(d: &DeviceAddResult) -> DateTime<Utc> {
+    pub fn created(d: &DeviceAddResult) -> OffsetDateTime {
         *d.created()
     }
-    pub fn last_updated(d: &DeviceAddResult) -> DateTime<Utc> {
+    pub fn last_updated(d: &DeviceAddResult) -> OffsetDateTime {
         *d.last_updated()
     }
 }
@@ -411,11 +412,11 @@ mod user_device {
         u.name().cloned()
     }
 
-    pub fn created(u: &UserDevice) -> DateTime<Utc> {
+    pub fn created(u: &UserDevice) -> OffsetDateTime {
         *u.created()
     }
 
-    pub fn last_updated(u: &UserDevice) -> DateTime<Utc> {
+    pub fn last_updated(u: &UserDevice) -> OffsetDateTime {
         *u.last_updated()
     }
 }
@@ -445,10 +446,10 @@ mod document_list_meta {
     pub fn association_type(d: &DocumentListMeta) -> AssociationType {
         d.association_type().clone()
     }
-    pub fn created(d: &DocumentListMeta) -> DateTime<Utc> {
+    pub fn created(d: &DocumentListMeta) -> OffsetDateTime {
         *d.created()
     }
-    pub fn last_updated(d: &DocumentListMeta) -> DateTime<Utc> {
+    pub fn last_updated(d: &DocumentListMeta) -> OffsetDateTime {
         *d.last_updated()
     }
 }
@@ -461,10 +462,10 @@ mod document_metadata_result {
     pub fn name(d: &DocumentMetadataResult) -> Option<DocumentName> {
         d.name().cloned()
     }
-    pub fn created(d: &DocumentMetadataResult) -> DateTime<Utc> {
+    pub fn created(d: &DocumentMetadataResult) -> OffsetDateTime {
         *d.created()
     }
-    pub fn last_updated(d: &DocumentMetadataResult) -> DateTime<Utc> {
+    pub fn last_updated(d: &DocumentMetadataResult) -> OffsetDateTime {
         *d.last_updated()
     }
     pub fn association_type(d: &DocumentMetadataResult) -> AssociationType {
@@ -487,10 +488,10 @@ mod document_encrypt_result {
     pub fn name(d: &DocumentEncryptResult) -> Option<DocumentName> {
         d.name().cloned()
     }
-    pub fn created(d: &DocumentEncryptResult) -> DateTime<Utc> {
+    pub fn created(d: &DocumentEncryptResult) -> OffsetDateTime {
         *d.created()
     }
-    pub fn last_updated(d: &DocumentEncryptResult) -> DateTime<Utc> {
+    pub fn last_updated(d: &DocumentEncryptResult) -> OffsetDateTime {
         *d.last_updated()
     }
     pub fn encrypted_data(d: &DocumentEncryptResult) -> Vec<i8> {
@@ -528,10 +529,10 @@ mod document_decrypt_result {
     pub fn name(d: &DocumentDecryptResult) -> Option<DocumentName> {
         d.name().cloned()
     }
-    pub fn created(d: &DocumentDecryptResult) -> DateTime<Utc> {
+    pub fn created(d: &DocumentDecryptResult) -> OffsetDateTime {
         *d.created()
     }
-    pub fn last_updated(d: &DocumentDecryptResult) -> DateTime<Utc> {
+    pub fn last_updated(d: &DocumentDecryptResult) -> OffsetDateTime {
         *d.last_updated()
     }
     pub fn decrypted_data(d: &DocumentDecryptResult) -> Vec<i8> {
@@ -735,10 +736,10 @@ mod group_meta_result {
     pub fn name(g: &GroupMetaResult) -> Option<GroupName> {
         g.name().cloned()
     }
-    pub fn created(g: &GroupMetaResult) -> DateTime<Utc> {
+    pub fn created(g: &GroupMetaResult) -> OffsetDateTime {
         *g.created()
     }
-    pub fn last_updated(g: &GroupMetaResult) -> DateTime<Utc> {
+    pub fn last_updated(g: &GroupMetaResult) -> OffsetDateTime {
         *g.last_updated()
     }
     pub fn needs_rotation(g: &GroupMetaResult) -> Option<NullableBoolean> {
@@ -766,10 +767,10 @@ mod group_create_result {
     pub fn member_list(g: &GroupCreateResult) -> GroupUserList {
         GroupUserList(g.members().clone())
     }
-    pub fn created(g: &GroupCreateResult) -> DateTime<Utc> {
+    pub fn created(g: &GroupCreateResult) -> OffsetDateTime {
         *g.created()
     }
-    pub fn last_updated(g: &GroupCreateResult) -> DateTime<Utc> {
+    pub fn last_updated(g: &GroupCreateResult) -> OffsetDateTime {
         *g.last_updated()
     }
     pub fn needs_rotation(g: &GroupCreateResult) -> Option<NullableBoolean> {
@@ -801,10 +802,10 @@ mod group_get_result {
     pub fn member_list(result: &GroupGetResult) -> Option<GroupUserList> {
         result.member_list().cloned().map(GroupUserList)
     }
-    pub fn created(g: &GroupGetResult) -> DateTime<Utc> {
+    pub fn created(g: &GroupGetResult) -> OffsetDateTime {
         *g.created()
     }
-    pub fn last_updated(g: &GroupGetResult) -> DateTime<Utc> {
+    pub fn last_updated(g: &GroupGetResult) -> OffsetDateTime {
         *g.last_updated()
     }
     pub fn needs_rotation(g: &GroupGetResult) -> Option<NullableBoolean> {
@@ -891,14 +892,29 @@ mod jwt_claims {
     pub fn sub(j: &JwtClaims) -> String {
         j.sub.clone()
     }
-    pub fn pid(j: &JwtClaims) -> u32 {
-        j.pid
+    pub fn pid(j: &JwtClaims) -> Option<i64> {
+        j.pid.map(|u| u as i64)
     }
-    pub fn sid(j: &JwtClaims) -> String {
+    pub fn sid(j: &JwtClaims) -> Option<String> {
         j.sid.clone()
     }
-    pub fn kid(j: &JwtClaims) -> u32 {
-        j.kid
+    pub fn kid(j: &JwtClaims) -> Option<i64> {
+        j.kid.map(|u| u as i64)
+    }
+    pub fn uid(j: &JwtClaims) -> Option<String> {
+        j.uid.clone()
+    }
+    pub fn prefixed_pid(j: &JwtClaims) -> Option<i64> {
+        j.prefixed_pid.map(|u| u as i64)
+    }
+    pub fn prefixed_sid(j: &JwtClaims) -> Option<String> {
+        j.prefixed_sid.clone()
+    }
+    pub fn prefixed_kid(j: &JwtClaims) -> Option<i64> {
+        j.prefixed_kid.map(|u| u as i64)
+    }
+    pub fn prefixed_uid(j: &JwtClaims) -> Option<String> {
+        j.prefixed_uid.clone()
     }
     pub fn iat(j: &JwtClaims) -> u64 {
         j.iat
@@ -920,7 +936,7 @@ mod jwt {
         j.claims().clone()
     }
     pub fn algorithm(j: &Jwt) -> String {
-        format!("{:?}", j.header().alg).to_string()
+        format!("{:?}", j.header().alg)
     }
 }
 
@@ -978,7 +994,7 @@ fn user_list_devices(sdk: &IronOxide) -> Result<UserDeviceListResult, String> {
     Ok(sdk.user_list_devices()?)
 }
 fn user_get_public_key(sdk: &IronOxide, users: &[UserId]) -> Result<Vec<UserWithKey>, String> {
-    let result = sdk.user_get_public_key(&users)?;
+    let result = sdk.user_get_public_key(users)?;
     Ok(result.into_iter().map(UserWithKey).collect())
 }
 fn user_delete_device(sdk: &IronOxide, device_id: Option<&DeviceId>) -> Result<DeviceId, String> {
@@ -1007,14 +1023,14 @@ fn document_encrypt(
     data: &[i8],
     opts: &DocumentEncryptOpts,
 ) -> Result<DocumentEncryptResult, String> {
-    Ok(sdk.document_encrypt(i8_conv(data), opts)?)
+    Ok(sdk.document_encrypt(i8_conv(data).to_vec(), opts)?)
 }
 fn document_update_bytes(
     sdk: &IronOxide,
     document_id: &DocumentId,
     data: &[i8],
 ) -> Result<DocumentEncryptResult, String> {
-    Ok(sdk.document_update_bytes(document_id, i8_conv(data))?)
+    Ok(sdk.document_update_bytes(document_id, i8_conv(data).to_vec())?)
 }
 fn document_decrypt(sdk: &IronOxide, data: &[i8]) -> Result<DocumentDecryptResult, String> {
     Ok(sdk.document_decrypt(i8_conv(data))?)
@@ -1034,13 +1050,13 @@ fn document_grant_access(
     grant_groups: &[GroupId],
 ) -> Result<DocumentAccessResult, String> {
     let users_and_groups = grant_users
-        .to_owned()
-        .into_iter()
+        .iter()
+        .cloned()
         .map(|u| UserOrGroup::User { id: u })
         .chain(
             grant_groups
-                .to_owned()
-                .into_iter()
+                .iter()
+                .cloned()
                 .map(|g| UserOrGroup::Group { id: g }),
         )
         .collect();
@@ -1055,13 +1071,13 @@ fn document_revoke_access(
     revoke_groups: &[GroupId],
 ) -> Result<DocumentAccessResult, String> {
     let users_and_groups = revoke_users
-        .to_owned()
-        .into_iter()
+        .iter()
+        .cloned()
         .map(|u| UserOrGroup::User { id: u })
         .chain(
             revoke_groups
-                .to_owned()
-                .into_iter()
+                .iter()
+                .cloned()
                 .map(|g| UserOrGroup::Group { id: g }),
         )
         .collect();
@@ -1127,7 +1143,7 @@ fn advanced_document_encrypt_unmanaged(
     data: &[i8],
     opts: &DocumentEncryptOpts,
 ) -> Result<DocumentEncryptUnmanagedResult, String> {
-    Ok(sdk.document_encrypt_unmanaged(i8_conv(data), opts)?)
+    Ok(sdk.document_encrypt_unmanaged(i8_conv(data).to_vec(), opts)?)
 }
 
 fn advanced_document_decrypt_unmanaged(

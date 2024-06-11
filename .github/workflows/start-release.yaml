@@ -14,28 +14,26 @@ jobs:
   # Starts the release process for this repository.
   kickoff:
     if: github.event.ref_type == 'branch' && startsWith(github.event.ref, 'release-')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
-          # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The DEPLOYMENT_TOKEN is a personal
+          # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The WORKFLOW_PAT is a personal
           # access token with "repo" permissions.
-          token: ${{ secrets.DEPLOYMENT_TOKEN }}
+          token: ${{ secrets.WORKFLOW_PAT }}
       - name: Configure git
         run: |
           git config --local user.email ops@ironcorelabs.com
           git config --local user.name "Leeroy Travis"
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - uses: IronCoreLabs/rust-toolchain@v1
       - name: Calculate versions from github.ref
         id: version
         run: |
           CURRENT=$(basename ${{ github.ref }})
           NAME=$(echo ${CURRENT} | sed 's/release-//')
           NUMBER=$(echo ${NAME} | sed -E -e 's/[^0-9.]+/./g' -e 's/\.+/./g' -e 's/^\.//' -e 's/\.$//')
-          echo "::set-output name=tag::${NAME}"
-          echo "::set-output name=dewey::${NUMBER}"
+          echo "tag=${NAME}" >> "$GITHUB_OUTPUT"
+          echo "dewey=${NUMBER}" >> "$GITHUB_OUTPUT"
       - name: Edit files for release
         run: .github/set-versions.sh ${{ steps.version.outputs.dewey }}
       - name: Update Cargo.lock

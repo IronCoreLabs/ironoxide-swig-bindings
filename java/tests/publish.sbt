@@ -12,7 +12,8 @@ pomIncludeRepository := { _ => false }
 
 useGpg := true
 
-usePgpKeyHex("62F57B1B")
+// This key is the last 4 bytes of the key ID of the signing subkey.
+usePgpKeyHex("9FA43559")
 
 pomExtra := (
     <scm>

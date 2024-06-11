@@ -11,20 +11,21 @@ on:
 jobs:
   release:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     needs:
       - build-java
-      - build-cpp
+    # CPP is current disabled because of an issue with Cmake https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
+    #   - build-cpp
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           # base_ref will typically be main. We'll need to commit a change to that branch and push it.
           ref: ${{ github.base_ref }}
-          # If we use the default GITHUB_TOKEN then CI won't run after we push our changes. This DEPLOYMENT_TOKEN is a personal
+          # If we use the default GITHUB_TOKEN then CI won't run after we push our changes. This WORKFLOW_PAT is a personal
           # access token with "repo" permissions.
-          token: ${{ secrets.DEPLOYMENT_TOKEN }}
+          token: ${{ secrets.WORKFLOW_PAT }}
       - name: Decrypt PGP key
-        uses: IronCoreLabs/ironhide-actions/decrypt@v1
+        uses: IronCoreLabs/ironhide-actions/decrypt@v3
         with:
           keys: ${{ secrets.IRONHIDE_KEYS }}
           input: .github/signing-key.asc.iron
@@ -41,8 +42,8 @@ jobs:
           NAME=$(echo ${CURRENT} | sed 's/release-//')
           NUMBER=$(echo ${NAME} | sed -E -e 's/[^0-9.]+/./g' -e 's/\.+/./g' -e 's/^\.//' -e 's/\.$//')
           NEXT=$(echo ${NUMBER} | awk -F. -v OFS=. '{$NF++;print}')
-          echo "::set-output name=tag::${NAME}"
-          echo "::set-output name=next::${NEXT}"
+          echo "tag=${NAME}" >> "$GITHUB_OUTPUT"
+          echo "next=${NEXT}" >> "$GITHUB_OUTPUT"
       - name: Create release tag
         run: |
           git tag ${{ steps.version.outputs.tag }}
@@ -54,105 +55,62 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           release_name: Version ${{ steps.version.outputs.tag }}
-
-      - name: Download java release artifacts from ubuntu-18.04
-        uses: actions/download-artifact@v1
+      - name: Download java release artifacts from ubuntu-22.04
+        uses: actions/download-artifact@v3
         with:
-          name: release-ubuntu-18.04
-          path: release/ubuntu-18.04
+          name: release-ubuntu-22.04
+          path: release/ubuntu-22.04
       - name: Delete artifact
-        uses: geekyeggo/delete-artifact@v1
+        uses: geekyeggo/delete-artifact@v2
         with:
-          name: release-ubuntu-18.04
+          name: release-ubuntu-22.04
           failOnError: false
-      - name: Sign java artifact for ubuntu-18.04
+      - name: Sign java artifact for ubuntu-22.04
         run: |
-          gpg --batch --detach-sign -a release/ubuntu-18.04/libironoxide_java.so
-          gpg --batch --verify release/ubuntu-18.04/libironoxide_java.so.asc release/ubuntu-18.04/libironoxide_java.so
-      - name: Upload java lib for ubuntu-18.04
-        uses: actions/upload-release-asset@v1
+          gpg --batch --detach-sign -a release/ubuntu-22.04/libironoxide_java.so
+          gpg --batch --verify release/ubuntu-22.04/libironoxide_java.so.asc release/ubuntu-22.04/libironoxide_java.so
+      - name: Upload java lib for ubuntu-22.04
+        run: gh release upload ${{ steps.version.outputs.tag }} release/ubuntu-22.04/libironoxide_java.so release/ubuntu-22.04/libironoxide_java.so.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/ubuntu-18.04/libironoxide_java.so
-          asset_name: libironoxide_java.so
-          asset_content_type: application/data
-      - name: Upload java signature for ubuntu-18.04
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/ubuntu-18.04/libironoxide_java.so.asc
-          asset_name: libironoxide_java.so.asc
-          asset_content_type: application/pgp-signature
 
-      - name: Download java release artifacts from macos-10.15
-        uses: actions/download-artifact@v1
+      - name: Download java release artifacts from macos-12
+        uses: actions/download-artifact@v3
         with:
-          name: release-macos-10.15
-          path: release/macos-10.15
+          name: release-macos-12
+          path: release/macos-12
       - name: Delete artifact
-        uses: geekyeggo/delete-artifact@v1
+        uses: geekyeggo/delete-artifact@v2
         with:
-          name: release-macos-10.15
+          name: release-macos-12
           failOnError: false
-      - name: Sign java artifact for macos-10.15
+      - name: Sign java artifact for macos-12
         run: |
-          gpg --batch --detach-sign -a release/macos-10.15/libironoxide_java.dylib
-          gpg --batch --verify release/macos-10.15/libironoxide_java.dylib.asc release/macos-10.15/libironoxide_java.dylib
-      - name: Upload java lib for macos-10.15
-        uses: actions/upload-release-asset@v1
+          gpg --batch --detach-sign -a release/macos-12/libironoxide_java.dylib
+          gpg --batch --verify release/macos-12/libironoxide_java.dylib.asc release/macos-12/libironoxide_java.dylib
+      - name: Upload java lib for macos-12
+        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-12/libironoxide_java.dylib release/macos-12/libironoxide_java.dylib.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/macos-10.15/libironoxide_java.dylib
-          asset_name: libironoxide_java.dylib
-          asset_content_type: application/data
-      - name: Upload java signature for macos-10.15
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/macos-10.15/libironoxide_java.dylib.asc
-          asset_name: libironoxide_java.dylib.asc
-          asset_content_type: application/pgp-signature
 
-      - name: Download iOS release artifacts from build-cpp
-        uses: actions/download-artifact@v1
-        with:
-          name: release-iOS
-          path: release/release-iOS
-      - name: Delete artifact
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: release-macos-10.15
-          failOnError: false
-      - name: Sign iOS artifact
-        run: |
-          gpg --batch --detach-sign -a release/release-iOS/ironoxide-homebrew.tar.gz
-          gpg --batch --verify release/release-iOS/ironoxide-homebrew.tar.gz.asc release/release-iOS/ironoxide-homebrew.tar.gz
-      - name: Upload tar for release-iOS
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/release-iOS/ironoxide-homebrew.tar.gz
-          asset_name: ironoxide-homebrew.tar.gz
-          asset_content_type: application/data
-      - name: Upload signature for release-iOS
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: release/release-iOS/ironoxide-homebrew.tar.gz.asc
-          asset_name: ironoxide-homebrew.tar.gz.asc
-          asset_content_type: application/pgp-signature
+      #   - name: Download iOS release artifacts from build-cpp
+      #     uses: actions/download-artifact@v3
+      #     with:
+      #       name: release-iOS
+      #       path: release/release-iOS
+      #   - name: Delete artifact
+      #     uses: geekyeggo/delete-artifact@v1
+      #     with:
+      #       name: release-macos-12
+      #       failOnError: false
+      #   - name: Sign iOS artifact
+      #     run: |
+      #       gpg --batch --detach-sign -a release/release-iOS/ironoxide-homebrew.tar.gz
+      #       gpg --batch --verify release/release-iOS/ironoxide-homebrew.tar.gz.asc release/release-iOS/ironoxide-homebrew.tar.gz
+      #   - name: Upload tar for release-iOS
+      #     run: gh release upload ${{ steps.version.outputs.tag }} release/release-iOS/ironoxide-homebrew.tar.gz release/release-iOS/ironoxide-homebrew.tar.gz.asc --clobber
+      #     env:
+      #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Increment to next -SNAPSHOT version for Java.
         run: |
@@ -165,110 +123,106 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-10.15]
+        os: [ubuntu-22.04, macos-12]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v10
+      - uses: actions/checkout@v4
+      - uses: olafurpg/setup-scala@v14
         with:
           java-version: 11
+      # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
       - name: Install llvm (ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y llvm
-        # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - uses: IronCoreLabs/rust-toolchain@v1
       - uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release
-      - name: Upload artifacts for ubuntu-18.04
+      - name: Upload artifacts for ubuntu-22.04
         if: startsWith(matrix.os, 'ubuntu')
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
-          name: release-ubuntu-18.04
+          name: release-ubuntu-22.04
           path: target/release/libironoxide_java.so
-      - name: Upload artifacts for macos-10.15
+      - name: Upload artifacts for macos-12
         if: startsWith(matrix.os, 'macos')
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
-          name: release-macos-10.15
+          name: release-macos-12
           path: target/release/libironoxide_java.dylib
+# See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
+#   build-cpp:
+#     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
+#     runs-on: macos-12
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: IronCoreLabs/rust-toolchain@v1
+#       - name: Setup iOS build
+#         run: |
+#           rustup target add x86_64-apple-ios aarch64-apple-ios
+#           cargo install cargo-lipo
+#       - name: Build for iOS
+#         run: cargo lipo --release -p ironoxide-cpp
+#       - name: Build iOS tar
+#         run: |
+#           ( cd cpp/generated && mv sdk headers )
+#           tar -c -f ironoxide-homebrew.tar -C cpp/generated headers
+#           tar -r -f ironoxide-homebrew.tar -C cpp ironoxide.pc.in
+#           tar -r -f ironoxide-homebrew.tar -C target/universal/release libironoxide.a
+#           gzip ironoxide-homebrew.tar
+#       - name: Upload iOS artifact
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: release-iOS
+#           path: ironoxide-homebrew.tar.gz
 
-  build-cpp:
-    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
-    runs-on: macos-10.15
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: Setup iOS build
-        run: |
-          rustup target add x86_64-apple-ios aarch64-apple-ios
-          cargo install cargo-lipo
-      - name: Build for iOS
-        run: cargo lipo --release -p ironoxide-cpp
-      - name: Build iOS tar
-        run: |
-          ( cd cpp/generated && mv sdk headers )
-          tar -c -f ironoxide-homebrew.tar -C cpp/generated headers
-          tar -r -f ironoxide-homebrew.tar -C cpp ironoxide.pc.in
-          tar -r -f ironoxide-homebrew.tar -C target/universal/release libironoxide.a
-          gzip ironoxide-homebrew.tar
-      - name: Upload iOS artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: release-iOS
-          path: ironoxide-homebrew.tar.gz
-
-  # Creates a PR to update homebrew-ironcore, which depends on releases from this repository.
-  homebrew-ironcore:
-    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
-    runs-on: ubuntu-18.04
-    needs:
-      - release
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The DEPLOYMENT_TOKEN is a personal
-          # access token with "repo" permissions.
-          token: ${{ secrets.DEPLOYMENT_TOKEN }}
-          repository: IronCoreLabs/homebrew-ironcore
-      - name: Configure git
-        run: |
-          git config --local user.email ops@ironcorelabs.com
-          git config --local user.name "Leeroy Travis"
-      - name: Set variables from version and hash
-        id: vars
-        run: |
-          CURRENT=$(basename ${{ github.head_ref }})
-          NAME=$(echo ${CURRENT} | sed 's/release-//')
-          ARTIFACT=https://github.com/IronCoreLabs/ironoxide-swig-bindings/releases/download/${NAME}/ironoxide-homebrew.tar.gz
-          wget -q ${ARTIFACT}
-          SHA256=$(sha256sum -b ironoxide-homebrew.tar.gz | awk '{print $1}')
-          echo "::set-output name=tag::${NAME}"
-          echo "::set-output name=pr_branch::ironoxide-swig-bindings-${NAME}
-          echo "::set-output name=artifact::${ARTIFACT}"
-          echo "::set-output name=sha256::${SHA256}"
-      - name: Edit files for pending release
-        run: |
-          sed -i -e 's,^\( *url "\)[^"]*\("\)$,\1${{ steps.vars.outputs.artifact }}\2,' Formula/ironoxide.rb
-          sed -i -e 's,^\( *sha256 "\)[0-9a-f]*\("\)$,\1${{ steps.vars.outputs.sha256 }}\2,' Formula/ironoxide.rb
-      - run: git add Formula/ironoxide.rb
-      - run: git checkout -b ${{ steps.vars.outputs.pr_branch }}
-      - run: git commit -m "Use new ironoxide-homebrew ${{ steps.vars.outputs.tag }}"
-      - run: git push origin ${{ steps.vars.outputs.pr_branch }}
-      - name: Create PR
-        run: |
-          curl --silent --show-error --fail -X POST \
-            -H "Authorization: token ${{ github.token }}" \
-            -H "Content-Type: application/json" \
-            --data '{"title": "Use new ironoxide-swig-bindings ${{ steps.vars.outputs.tag }}",
-              "head": "${{ steps.vars.outputs.pr_branch }}",
-              "base": "main",
-              "body": ""
-              }' \
-            https://api.github.com/repos/IronCoreLabs/homebrew-ironcore/pulls
+# See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
+# Creates a PR to update homebrew-ironcore, which depends on releases from this repository.
+#   homebrew-ironcore:
+#     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
+#     runs-on: ubuntu-22.04
+#     needs:
+#       - release
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The WORKFLOW_PAT is a personal
+#           # access token with "repo" permissions.
+#           token: ${{ secrets.WORKFLOW_PAT }}
+#           repository: IronCoreLabs/homebrew-ironcore
+#       - name: Configure git
+#         run: |
+#           git config --local user.email ops@ironcorelabs.com
+#           git config --local user.name "Leeroy Travis"
+#       - name: Set variables from version and hash
+#         id: vars
+#         run: |
+#           CURRENT=$(basename ${{ github.head_ref }})
+#           NAME=$(echo ${CURRENT} | sed 's/release-//')
+#           ARTIFACT=https://github.com/IronCoreLabs/ironoxide-swig-bindings/releases/download/${NAME}/ironoxide-homebrew.tar.gz
+#           wget -q ${ARTIFACT}
+#           SHA256=$(sha256sum -b ironoxide-homebrew.tar.gz | awk '{print $1}')
+#           echo "tag=${NAME}" >> "$GITHUB_OUTPUT"
+#           echo "pr_branch=ironoxide-swig-bindings-${NAME}" >> "$GITHUB_OUTPUT"
+#           echo "artifact=${ARTIFACT}" >> "$GITHUB_OUTPUT"
+#           echo "sha256=${SHA256}" >> "$GITHUB_OUTPUT"
+#       - name: Edit files for pending release
+#         run: |
+#           sed -i -e 's,^\( *url "\)[^"]*\("\)$,\1${{ steps.vars.outputs.artifact }}\2,' Formula/ironoxide.rb
+#           sed -i -e 's,^\( *sha256 "\)[0-9a-f]*\("\)$,\1${{ steps.vars.outputs.sha256 }}\2,' Formula/ironoxide.rb
+#       - run: git add Formula/ironoxide.rb
+#       - run: git checkout -b ${{ steps.vars.outputs.pr_branch }}
+#       - run: git commit -m "Use new ironoxide-homebrew ${{ steps.vars.outputs.tag }}"
+#       - run: git push origin ${{ steps.vars.outputs.pr_branch }}
+#       - name: Create PR
+#         run: |
+#           curl --silent --show-error --fail -X POST \
+#             -H "Authorization: token ${{ secrets.WORKFLOW_PAT }}" \
+#             -H "Content-Type: application/json" \
+#             --data '{"title": "Use new ironoxide-swig-bindings ${{ steps.vars.outputs.tag }}",
+#               "head": "${{ steps.vars.outputs.pr_branch }}",
+#               "base": "main",
+#               "body": ""
+#               }' \
+#             https://api.github.com/repos/IronCoreLabs/homebrew-ironcore/pulls

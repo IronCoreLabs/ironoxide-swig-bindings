@@ -2,6 +2,7 @@ package ironoxide
 
 import scala.util.Try
 import com.ironcorelabs.sdk._
+import java.util.Date
 
 class DocumentTests extends TestSuite {
   "Document List" should {
@@ -21,6 +22,10 @@ class DocumentTests extends TestSuite {
       encryptResult.getErrors.getUsers.isEmpty shouldBe true
       encryptResult.getErrors.getGroups.isEmpty shouldBe true
       encryptResult.getChanged.getUsers.length shouldBe 1
+      val createdTime = encryptResult.getCreated().toInstant().toEpochMilli
+      val updatedTime = encryptResult.getLastUpdated().toInstant().toEpochMilli
+      createdTime shouldBe updatedTime
+      createdTime should be > 1698948098310L // Later than arbitrary time on Nov 2, 2023
 
       val decryptResult = Try(primarySdk.documentDecrypt(encryptResult.getEncryptedData)).toEither.value
       decryptResult.getDecryptedData shouldBe bytes
@@ -194,7 +199,7 @@ class DocumentTests extends TestSuite {
 
       doc.getId shouldBe encryptResult.getId
       doc.getName.isPresent shouldBe false
-      doc.getAssociationType shouldBe AssociationType.Owner
+      doc.getAssociationType shouldBe AssociationType.FromUser
       doc.getAssociationType shouldBe doc2.getAssociationType
       doc.getAssociationType.hashCode shouldBe doc2.getAssociationType.hashCode
       doc.getVisibleToUsers should have length 1

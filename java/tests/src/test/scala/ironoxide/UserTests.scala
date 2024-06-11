@@ -2,6 +2,8 @@ package ironoxide
 
 import scala.util.Try
 import com.ironcorelabs.sdk._
+import java.util.OptionalLong
+import java.util.Optional
 
 class UserTests extends TestSuite {
   "Jwt" should {
@@ -9,6 +11,15 @@ class UserTests extends TestSuite {
       val badJwt = Try(Jwt.validate("foo")).toEither
       badJwt.isLeft shouldBe true
     }
+
+    //{
+    // "sub": "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945",
+    // "pid": 438,
+    // "sid": "ironoxide-dev1",
+    // "kid": 593,
+    // "iat": 1591901740,
+    // "exp": 1591901860
+    // }
     "accept valid jwt" in {
       val jwt = Try(
         Jwt.validate(
@@ -16,7 +27,49 @@ class UserTests extends TestSuite {
         )
       ).toEither.value
       jwt.getAlgorithm shouldBe "ES256"
+      val claims = jwt.getClaims
+      claims.getSub shouldBe "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945"
+      claims.getPid shouldBe OptionalLong.of(438)
+      claims.getPrefixedPid shouldBe OptionalLong.empty
+      claims.getSid shouldBe Optional.of("ironoxide-dev1")
+      claims.getPrefixedSid shouldBe Optional.empty
+      claims.getKid shouldBe OptionalLong.of(593)
+      claims.getPrefixedKid shouldBe OptionalLong.empty
+      claims.getUid shouldBe Optional.empty
+      claims.getPrefixedUid shouldBe Optional.empty
+      claims.getIat shouldBe 1591901740
+      claims.getExp shouldBe 1591901860
     }
+
+    //{
+    // "sub": "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945",
+    // "http://ironcore/pid": 438,
+    // "http://ironcore/sid": "ironoxide-dev1",
+    // "http://ironcore/kid": 593,
+    // "iat": 1591901740,
+    // "exp": 1591901860
+    // }
+    "accept valid jwt with prefixed claims" in {
+      val jwt = Try(
+        Jwt.validate(
+          "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYmNBQkMwMTJfLiQjfEAvOjs9KyctZDEyMjZkMWItNGMzOS00OWRhLTkzM2MtNjQyZTIzYWMxOTQ1IiwiaHR0cDovL2lyb25jb3JlL3BpZCI6NDM4LCJodHRwOi8vaXJvbmNvcmUvc2lkIjoiaXJvbm94aWRlLWRldjEiLCJodHRwOi8vaXJvbmNvcmUva2lkIjo1OTMsImlhdCI6MTU5MTkwMTc0MCwiZXhwIjoxNTkxOTAxODYwfQ.bCIDkN6bXaz85pl9s55MoAByzm0LPlMPlT5WqjT-R6F80EKFO0gqGT1m7330gxnN-LWtxonBVv1IoK9tl-NEvg"
+        )
+      ).toEither.value
+      jwt.getAlgorithm shouldBe "ES256"
+      val claims = jwt.getClaims
+      claims.getSub shouldBe "abcABC012_.$#|@/:;=+'-d1226d1b-4c39-49da-933c-642e23ac1945"
+      claims.getPid shouldBe OptionalLong.empty
+      claims.getPrefixedPid shouldBe OptionalLong.of(438)
+      claims.getSid shouldBe Optional.empty
+      claims.getPrefixedSid shouldBe Optional.of("ironoxide-dev1")
+      claims.getKid shouldBe OptionalLong.empty
+      claims.getPrefixedKid shouldBe OptionalLong.of(593)
+      claims.getUid shouldBe Optional.empty
+      claims.getPrefixedUid shouldBe Optional.empty
+      claims.getIat shouldBe 1591901740
+      claims.getExp shouldBe 1591901860
+    }
+
   }
 
   "User Create" should {
@@ -25,7 +78,7 @@ class UserTests extends TestSuite {
         "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTA3NzE4MjMsImlhdCI6MTU1MDc3MTcwMywia2lkIjo1NTEsInBpZCI6MTAxMiwic2lkIjoidGVzdC1zZWdtZW50Iiwic3ViIjoiYTAzYjhlNTYtMTVkMi00Y2Y3LTk0MWYtYzYwMWU1NzUxNjNiIn0.vlqt0da5ltA2dYEK9i_pfRxPd3K2uexnkbAbzmbjW65XNcWlBOIbcdmmQLnSIZkRyTORD3DLXOIPYbGlApaTCR5WbaR3oPiSsR9IqdhgMEZxCcarqGg7b_zzwTP98fDcALGZNGsJL1hIrl3EEXdPoYjsOJ5LMF1H57NZiteBDAsm1zfXgOgCtvCdt7PQFSCpM5GyE3und9VnEgjtcQ6HAZYdutqjI79vaTnjt2A1X38pbHcnfvSanzJoeU3szwtBiVlB3cfXbROvBC7Kz8KvbWJzImJcJiRT-KyI4kk3l8wAs2FUjSRco8AQ1nIX21QHlRI0vVr_vdOd_pTXOUU51g"
       val jwt = Try(Jwt.validate(jwtString)).toEither.value
       val resp = Try(IronOxide.userCreate(jwt, "foo", new UserCreateOpts(true), null)).toEither
-      resp.leftValue.getMessage should include("ServerError { message: \"\\'jwt ey")
+      resp.leftValue.getMessage should include("ServerError { message: \"\'jwt ey")
     }
   }
 
