@@ -7,7 +7,7 @@ android {
     buildToolsVersion "29.0.3"
     // Locked NDK version for consistent builds. We use the same version in the Example App
     // and they should remain in sync for best compatibility.
-    ndkVersion "25.2.9519653"
+    ndkVersion "27.0.12077973"
 
     defaultConfig {
         // sdk version 24 required to support Java's Optional type
