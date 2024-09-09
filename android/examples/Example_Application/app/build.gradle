@@ -5,7 +5,7 @@ android {
     buildToolsVersion "29.0.3"
     // This is the same NDK version as used in ironoxide-android.
     // We should keep these in sync for best compatibility.
-    ndkVersion "25.2.9519653"
+    ndkVersion "26.3.11579264"
 
     defaultConfig {
         applicationId "com.ironcorelabs.example_application"

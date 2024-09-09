@@ -70,7 +70,7 @@ jobs:
         # Uploads the src/main as an artifact with the provided folder name as its name.
         # In order to delete this artifact, the same name must go into the list in the `android-delete-artifacts` job.
       - name: Upload src/main as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.folder-name }}
           path: android/ironoxide-android/src/main/android_build.zip
@@ -91,7 +91,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Download android build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.arch }}
       - name: Unzip Android build
