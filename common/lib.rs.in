@@ -278,7 +278,8 @@ foreign_class!(
 /// Account's device context with a runtime. Needed to initialize the Sdk with a set of device keys. See `Sdk.initialize()`
 class BlockingDeviceContext {
     self_type BlockingDeviceContext;
-    constructor blocking_device_context::new(device: &DeviceContext) -> BlockingDeviceContext;
+    constructor blocking_device_context::new(accountId: &UserId, segmentId: i64, devicePrivateKey: &PrivateKey, signingPrivateKey: &DeviceSigningKeyPair) -> BlockingDeviceContext;
+    constructor blocking_device_context::new_from_dar(dar: &DeviceAddResult) -> BlockingDeviceContext;
     fn blocking_device_context::device(&self) -> DeviceContext; alias getDevice;
     fn blocking_device_context::account_id(&self) -> UserId; alias getAccountId;
     fn blocking_device_context::segment_id(&self) -> usize; alias getSegmentId;
@@ -867,7 +868,7 @@ class IronOxide {
     /// @param deviceCreateOptions  optional values, like device name
     /// @param timeout              timeout for this operation or `null` for no timeout
     /// @return details about the newly created device
-    fn generate_new_device(jwt:&Jwt, password:&str, deviceCreateOptions: &DeviceCreateOpts, timeout: Option<&Duration>) -> Result<BlockingDeviceContext, String>; alias generateNewDevice;
+    fn generate_new_device(jwt:&Jwt, password:&str, deviceCreateOptions: &DeviceCreateOpts, timeout: Option<&Duration>) -> Result<DeviceAddResult, String>; alias generateNewDevice;
     /// Get all the devices for the current user
     ///
     /// @return all devices for the current user, sorted by the device id

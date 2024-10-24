@@ -339,8 +339,22 @@ mod device_context {
 
 mod blocking_device_context {
     use super::*;
-    pub fn new(device: &DeviceContext) -> BlockingDeviceContext {
-        BlockingDeviceContext::new(device.clone())
+    pub fn new(
+        account_id: &UserId,
+        segment_id: i64,
+        device_private_key: &PrivateKey,
+        signing_private_key: &DeviceSigningKeyPair,
+    ) -> BlockingDeviceContext {
+        BlockingDeviceContext::new(DeviceContext::new(
+            account_id.clone(),
+            segment_id as usize,
+            device_private_key.clone(),
+            signing_private_key.clone(),
+        ))
+    }
+
+    pub fn new_from_dar(dar: &DeviceAddResult) -> BlockingDeviceContext {
+        dar.clone().into()
     }
 
     pub fn device(d: &BlockingDeviceContext) -> DeviceContext {
@@ -1025,7 +1039,7 @@ fn generate_new_device(
     password: &str,
     opts: &DeviceCreateOpts,
     timeout: Option<&Duration>,
-) -> Result<BlockingDeviceContext, String> {
+) -> Result<DeviceAddResult, String> {
     Ok(IronOxide::generate_new_device(
         jwt,
         password,

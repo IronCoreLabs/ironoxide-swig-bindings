@@ -178,10 +178,10 @@ class UserTests extends TestSuite {
     "delete a user's device" in {
       val jwt = generateValidJwt()
       val _ = IronOxide.userCreate(jwt, testUsersPassword, new UserCreateOpts, null)
-      val device = Try(IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)).toEither.value
-      val sdk = Try(IronOxide.initialize(device, new IronOxideConfig)).toEither.value
-      val deleteResult = Try(sdk.userDeleteDevice(device.getDeviceId)).toEither.value
-      device.getDeviceId shouldBe deleteResult
+      val dar = Try(IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)).toEither.value
+      val sdk = Try(IronOxide.initialize(new BlockingDeviceContext(dar), new IronOxideConfig)).toEither.value
+      val deleteResult = Try(sdk.userDeleteDevice(dar.getDeviceId)).toEither.value
+      dar.getDeviceId shouldBe deleteResult
       // this call will fail because the device in `sdk` was deleted
       val groupList = Try(sdk.groupList)
       groupList.isFailure shouldBe true
