@@ -275,6 +275,13 @@ class DeviceContext {
 });
 
 foreign_class!(
+/// Account's device context. Needed to initialize the Sdk with a set of device keys. See `Sdk.initialize()`
+class BlockingDeviceContext {
+    self_type BlockingDeviceContext;
+    private constructor = empty;
+});
+
+foreign_class!(
 /// Result from adding a new device
 class DeviceAddResult {
     self_type DeviceAddResult;
@@ -829,7 +836,7 @@ class IronOxide {
     /// @param config  configuration for policy caching and SDK operation timeouts
     /// @throws java.lang.Exception if the provided `DeviceContext` is invalid
     /// @return an instance of the IronOxide
-    fn initialize(init:&DeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String>;
+    fn initialize(init:&BlockingDeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String>;
     /// Initialize IronOxide with a device. Verifies that the provided user/segment exists and the provided device
     /// keys are valid and exist for the provided account.
     /// After initialization, checks whether the calling user's private key needs rotation and rotates it
@@ -842,7 +849,7 @@ class IronOxide {
     ///                  from the SDK-wide timeout as it is expected that this operation might take significantly
     ///                  longer than other operations. If `null`, defaults to the SDK operation timeout in `config`.
     /// @return an instance of the IronOxide
-    fn initialize_and_rotate(init: &DeviceContext, password: &str, config: &IronOxideConfig, timeout: Option<&Duration>) -> Result<IronOxide, String>; alias initializeAndRotate;
+    fn initialize_and_rotate(init: &BlockingDeviceContext, password: &str, config: &IronOxideConfig, timeout: Option<&Duration>) -> Result<IronOxide, String>; alias initializeAndRotate;
     /// Generates a new device for the user specified in the signed JWT.
     ///
     /// This will result in a new transform key (from the user's master private key to the new device's public key)
@@ -853,7 +860,7 @@ class IronOxide {
     /// @param deviceCreateOptions  optional values, like device name
     /// @param timeout              timeout for this operation or `null` for no timeout
     /// @return details about the newly created device
-    fn generate_new_device(jwt:&Jwt, password:&str, deviceCreateOptions: &DeviceCreateOpts, timeout: Option<&Duration>) -> Result<DeviceAddResult, String>; alias generateNewDevice;
+    fn generate_new_device(jwt:&Jwt, password:&str, deviceCreateOptions: &DeviceCreateOpts, timeout: Option<&Duration>) -> Result<BlockingDeviceContext, String>; alias generateNewDevice;
     /// Get all the devices for the current user
     ///
     /// @return all devices for the current user, sorted by the device id

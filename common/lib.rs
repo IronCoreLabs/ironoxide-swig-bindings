@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 #[cfg(feature = "java")]
 mod jni_c_header;
 
@@ -957,11 +959,11 @@ fn user_create(
         timeout.copied(),
     )?)
 }
-fn initialize(init: &DeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String> {
+fn initialize(init: &BlockingDeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String> {
     Ok(ironoxide::blocking::initialize(init, config)?)
 }
 fn initialize_and_rotate(
-    init: &DeviceContext,
+    init: &BlockingDeviceContext,
     password: &str,
     config: &IronOxideConfig,
     timeout: Option<&Duration>,
@@ -982,7 +984,7 @@ fn generate_new_device(
     password: &str,
     opts: &DeviceCreateOpts,
     timeout: Option<&Duration>,
-) -> Result<DeviceAddResult, String> {
+) -> Result<BlockingDeviceContext, String> {
     Ok(IronOxide::generate_new_device(
         jwt,
         password,
