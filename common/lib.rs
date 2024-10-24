@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 #[cfg(feature = "java")]
 mod jni_c_header;
 
@@ -332,6 +334,61 @@ mod device_context {
         serde_json::from_str(json_string).map_err(|_| {
             "jsonString was not a valid JSON representation of a DeviceContext.".to_string()
         })
+    }
+}
+
+mod blocking_device_context {
+    use super::*;
+    pub fn new(
+        account_id: &UserId,
+        segment_id: i64,
+        device_private_key: &PrivateKey,
+        signing_private_key: &DeviceSigningKeyPair,
+    ) -> BlockingDeviceContext {
+        BlockingDeviceContext::new(DeviceContext::new(
+            account_id.clone(),
+            segment_id as usize,
+            device_private_key.clone(),
+            signing_private_key.clone(),
+        ))
+    }
+
+    pub fn new_from_dar(dar: &DeviceAddResult) -> BlockingDeviceContext {
+        dar.clone().into()
+    }
+
+    pub fn device(d: &BlockingDeviceContext) -> DeviceContext {
+        d.device.clone()
+    }
+
+    pub fn account_id(d: &BlockingDeviceContext) -> UserId {
+        d.account_id().clone()
+    }
+
+    pub fn segment_id(d: &BlockingDeviceContext) -> usize {
+        d.segment_id()
+    }
+
+    pub fn device_private_key(d: &BlockingDeviceContext) -> PrivateKey {
+        d.device_private_key().clone()
+    }
+
+    pub fn signing_private_key(d: &BlockingDeviceContext) -> DeviceSigningKeyPair {
+        d.signing_private_key().clone()
+    }
+
+    pub fn to_json_string(d: &BlockingDeviceContext) -> String {
+        serde_json::to_string(&d.device)
+            .expect("BlockingDeviceContext should always serialize to JSON")
+    }
+
+    pub fn from_json_string(json_string: &str) -> Result<BlockingDeviceContext, String> {
+        Ok(BlockingDeviceContext::new(
+            serde_json::from_str(json_string).map_err(|_| {
+                "jsonString was not a valid JSON representation of a BlockingDeviceContext."
+                    .to_string()
+            })?,
+        ))
     }
 }
 
@@ -957,11 +1014,11 @@ fn user_create(
         timeout.copied(),
     )?)
 }
-fn initialize(init: &DeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String> {
+fn initialize(init: &BlockingDeviceContext, config: &IronOxideConfig) -> Result<IronOxide, String> {
     Ok(ironoxide::blocking::initialize(init, config)?)
 }
 fn initialize_and_rotate(
-    init: &DeviceContext,
+    init: &BlockingDeviceContext,
     password: &str,
     config: &IronOxideConfig,
     timeout: Option<&Duration>,

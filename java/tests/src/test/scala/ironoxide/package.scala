@@ -4,12 +4,12 @@ import cats.scalatest.EitherValues
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 package object ironoxide extends EitherValues {
-  def createUserAndDevice(maybeUserId: Option[UserId] = None): DeviceContext = {
+  def createUserAndDevice(maybeUserId: Option[UserId] = None): BlockingDeviceContext = {
     val userId = maybeUserId.getOrElse(UserId.validate(java.util.UUID.randomUUID.toString))
     val jwt = generateValidJwt(userId.getId)
     IronOxide.userCreate(jwt, testUsersPassword, new UserCreateOpts(true), null)
     val dar = IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)
-    new DeviceContext(dar)
+    new BlockingDeviceContext(dar)
   }
 
   def generateValidJwt(accountId: String = java.util.UUID.randomUUID.toString, expiresInSec: Long = 120): Jwt = {
@@ -36,7 +36,7 @@ package object ironoxide extends EitherValues {
     val jwt = generateValidJwt(primaryUser.getId)
     IronOxide.userCreate(jwt, testUsersPassword, new UserCreateOpts, null)
     val dar = Try(IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)).toEither.value
-    val primaryUserDevice = new DeviceContext(dar)
+    val primaryUserDevice = new BlockingDeviceContext(dar)
     val primarySdk = IronOxide.initialize(primaryUserDevice, new IronOxideConfig)
     (primaryUser, primaryUserDevice, primarySdk)
   }
@@ -46,7 +46,7 @@ package object ironoxide extends EitherValues {
     val jwt = generateValidJwt(secondaryUser.getId)
     IronOxide.userCreate(jwt, testUsersPassword, new UserCreateOpts, null)
     val dar = Try(IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)).toEither.value
-    val secondaryUserDevice = new DeviceContext(dar)
+    val secondaryUserDevice = new BlockingDeviceContext(dar)
     val secondarySdk = IronOxide.initialize(secondaryUserDevice, new IronOxideConfig)
     (secondaryUser, secondaryUserDevice, secondarySdk)
   }
