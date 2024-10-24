@@ -8,8 +8,7 @@ package object ironoxide extends EitherValues {
     val userId = maybeUserId.getOrElse(UserId.validate(java.util.UUID.randomUUID.toString))
     val jwt = generateValidJwt(userId.getId)
     IronOxide.userCreate(jwt, testUsersPassword, new UserCreateOpts(true), null)
-    val dar = IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)
-    new BlockingDeviceContext(new DeviceContext(dar))
+    IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)
   }
 
   def generateValidJwt(accountId: String = java.util.UUID.randomUUID.toString, expiresInSec: Long = 120): Jwt = {
@@ -35,8 +34,7 @@ package object ironoxide extends EitherValues {
     val primaryUser = Try(UserId.validate(java.util.UUID.randomUUID.toString)).toEither.value
     val jwt = generateValidJwt(primaryUser.getId)
     IronOxide.userCreate(jwt, testUsersPassword, new UserCreateOpts, null)
-    val dar = Try(IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)).toEither.value
-    val primaryUserDevice = new BlockingDeviceContext(new DeviceContext(dar))
+    val primaryUserDevice = Try(IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)).toEither.value
     val primarySdk = IronOxide.initialize(primaryUserDevice, new IronOxideConfig)
     (primaryUser, primaryUserDevice, primarySdk)
   }
@@ -45,8 +43,7 @@ package object ironoxide extends EitherValues {
     val secondaryUser = Try(UserId.validate(java.util.UUID.randomUUID.toString)).toEither.value
     val jwt = generateValidJwt(secondaryUser.getId)
     IronOxide.userCreate(jwt, testUsersPassword, new UserCreateOpts, null)
-    val dar = Try(IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)).toEither.value
-    val secondaryUserDevice = new BlockingDeviceContext(new DeviceContext(dar))
+    val secondaryUserDevice = Try(IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)).toEither.value
     val secondarySdk = IronOxide.initialize(secondaryUserDevice, new IronOxideConfig)
     (secondaryUser, secondaryUserDevice, secondarySdk)
   }

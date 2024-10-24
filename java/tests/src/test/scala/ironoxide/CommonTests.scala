@@ -53,9 +53,8 @@ class CommonTests extends TestSuite {
       val jwt = generateValidJwt(secondaryUser.getId)
       val deviceName = DeviceName.validate("device")
       val deviceContext =
-        new DeviceContext(
-          IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts(deviceName), null)
-        )
+          IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts(deviceName), null).device
+        
       val json = deviceContext.toJsonString
       val accountId = deviceContext.getAccountId.getId
       val segmentId = deviceContext.getSegmentId
