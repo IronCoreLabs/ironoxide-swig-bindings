@@ -9,7 +9,7 @@ package object ironoxide extends EitherValues {
     val jwt = generateValidJwt(userId.getId)
     IronOxide.userCreate(jwt, testUsersPassword, new UserCreateOpts(true), null)
     val dar = IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)
-    newBlockingDeviceContext(new DeviceContext(dar))
+    new BlockingDeviceContext(new DeviceContext(dar))
   }
 
   def generateValidJwt(accountId: String = java.util.UUID.randomUUID.toString, expiresInSec: Long = 120): Jwt = {
