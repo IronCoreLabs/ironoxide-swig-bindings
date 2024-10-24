@@ -23,7 +23,7 @@ class CommonTests extends TestSuite {
       val regex = "(.*).java".r
       val rustSwigExclude = List("InternalPointerMarker", "JNIReachabilityFence")
       // any class that we can't implement equals and hashCode for must be in this list
-      val iclExclude = List("AssociationType", "IronOxide", "BlindIndexSearch")
+      val iclExclude = List("AssociationType", "IronOxide", "BlindIndexSearch", "BlockingDeviceContext")
       val currentPath = java.nio.file.Paths.get("").toAbsolutePath.getParent.toString
       val fileFilter = new java.io.FileFilter {
         override def accept(pathname: java.io.File): Boolean =
