@@ -46,7 +46,7 @@ package object ironoxide extends EitherValues {
     val jwt = generateValidJwt(secondaryUser.getId)
     IronOxide.userCreate(jwt, testUsersPassword, new UserCreateOpts, null)
     val dar = Try(IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts, null)).toEither.value
-    val secondaryUserDevice = new DeviceContext(dar)
+    val secondaryUserDevice = new BlockingDeviceContext(new DeviceContext(dar))
     val secondarySdk = IronOxide.initialize(secondaryUserDevice, new IronOxideConfig)
     (secondaryUser, secondaryUserDevice, secondarySdk)
   }
