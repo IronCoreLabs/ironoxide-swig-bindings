@@ -343,6 +343,10 @@ mod blocking_device_context {
         BlockingDeviceContext::new(device.clone())
     }
 
+    pub fn device(d: &BlockingDeviceContext) -> DeviceContext {
+        d.device.clone()
+    }
+
     pub fn account_id(d: &BlockingDeviceContext) -> UserId {
         d.account_id().clone()
     }
