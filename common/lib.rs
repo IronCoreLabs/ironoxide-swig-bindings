@@ -337,6 +337,27 @@ mod device_context {
     }
 }
 
+mod blocking_device_context {
+    use super::*;
+    pub fn new(device: &DeviceContext) -> BlockingDeviceContext {
+        BlockingDeviceContext::new(device.clone())
+    }
+
+    pub fn to_json_string(d: &BlockingDeviceContext) -> String {
+        serde_json::to_string(&d.device)
+            .expect("BlockingDeviceContext should always serialize to JSON")
+    }
+
+    pub fn from_json_string(json_string: &str) -> Result<BlockingDeviceContext, String> {
+        Ok(BlockingDeviceContext::new(
+            serde_json::from_str(json_string).map_err(|_| {
+                "jsonString was not a valid JSON representation of a BlockingDeviceContext."
+                    .to_string()
+            })?,
+        ))
+    }
+}
+
 mod device_add_result {
     use super::*;
     pub fn account_id(d: &DeviceAddResult) -> UserId {

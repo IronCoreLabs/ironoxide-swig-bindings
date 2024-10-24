@@ -260,7 +260,7 @@ foreign_class!(class GroupUserList {
 ///
 
 foreign_class!(
-/// Account's device context. Needed to initialize the Sdk with a set of device keys. See `Sdk.initialize()`
+/// Account's device context
 class DeviceContext {
     self_type DeviceContext;
     constructor device_context::new(accountId: &UserId, segmentId: i64, devicePrivateKey: &PrivateKey, signingPrivateKey: &DeviceSigningKeyPair) -> DeviceContext;
@@ -275,10 +275,12 @@ class DeviceContext {
 });
 
 foreign_class!(
-/// Account's device context. Needed to initialize the Sdk with a set of device keys. See `Sdk.initialize()`
+/// Account's device context with a runtime. Needed to initialize the Sdk with a set of device keys. See `Sdk.initialize()`
 class BlockingDeviceContext {
     self_type BlockingDeviceContext;
-    private constructor = empty;
+    constructor blocking_device_context::new(device: &DeviceContext) -> BlockingDeviceContext;
+    fn blocking_device_context::to_json_string(&self) -> String; alias toJsonString;
+    fn blocking_device_context::from_json_string(jsonString: &str) -> Result<BlockingDeviceContext, String>; alias fromJsonString;
 });
 
 foreign_class!(
