@@ -343,6 +343,22 @@ mod blocking_device_context {
         BlockingDeviceContext::new(device.clone())
     }
 
+    pub fn account_id(d: &BlockingDeviceContext) -> UserId {
+        d.account_id().clone()
+    }
+
+    pub fn segment_id(d: &BlockingDeviceContext) -> usize {
+        d.segment_id()
+    }
+
+    pub fn device_private_key(d: &BlockingDeviceContext) -> PrivateKey {
+        d.device_private_key().clone()
+    }
+
+    pub fn signing_private_key(d: &BlockingDeviceContext) -> DeviceSigningKeyPair {
+        d.signing_private_key().clone()
+    }
+
     pub fn to_json_string(d: &BlockingDeviceContext) -> String {
         serde_json::to_string(&d.device)
             .expect("BlockingDeviceContext should always serialize to JSON")

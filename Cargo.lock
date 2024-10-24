@@ -662,7 +662,7 @@ dependencies = [
 [[package]]
 name = "ironoxide"
 version = "3.0.0"
-source = "git+https://github.com/IronCoreLabs/ironoxide?branch=reuse-reqwest-client#a59c159bcdb61c3c684d6e52153d8b5cc0a9c17d"
+source = "git+https://github.com/IronCoreLabs/ironoxide?branch=reuse-reqwest-client#b8ece700d72152ae54d64ea8ae8a077b82ebacf6"
 dependencies = [
  "base64 0.22.1",
  "base64-serde",

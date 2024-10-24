@@ -279,6 +279,10 @@ foreign_class!(
 class BlockingDeviceContext {
     self_type BlockingDeviceContext;
     constructor blocking_device_context::new(device: &DeviceContext) -> BlockingDeviceContext;
+    fn blocking_device_context::account_id(&self) -> UserId; alias getAccountId;
+    fn blocking_device_context::segment_id(&self) -> usize; alias getSegmentId;
+    fn blocking_device_context::device_private_key(&self) -> PrivateKey; alias getDevicePrivateKey;
+    fn blocking_device_context::signing_private_key(&self) -> DeviceSigningKeyPair; alias getSigningPrivateKey;
     fn blocking_device_context::to_json_string(&self) -> String; alias toJsonString;
     fn blocking_device_context::from_json_string(jsonString: &str) -> Result<BlockingDeviceContext, String>; alias fromJsonString;
 });
