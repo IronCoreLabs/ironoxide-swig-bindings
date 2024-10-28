@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class FullIntegrationTest {
-	BlockingDeviceContext deviceContext;
+	DeviceContext deviceContext;
 
 	public FullIntegrationTest() throws Exception {
 		System.loadLibrary("ironoxide_android");
@@ -16,7 +16,7 @@ public class FullIntegrationTest {
 				.getResourceAsStream("deviceContext.json");
 		final java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");
 		final String deviceString = s.hasNext() ? s.next() : "";
-		deviceContext = BlockingDeviceContext.fromJsonString(deviceString);
+		deviceContext = DeviceContext.fromJsonString(deviceString);
 	}
 
 	@Test

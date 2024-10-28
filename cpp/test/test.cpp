@@ -82,7 +82,7 @@ void test_user_id_error(void)
 
 void encrypt_decrypt_roundtrip(void)
 {
-    BlockingDeviceContext d = unwrap(BlockingDeviceContext::fromJsonString(deviceContextString));
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
     auto encrypted_doc = unwrap(sdk.documentEncrypt(string_to_slice("foo"), DocumentEncryptOpts()));
     auto decrypted = unwrap(sdk.documentDecrypt(vec_to_slice(encrypted_doc.getEncryptedData())));
@@ -103,7 +103,7 @@ void group_name(void)
 
 void group_create_default(void)
 {
-    BlockingDeviceContext d = unwrap(BlockingDeviceContext::fromJsonString(deviceContextString));
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
     auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts()));
     TEST_CHECK(group_create_result.getMemberList().getList().as_slice().size() == 1);
@@ -112,7 +112,7 @@ void group_create_default(void)
 
 void group_create_passing_args(void)
 {
-    BlockingDeviceContext d = unwrap(BlockingDeviceContext::fromJsonString(deviceContextString));
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
     auto group_name = unwrap(GroupName::validate(random_id()));
     auto group_id = unwrap(GroupId::validate(random_id()));
@@ -131,7 +131,7 @@ void group_create_passing_args(void)
 // This test is just a confirmation that passing nulls works, so we don't assert about much in it.
 void group_create_passing_nulls(void)
 {
-    BlockingDeviceContext d = unwrap(BlockingDeviceContext::fromJsonString(deviceContextString));
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
     auto group_create_result = unwrap(sdk.groupCreate(GroupCreateOpts(nullptr, nullptr, true, true, nullptr, RustForeignSliceConst<UserIdRef>(), RustForeignSliceConst<UserIdRef>(), false)));
     auto group_member_size = group_create_result.getMemberList().getList().as_slice().size();
@@ -140,7 +140,7 @@ void group_create_passing_nulls(void)
 
 void group_list(void)
 {
-    BlockingDeviceContext d = unwrap(BlockingDeviceContext::fromJsonString(deviceContextString));
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
     IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
     auto group_list_result = unwrap(sdk.groupList());
     // We don't create new users in these tests, so all we can do is assert that there is some.
