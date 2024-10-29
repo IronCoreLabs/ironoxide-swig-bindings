@@ -13,7 +13,7 @@ crate-type = ["cdylib", "staticlib"]
 [dependencies]
 log = "0.4"
 itertools = "0.13"
-ironoxide = { git = "https://github.com/IronCoreLabs/ironoxide", branch = "reuse-reqwest-client", features = [
+ironoxide = { version = "4", features = [
     "blocking",
     "beta",
     "tls-rustls",

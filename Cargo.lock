@@ -661,8 +661,9 @@ dependencies = [
 
 [[package]]
 name = "ironoxide"
-version = "3.0.0"
-source = "git+https://github.com/IronCoreLabs/ironoxide?branch=reuse-reqwest-client#ca762f2d8910e887809507221ff33d73c5f82021"
+version = "4.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fdaf0881edac9fc3b90e6e6697adb9b36959adb9875e190a22441a4d1bee42de"
 dependencies = [
  "base64 0.22.1",
  "base64-serde",
