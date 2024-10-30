@@ -23,3 +23,4 @@ cpp/install_manifest.txt
 cpp/compile_commands.json
 cpp/CTestTestfile.cmake
 cpp/cpp-tests
+.direnv
