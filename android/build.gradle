@@ -1,7 +1,6 @@
 buildscript {
     repositories {
         google()
-        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -20,7 +19,7 @@ nexusStaging {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         
     }
 }
@@ -52,7 +51,7 @@ try {
         if (sdkDir == null) {
             sdkDir = System.getenv("ANDROID_HOME")
         }
-        if (!file(sdkDir).isDirectory()) throw new Exception()
+        if (sdkDir == null || !file(sdkDir).isDirectory()) throw new Exception("Couldn't find the Android SDK")
         // Couldn't find this documented anywhere; see https://android.googlesource.com/platform/tools/build/+/6d7fd0d2eff092abf1aaf44d03756b24570b390c/gradle/src/main/groovy/com/android/build/gradle/internal/Sdk.groovy#187
         System.properties["android.home"] = sdkDir
     }
