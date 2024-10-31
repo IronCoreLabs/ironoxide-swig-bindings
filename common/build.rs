@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use std::{
     env,
     path::{Path, PathBuf},

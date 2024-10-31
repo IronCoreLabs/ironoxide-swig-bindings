@@ -23,7 +23,7 @@ class CommonTests extends TestSuite {
       val regex = "(.*).java".r
       val rustSwigExclude = List("InternalPointerMarker", "JNIReachabilityFence")
       // any class that we can't implement equals and hashCode for must be in this list
-      val iclExclude = List("AssociationType", "IronOxide", "BlindIndexSearch")
+      val iclExclude = List("AssociationType", "IronOxide", "BlindIndexSearch", "DeviceContext")
       val currentPath = java.nio.file.Paths.get("").toAbsolutePath.getParent.toString
       val fileFilter = new java.io.FileFilter {
         override def accept(pathname: java.io.File): Boolean =
@@ -53,9 +53,10 @@ class CommonTests extends TestSuite {
       val jwt = generateValidJwt(secondaryUser.getId)
       val deviceName = DeviceName.validate("device")
       val deviceContext =
-        new DeviceContext(
-          IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts(deviceName), null)
-        )
+          new DeviceContext(
+            IronOxide.generateNewDevice(jwt, testUsersPassword, new DeviceCreateOpts(deviceName), null)
+          )
+        
       val json = deviceContext.toJsonString
       val accountId = deviceContext.getAccountId.getId
       val segmentId = deviceContext.getSegmentId

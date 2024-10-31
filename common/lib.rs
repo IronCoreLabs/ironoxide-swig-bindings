@@ -1,6 +1,9 @@
+#![allow(unexpected_cfgs)]
+
 #[cfg(feature = "java")]
 mod jni_c_header;
 
+use ironoxide::blocking::BlockingDeviceContext as DeviceContext;
 use ironoxide::{blocking::BlockingIronOxide as IronOxide, prelude::*};
 use std::{
     collections::hash_map::DefaultHasher,
@@ -298,16 +301,18 @@ mod device_context {
         device_private_key: &PrivateKey,
         signing_private_key: &DeviceSigningKeyPair,
     ) -> DeviceContext {
-        DeviceContext::new(
+        DeviceContext::new(ironoxide::common::DeviceContext::new(
             account_id.clone(),
             segment_id as usize,
             device_private_key.clone(),
             signing_private_key.clone(),
-        )
+        ))
     }
+
     pub fn new_from_dar(dar: &DeviceAddResult) -> DeviceContext {
         dar.clone().into()
     }
+
     pub fn account_id(d: &DeviceContext) -> UserId {
         d.account_id().clone()
     }
@@ -325,13 +330,15 @@ mod device_context {
     }
 
     pub fn to_json_string(d: &DeviceContext) -> String {
-        serde_json::to_string(d).expect("DeviceContext should always serialize to JSON")
+        serde_json::to_string(&d.device).expect("DeviceContext should always serialize to JSON")
     }
 
     pub fn from_json_string(json_string: &str) -> Result<DeviceContext, String> {
-        serde_json::from_str(json_string).map_err(|_| {
-            "jsonString was not a valid JSON representation of a DeviceContext.".to_string()
-        })
+        Ok(DeviceContext::new(
+            serde_json::from_str(json_string).map_err(|_| {
+                "jsonString was not a valid JSON representation of a DeviceContext.".to_string()
+            })?,
+        ))
     }
 }
 
