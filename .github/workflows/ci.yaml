@@ -39,7 +39,7 @@ jobs:
         working-directory: java/tests
 
   android-build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         arch: [i686-linux-android, x86_64-linux-android, aarch64-linux-android]
@@ -75,18 +75,13 @@ jobs:
           name: ${{ matrix.folder-name }}
           path: android/ironoxide-android/src/main/android_build.zip
 
-  # As the currently available emulators cannot use arm64-v8a architecture, we are currently only testing x86/x86_64.
-  # This can be added in when either of the following happens:
-  #   - reactivecircus/android-emulator-runner@v2 supports the arm64-v8a architecture for testing
-  #   - api-level 30 is stabilized, as that allows x86_64 to run arm64-v8a
   android-test:
     needs: android-build
-    # reactivecircus/android-emulator-runner@v2 only works on Mac.
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        api-level: [24, 29]
-        arch: [x86, x86_64]
+        api-level: [24, 30]
+        arch: [x86, x86_64, arm64-v8a]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -96,17 +91,24 @@ jobs:
           name: ${{ matrix.arch }}
       - name: Unzip Android build
         run: unzip -o android_build.zip -d android/ironoxide-android/src/main
+        # Taken from https://github.com/ReactiveCircus/android-emulator-runner/blob/main/README.md
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
       - name: Run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           working-directory: ./android
           arch: ${{ matrix.arch }}
           api-level: ${{ matrix.api-level }}
+          ndk: "26.3.11579264" # matches android/ironoxide-android/build.gradle
           script: ./gradlew connectedAndroidTest
 
   # This tests that gradle can build ironoxide-android so we can catch issues before release.
   android-release-test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Run build script
