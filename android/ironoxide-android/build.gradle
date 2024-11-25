@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
 apply plugin: 'signing'
 
 android {
@@ -31,76 +31,76 @@ android {
     }
 }
 
-publishing {
-    publications {
-        mavenAndroid(MavenPublication) {
-            groupId = 'com.ironcorelabs'
-            artifactId = 'ironoxide-android'
-            version = VERSION_NAME
-            
-            pom {
-                name = 'ironoxide-android'
-                packaging = 'aar'
-                description = 'Android library for IronOxide transform encryption'
-                url = 'https://github.com/IronCoreLabs/ironoxide-java'
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            pom.groupId = 'com.ironcorelabs'
+            pom.artifactId = 'ironoxide-android'
+            pom.version = VERSION_NAME
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+                authentication(userName: NEXUS_USERNAME,
+                               password: NEXUS_PASSWORD)
+            }
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: NEXUS_USERNAME,
+                               password: NEXUS_PASSWORD)
+            }
+
+            pom.project {
+                name 'ironoxide-android'
+                packaging 'aar'
+                description 'Android library for IronOxide transform encryption'
+                url 'https://github.com/IronCoreLabs/ironoxide-java'
 
                 scm {
-                    url = 'https://github.com/IronCoreLabs/ironoxide-java'
-                    connection = 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
-                    developerConnection = 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
+                    url 'https://github.com/IronCoreLabs/ironoxide-java'
+                    connection 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
+                    developerConnection 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
                 }
 
                 licenses {
                     license {
-                        name = 'AGPL-3.0'
-                        url = 'https://www.gnu.org/licenses/agpl-3.0.txt'
-                        distribution = 'repo'
+                        name 'AGPL-3.0'
+                        url 'https://www.gnu.org/licenses/agpl-3.0.txt'
+                        distribution 'repo'
                     }
                 }
 
                 developers {
                     developer {
-                        id = 'bobwall23'
-                        name = 'Bob Wall'
-                        url = 'https://github.com/bobwall23'
+                        id 'bobwall23'
+                        name 'Bob Wall'
+                        url 'https://github.com/bobwall23'
                     }
                     developer {
-                        id = 'clintfred'
-                        name = 'Clint Frederickson'
-                        url = 'https://github.com/clintfred'
+                        id 'clintfred'
+                        name 'Clint Frederickson'
+                        url 'https://github.com/clintfred'
                     }
                     developer {
-                        id = 'coltfred'
-                        name = 'Colt Frederickson'
-                        url = 'https://github.com/coltfred'
+                        id 'coltfred'
+                        name 'Colt Frederickson'
+                        url 'https://github.com/coltfred'
                     }
                     developer {
-                        id = 'ernieturner'
-                        name = 'Ernie Turner'
-                        url = 'https://github.com/ernieturner'
+                        id 'ernieturner'
+                        name 'Ernie Turner'
+                        url 'https://github.com/ernieturner'
                     }
                     developer {
-                        id = 'giarc3'
-                        name = 'Craig Colegrove'
-                        url = 'https://github.com/giarc3'
+                        id 'giarc3'
+                        name 'Craig Colegrove'
+                        url 'https://github.com/giarc3'
                     }
                     developer {
-                        id = 'skeet70'
-                        name = 'Murph Murphy'
-                        url = 'https://github.com/skeet70'
+                        id 'skeet70'
+                        name 'Murph Murphy'
+                        url 'https://github.com/skeet70'
                     }
                 }
-            }
-        }
-    }
-    repositories {
-        maven {
-            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-            credentials {
-                username = NEXUS_USERNAME
-                password = NEXUS_PASSWORD
             }
         }
     }
@@ -111,7 +111,7 @@ tasks.withType(Sign) {
     onlyIf { NEXUS_USERNAME != "" }
 }
 signing {
-    sign publishing.publications.mavenAndroid
+    sign configurations.archives
 }
 
 task androidSourcesJar(type: Jar) {
