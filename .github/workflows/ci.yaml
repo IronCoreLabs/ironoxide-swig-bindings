@@ -18,7 +18,7 @@ jobs:
   java-test:
     strategy:
       matrix:
-        runs-on: ["ubuntu-22.04", "macos-12"]
+        runs-on: ["ubuntu-22.04", "macos-13"]
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
         working-directory: java/tests
 
   android-build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         arch: [i686-linux-android, x86_64-linux-android, aarch64-linux-android]
@@ -81,8 +81,7 @@ jobs:
   #   - api-level 30 is stabilized, as that allows x86_64 to run arm64-v8a
   android-test:
     needs: android-build
-    # reactivecircus/android-emulator-runner@v2 only works on Mac.
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         api-level: [24, 29]
@@ -96,17 +95,24 @@ jobs:
           name: ${{ matrix.arch }}
       - name: Unzip Android build
         run: unzip -o android_build.zip -d android/ironoxide-android/src/main
+      # Taken from https://github.com/ReactiveCircus/android-emulator-runner/blob/main/README.md
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
       - name: Run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           working-directory: ./android
           arch: ${{ matrix.arch }}
           api-level: ${{ matrix.api-level }}
+          ndk: "26.3.11579264" # matches android/ironoxide-android/build.gradle
           script: ./gradlew connectedAndroidTest
 
   # This tests that gradle can build ironoxide-android so we can catch issues before release.
   android-release-test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Run build script
@@ -119,7 +125,7 @@ jobs:
         working-directory: android
 
   cpp-build:
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - uses: IronCoreLabs/rust-toolchain@v1

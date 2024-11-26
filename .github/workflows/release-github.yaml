@@ -74,22 +74,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download java release artifacts from macos-12
+      - name: Download java release artifacts from macos-13
         uses: actions/download-artifact@v4
         with:
-          name: release-macos-12
-          path: release/macos-12
+          name: release-macos-13
+          path: release/macos-13
       - name: Delete artifact
         uses: geekyeggo/delete-artifact@v2
         with:
-          name: release-macos-12
+          name: release-macos-13
           failOnError: false
-      - name: Sign java artifact for macos-12
+      - name: Sign java artifact for macos-13
         run: |
-          gpg --batch --detach-sign -a release/macos-12/libironoxide_java.dylib
-          gpg --batch --verify release/macos-12/libironoxide_java.dylib.asc release/macos-12/libironoxide_java.dylib
-      - name: Upload java lib for macos-12
-        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-12/libironoxide_java.dylib release/macos-12/libironoxide_java.dylib.asc --clobber
+          gpg --batch --detach-sign -a release/macos-13/libironoxide_java.dylib
+          gpg --batch --verify release/macos-13/libironoxide_java.dylib.asc release/macos-13/libironoxide_java.dylib
+      - name: Upload java lib for macos-13
+        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-13/libironoxide_java.dylib release/macos-13/libironoxide_java.dylib.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -101,7 +101,7 @@ jobs:
       #   - name: Delete artifact
       #     uses: geekyeggo/delete-artifact@v1
       #     with:
-      #       name: release-macos-12
+      #       name: release-macos-13
       #       failOnError: false
       #   - name: Sign iOS artifact
       #     run: |
@@ -123,7 +123,7 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-12]
+        os: [ubuntu-22.04, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -145,16 +145,16 @@ jobs:
         with:
           name: release-ubuntu-22.04
           path: target/release/libironoxide_java.so
-      - name: Upload artifacts for macos-12
+      - name: Upload artifacts for macos-13
         if: startsWith(matrix.os, 'macos')
         uses: actions/upload-artifact@v4
         with:
-          name: release-macos-12
+          name: release-macos-13
           path: target/release/libironoxide_java.dylib
 # See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
 #   build-cpp:
 #     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
-#     runs-on: macos-12
+#     runs-on: macos-13
 #     steps:
 #       - uses: actions/checkout@v4
 #       - uses: IronCoreLabs/rust-toolchain@v1
