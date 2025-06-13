@@ -12,7 +12,7 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 log = "0.4"
-itertools = "0.13"
+itertools = "0.14"
 ironoxide = { version = "4", features = [
     "blocking",
     "beta",
