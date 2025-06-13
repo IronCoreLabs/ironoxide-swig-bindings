@@ -1,17 +1,16 @@
-apply plugin: 'com.android.library'
-apply plugin: 'maven'
-apply plugin: 'signing'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+    id 'signing'
+}
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.3"
-    // Locked NDK version for consistent builds. We use the same version in the Example App
-    // and they should remain in sync for best compatibility.
+    buildToolsVersion "30.0.3"
     ndkVersion "26.3.11579264"
 
     defaultConfig {
-        // sdk version 24 required to support Java's Optional type
-        minSdkVersion 24
+        minSdkVersion 29
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -20,107 +19,103 @@ android {
             abiFilters 'x86', 'arm64-v8a', 'x86_64'
         }
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     lintOptions {
         disable 'Assert'
+        abortOnError false
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.sourceFiles
+}
 
-            pom.groupId = 'com.ironcorelabs'
-            pom.artifactId = 'ironoxide-android'
-            pom.version = VERSION_NAME
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.ironcorelabs'
+            artifactId = 'ironoxide-android'
+            version = android.defaultConfig.versionName
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
-                authentication(userName: NEXUS_USERNAME,
-                               password: NEXUS_PASSWORD)
-            }
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: NEXUS_USERNAME,
-                               password: NEXUS_PASSWORD)
+            afterEvaluate {
+                from components.release
             }
 
-            pom.project {
-                name 'ironoxide-android'
-                packaging 'aar'
-                description 'Android library for IronOxide transform encryption'
-                url 'https://github.com/IronCoreLabs/ironoxide-java'
+            artifact androidSourcesJar
+
+            pom {
+                name = 'ironoxide-android'
+                packaging = 'aar'
+                description = 'Android library for IronOxide transform encryption'
+                url = 'https://github.com/IronCoreLabs/ironoxide-java'
 
                 scm {
-                    url 'https://github.com/IronCoreLabs/ironoxide-java'
-                    connection 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
-                    developerConnection 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
+                    url = 'https://github.com/IronCoreLabs/ironoxide-java'
+                    connection = 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
+                    developerConnection = 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
                 }
 
                 licenses {
                     license {
-                        name 'AGPL-3.0'
-                        url 'https://www.gnu.org/licenses/agpl-3.0.txt'
-                        distribution 'repo'
+                        name = 'AGPL-3.0'
+                        url = 'https://www.gnu.org/licenses/agpl-3.0.txt'
+                        distribution = 'repo'
                     }
                 }
 
                 developers {
                     developer {
-                        id 'bobwall23'
-                        name 'Bob Wall'
-                        url 'https://github.com/bobwall23'
+                        id = 'bobwall23'
+                        name = 'Bob Wall'
+                        url = 'https://github.com/bobwall23'
                     }
                     developer {
-                        id 'clintfred'
-                        name 'Clint Frederickson'
-                        url 'https://github.com/clintfred'
+                        id = 'coltfred'
+                        name = 'Colt Frederickson'
+                        url = 'https://github.com/coltfred'
                     }
                     developer {
-                        id 'coltfred'
-                        name 'Colt Frederickson'
-                        url 'https://github.com/coltfred'
+                        id = 'giarc3'
+                        name = 'Craig Colegrove'
+                        url = 'https://github.com/giarc3'
                     }
                     developer {
-                        id 'ernieturner'
-                        name 'Ernie Turner'
-                        url 'https://github.com/ernieturner'
-                    }
-                    developer {
-                        id 'giarc3'
-                        name 'Craig Colegrove'
-                        url 'https://github.com/giarc3'
-                    }
-                    developer {
-                        id 'skeet70'
-                        name 'Murph Murphy'
-                        url 'https://github.com/skeet70'
+                        id = 'skeet70'
+                        name = 'Murph Murphy'
+                        url = 'https://github.com/skeet70'
                     }
                 }
             }
         }
     }
+
+    repositories {
+        maven {
+            name = "sonatype"
+            url = version.endsWith("SNAPSHOT")
+                    ? uri("https://oss.sonatype.org/content/repositories/snapshots/")
+                    : uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+            credentials {
+                username = project.findProperty("NEXUS_USERNAME") ?: ""
+                password = project.findProperty("NEXUS_PASSWORD") ?: ""
+            }
+        }
+    }
 }
 
-// Only sign artifacts if we can upload them.
-tasks.withType(Sign) {
-    onlyIf { NEXUS_USERNAME != "" }
-}
 signing {
-    sign configurations.archives
-}
-
-task androidSourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.sourceFiles
-}
-
-artifacts {
-    archives androidSourcesJar
+    useInMemoryPgpKeys(findProperty("signing.keyId"),
+                       findProperty("signing.secretKeyRingFile"),
+                       findProperty("signing.password"))
+    sign publishing.publications.release
 }
 
 dependencies {

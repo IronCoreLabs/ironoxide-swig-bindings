@@ -23,7 +23,7 @@
               rusttoolchain
               pkg-config
               pkgs.openssl
-              openjdk17
+              openjdk11
               sbt
             ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin
               [ pkgs.darwin.apple_sdk.frameworks.CoreGraphics pkgs.darwin.apple_sdk.frameworks.Foundation];

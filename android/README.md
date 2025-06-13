@@ -43,7 +43,7 @@ You can then read in a device with the `DeviceContext.fromJsonString()` function
 - Install Android 29 build and platform tools. This can be done with `sdkmanager` (found in `tools/bin`):
 
   ```bash
-  ./sdkmanager "build-tools;29.0.3" "platform-tools" "platforms;android-29"
+  ./sdkmanager "build-tools;30.0.3" "platform-tools" "platforms;android-29"
   ```
 
 - Create the file `$HOME/.gradle/gradle.properties` and add the line `sdk.dir=PATH_TO_ANDROID_CLI_FOLDER`.
