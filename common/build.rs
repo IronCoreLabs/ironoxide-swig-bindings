@@ -128,7 +128,7 @@ cfg_if::cfg_if! {
         fn get_cpp_codegen_output_directory() -> PathBuf {
             let path = Path::new("generated").join("sdk");
             if !path.exists() {
-                std::fs::create_dir_all(&path).expect(format!("Couldn't create codegen output directory at {:?}.", path).as_str());
+                std::fs::create_dir_all(&path).unwrap_or_else(|_| panic!("Couldn't create codegen output directory at {:?}.", path));
             }
             println!("Output dir: {:?}", &path);
             path.to_path_buf()
