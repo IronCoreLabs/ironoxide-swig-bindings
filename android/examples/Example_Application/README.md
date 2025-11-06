@@ -12,7 +12,7 @@ This application provides a simple UI for encrypting/decrypting data with IronCo
   - Note: **The extracted `tools` folder must follow a specific folder hierarchy. We recommend `AndroidCLI/cmdline-tools/tools`**.
 - Install Android 29 build and platform tools. This can be done with `sdkmanager` (found in `tools/bin`):
   ```bash
-  ./sdkmanager "build-tools;29.0.3" "platform-tools" "platforms;android-29"
+  ./sdkmanager "build-tools;30.0.3" "platform-tools" "platforms;android-29"
   ```
 - Create/edit the file `$HOME/.gradle/gradle.properties` and add the line `sdk.dir=PATH_TO_ANDROID_CLI_FOLDER`.
 - An Android emulator running, or a compatible Android phone connected.

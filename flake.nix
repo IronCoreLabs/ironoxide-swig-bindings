@@ -23,7 +23,7 @@
               rusttoolchain
               pkg-config
               pkgs.openssl
-              openjdk17
+              openjdk11
               sbt
             ];
         };
