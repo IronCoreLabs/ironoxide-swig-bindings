@@ -17,7 +17,7 @@ jobs:
     # CPP is current disabled because of an issue with Cmake https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
     #   - build-cpp
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # base_ref will typically be main. We'll need to commit a change to that branch and push it.
           ref: ${{ github.base_ref }}
@@ -126,7 +126,7 @@ jobs:
         os: [ubuntu-22.04, macos-15-intel]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: olafurpg/setup-scala@v14
         with:
           java-version: 11
@@ -156,7 +156,7 @@ jobs:
 #     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
 #     runs-on: macos-15-intel
 #     steps:
-#       - uses: actions/checkout@v4
+#       - uses: actions/checkout@v6
 #       - uses: IronCoreLabs/rust-toolchain@v1
 #       - name: Setup iOS build
 #         run: |
@@ -185,7 +185,7 @@ jobs:
 #     needs:
 #       - release
 #     steps:
-#       - uses: actions/checkout@v4
+#       - uses: actions/checkout@v6
 #         with:
 #           # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The WORKFLOW_PAT is a personal
 #           # access token with "repo" permissions.
