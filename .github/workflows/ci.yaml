@@ -10,7 +10,7 @@ jobs:
   validate:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Validate version files
         # Make sure we still know how to edit the version files. (But discard the changes.)
         run: .github/set-versions.sh -n 0.0.1
@@ -21,7 +21,7 @@ jobs:
         runs-on: ["ubuntu-22.04", "macos-15-intel"]
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: olafurpg/setup-scala@v14
         with:
           java-version: 11
@@ -53,7 +53,7 @@ jobs:
           - arch: aarch64-linux-android
             folder-name: arm64-v8a
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: IronCoreLabs/rust-toolchain@v1
       - name: Build
         run: |
@@ -70,7 +70,7 @@ jobs:
         # Uploads the src/main as an artifact with the provided folder name as its name.
         # In order to delete this artifact, the same name must go into the list in the `android-delete-artifacts` job.
       - name: Upload src/main as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.folder-name }}
           path: android/ironoxide-android/src/main/android_build.zip
@@ -88,9 +88,9 @@ jobs:
         arch: [x86, x86_64]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Download android build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: ${{ matrix.arch }}
       - name: Unzip Android build
@@ -114,7 +114,7 @@ jobs:
   android-release-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Run build script
         run: ./build.sh
         working-directory: android
@@ -127,7 +127,7 @@ jobs:
   cpp-build:
     runs-on: macos-15-intel
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: IronCoreLabs/rust-toolchain@v1
         with:
           toolchain: stable
@@ -143,7 +143,7 @@ jobs:
     # See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: IronCoreLabs/rust-toolchain@v1
         with:
           toolchain: stable

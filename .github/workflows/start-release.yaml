@@ -16,7 +16,7 @@ jobs:
     if: github.event.ref_type == 'branch' && startsWith(github.event.ref, 'release-')
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The WORKFLOW_PAT is a personal
           # access token with "repo" permissions.
