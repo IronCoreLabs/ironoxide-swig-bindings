@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    namespace "com.ironcorelabs.sdk"
     compileSdkVersion 36
     buildToolsVersion "36.0.0"
     ndkVersion "27.3.13750724"
@@ -46,7 +47,7 @@ publishing {
             version = android.defaultConfig.versionName
 
             afterEvaluate {
-                from components.release
+                from components["release"]
             }
 
             artifact androidSourcesJar
