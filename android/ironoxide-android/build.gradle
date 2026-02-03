@@ -34,15 +34,10 @@ android {
     }
 
     publishing {
-      singleVariant("release") {
-          withSourcesJar()
-      }
-}
-}
-
-task androidSourcesJar(type: Jar) {
-    archiveClassifier.set('sources')
-    from android.sourceSets.main.java.sourceFiles
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 publishing {
@@ -52,20 +47,16 @@ publishing {
             artifactId = 'ironoxide-android'
             version = android.defaultConfig.versionName
 
-            from components["release"]
-
             pom {
                 name = 'ironoxide-android'
                 packaging = 'aar'
                 description = 'Android library for IronOxide transform encryption'
                 url = 'https://github.com/IronCoreLabs/ironoxide-java'
-
                 scm {
                     url = 'https://github.com/IronCoreLabs/ironoxide-java'
                     connection = 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
                     developerConnection = 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
                 }
-
                 licenses {
                     license {
                         name = 'AGPL-3.0'
@@ -73,42 +64,12 @@ publishing {
                         distribution = 'repo'
                     }
                 }
-
                 developers {
-                    developer {
-                        id = 'bobwall23'
-                        name = 'Bob Wall'
-                        url = 'https://github.com/bobwall23'
-                    }
-                    developer {
-                        id = 'coltfred'
-                        name = 'Colt Frederickson'
-                        url = 'https://github.com/coltfred'
-                    }
-                    developer {
-                        id = 'giarc3'
-                        name = 'Craig Colegrove'
-                        url = 'https://github.com/giarc3'
-                    }
-                    developer {
-                        id = 'skeet70'
-                        name = 'Murph Murphy'
-                        url = 'https://github.com/skeet70'
-                    }
+                    developer { id = 'bobwall23'; name = 'Bob Wall'; url = 'https://github.com/bobwall23' }
+                    developer { id = 'coltfred'; name = 'Colt Frederickson'; url = 'https://github.com/coltfred' }
+                    developer { id = 'giarc3'; name = 'Craig Colegrove'; url = 'https://github.com/giarc3' }
+                    developer { id = 'skeet70'; name = 'Murph Murphy'; url = 'https://github.com/skeet70' }
                 }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            name = "sonatype"
-            url = version.endsWith("SNAPSHOT")
-                    ? uri("https://oss.sonatype.org/content/repositories/snapshots/")
-                    : uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
-            credentials {
-                username = project.findProperty("NEXUS_USERNAME") ?: ""
-                password = project.findProperty("NEXUS_PASSWORD") ?: ""
             }
         }
     }
@@ -128,4 +89,14 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release {
+                from components.release
+            }
+        }
+    }
 }
