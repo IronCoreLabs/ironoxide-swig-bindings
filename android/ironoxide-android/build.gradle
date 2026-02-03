@@ -5,18 +5,19 @@ plugins {
 }
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "30.0.3"
-    ndkVersion "26.3.11579264"
+    namespace "com.ironcorelabs.sdk"
+    compileSdkVersion 36
+    buildToolsVersion "36.0.0"
+    ndkVersion "27.3.13750724"
 
     defaultConfig {
-        minSdkVersion 29
-        targetSdkVersion 29
+        minSdkVersion 31
+        targetSdkVersion 36
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
-            abiFilters 'x86', 'arm64-v8a', 'x86_64'
+            abiFilters 'arm64-v8a', 'x86_64'
         }
     }
 
@@ -31,11 +32,12 @@ android {
         disable 'Assert'
         abortOnError false
     }
-}
 
-task androidSourcesJar(type: Jar) {
-    archiveClassifier.set('sources')
-    from android.sourceSets.main.java.sourceFiles
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 publishing {
@@ -45,24 +47,16 @@ publishing {
             artifactId = 'ironoxide-android'
             version = android.defaultConfig.versionName
 
-            afterEvaluate {
-                from components.release
-            }
-
-            artifact androidSourcesJar
-
             pom {
                 name = 'ironoxide-android'
                 packaging = 'aar'
                 description = 'Android library for IronOxide transform encryption'
                 url = 'https://github.com/IronCoreLabs/ironoxide-java'
-
                 scm {
                     url = 'https://github.com/IronCoreLabs/ironoxide-java'
                     connection = 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
                     developerConnection = 'scm:git@github.com:IronCoreLabs/ironoxide-java.git'
                 }
-
                 licenses {
                     license {
                         name = 'AGPL-3.0'
@@ -70,42 +64,12 @@ publishing {
                         distribution = 'repo'
                     }
                 }
-
                 developers {
-                    developer {
-                        id = 'bobwall23'
-                        name = 'Bob Wall'
-                        url = 'https://github.com/bobwall23'
-                    }
-                    developer {
-                        id = 'coltfred'
-                        name = 'Colt Frederickson'
-                        url = 'https://github.com/coltfred'
-                    }
-                    developer {
-                        id = 'giarc3'
-                        name = 'Craig Colegrove'
-                        url = 'https://github.com/giarc3'
-                    }
-                    developer {
-                        id = 'skeet70'
-                        name = 'Murph Murphy'
-                        url = 'https://github.com/skeet70'
-                    }
+                    developer { id = 'bobwall23'; name = 'Bob Wall'; url = 'https://github.com/bobwall23' }
+                    developer { id = 'coltfred'; name = 'Colt Frederickson'; url = 'https://github.com/coltfred' }
+                    developer { id = 'giarc3'; name = 'Craig Colegrove'; url = 'https://github.com/giarc3' }
+                    developer { id = 'skeet70'; name = 'Murph Murphy'; url = 'https://github.com/skeet70' }
                 }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            name = "sonatype"
-            url = version.endsWith("SNAPSHOT")
-                    ? uri("https://oss.sonatype.org/content/repositories/snapshots/")
-                    : uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
-            credentials {
-                username = project.findProperty("NEXUS_USERNAME") ?: ""
-                password = project.findProperty("NEXUS_PASSWORD") ?: ""
             }
         }
     }
@@ -121,8 +85,18 @@ signing {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release {
+                from components.release
+            }
+        }
+    }
 }

@@ -8,7 +8,7 @@ on:
 
 jobs:
   validate:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - name: Validate version files
@@ -18,13 +18,17 @@ jobs:
   java-test:
     strategy:
       matrix:
-        runs-on: ["ubuntu-22.04", "macos-15-intel"]
+        runs-on: ["ubuntu-latest", "macos-15-intel"]
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v6
       - uses: olafurpg/setup-scala@v14
         with:
-          java-version: 11
+          java-version: 21
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: adopt
       - name: Install llvm (ubuntu)
         # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
         if: startsWith(matrix.runs-on, 'ubuntu')
@@ -42,12 +46,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [i686-linux-android, x86_64-linux-android, aarch64-linux-android]
+        arch: [x86_64-linux-android, aarch64-linux-android]
         # These folder names will be used as the names of artifacts uploaded by this job.
         # In order to delete these artifacts, the same names must go into the list in the `android-delete-artifacts` job.
         include:
-          - arch: i686-linux-android
-            folder-name: x86
           - arch: x86_64-linux-android
             folder-name: x86_64
           - arch: aarch64-linux-android
@@ -75,24 +77,16 @@ jobs:
           name: ${{ matrix.folder-name }}
           path: android/ironoxide-android/src/main/android_build.zip
 
-  # As the currently available emulators cannot use arm64-v8a architecture, we are currently only testing x86/x86_64.
-  # This can be added in when either of the following happens:
-  #   - reactivecircus/android-emulator-runner@v2 supports the arm64-v8a architecture for testing
-  #   - api-level 30 is stabilized, as that allows x86_64 to run arm64-v8a
   android-test:
     needs: android-build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        api-level: [29]
-        arch: [x86, x86_64]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Download android build
         uses: actions/download-artifact@v6
         with:
-          name: ${{ matrix.arch }}
+          name: x86_64
       - name: Unzip Android build
         run: unzip -o android_build.zip -d android/ironoxide-android/src/main
       # Taken from https://github.com/ReactiveCircus/android-emulator-runner/blob/main/README.md
@@ -101,13 +95,18 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      # Taken from https://github.com/ReactiveCircus/android-emulator-runner/issues/458#issue-3782213949
+      # Allows ARM-only apps to run on an x86_64 emulator
       - name: Run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           working-directory: ./android
-          arch: ${{ matrix.arch }}
-          api-level: ${{ matrix.api-level }}
-          ndk: "26.3.11579264" # matches android/ironoxide-android/build.gradle
+          arch: x86_64
+          api-level: 36
+          ndk: "27.3.13750724" # matches android/ironoxide-android/build.gradle
+          force-avd-creation: false
+          emulator-options: -no-snapshot-load -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          disable-animations: true
           script: ./gradlew connectedAndroidTest
 
   # This tests that gradle can build ironoxide-android so we can catch issues before release.
@@ -141,7 +140,7 @@ jobs:
   cpp-test:
     # Cmake on macos fails to find TargetConditionals.h
     # See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: IronCoreLabs/rust-toolchain@v1

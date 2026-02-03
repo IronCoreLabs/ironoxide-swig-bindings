@@ -1,6 +1,6 @@
 organization := "com.ironcorelabs"
 name := "ironoxide-java"
-scalaVersion := "2.12.11"
+scalaVersion := "2.12.21"
 
 //We're using sbt to test, but this is a pure java library for now so we don't want scala version
 //in the paths and we don't want the scala lib in the dependencies.
@@ -22,7 +22,7 @@ scalacOptions := Seq(
 )
 
 javacOptions in (Compile, doc) ++= Seq("-Xdoclint")
-javacOptions in (Compile, compile) ++= Seq("-source", "1.8", "-target", "1.8")
+javacOptions in (Compile, compile) ++= Seq("-source", "21", "-target", "21")
 
 libraryDependencies ++= Seq(
   "com.pauldijou" %% "jwt-core" % "4.3.0",
