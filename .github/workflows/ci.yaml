@@ -25,6 +25,10 @@ jobs:
       - uses: olafurpg/setup-scala@v14
         with:
           java-version: 21
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: adopt
       - name: Install llvm (ubuntu)
         # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
         if: startsWith(matrix.runs-on, 'ubuntu')
