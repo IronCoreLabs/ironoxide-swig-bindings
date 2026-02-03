@@ -8,7 +8,7 @@ on:
 
 jobs:
   validate:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - name: Validate version files
@@ -18,13 +18,13 @@ jobs:
   java-test:
     strategy:
       matrix:
-        runs-on: ["ubuntu-22.04", "macos-15-intel"]
+        runs-on: ["ubuntu-latest", "macos-15-intel"]
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v6
       - uses: olafurpg/setup-scala@v14
         with:
-          java-version: 11
+          java-version: 21
       - name: Install llvm (ubuntu)
         # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
         if: startsWith(matrix.runs-on, 'ubuntu')
@@ -76,11 +76,6 @@ jobs:
   android-test:
     needs: android-build
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        api-level: [36]
-        arch: [x86_64]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -102,8 +97,8 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           working-directory: ./android
-          arch: ${{ matrix.arch }}
-          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          api-level: 36
           ndk: "27.3.13750724" # matches android/ironoxide-android/build.gradle
           force-avd-creation: false
           emulator-options: -no-snapshot-load -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -141,7 +136,7 @@ jobs:
   cpp-test:
     # Cmake on macos fails to find TargetConditionals.h
     # See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: IronCoreLabs/rust-toolchain@v1
