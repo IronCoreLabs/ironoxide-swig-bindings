@@ -32,6 +32,12 @@ android {
         disable 'Assert'
         abortOnError false
     }
+
+    publishing {
+      singleVariant("release") {
+          withSourcesJar()
+      }
+}
 }
 
 task androidSourcesJar(type: Jar) {
@@ -46,11 +52,7 @@ publishing {
             artifactId = 'ironoxide-android'
             version = android.defaultConfig.versionName
 
-            afterEvaluate {
-                from components["release"]
-            }
-
-            artifact androidSourcesJar
+            from components["release"]
 
             pom {
                 name = 'ironoxide-android'
