@@ -82,7 +82,7 @@ jobs:
       - name: Download android build
         uses: actions/download-artifact@v6
         with:
-          name: ${{ matrix.arch }}
+          name: x86_64
       - name: Unzip Android build
         run: unzip -o android_build.zip -d android/ironoxide-android/src/main
       # Taken from https://github.com/ReactiveCircus/android-emulator-runner/blob/main/README.md
