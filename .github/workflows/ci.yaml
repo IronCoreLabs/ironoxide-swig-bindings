@@ -82,7 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         api-level: [36]
-        arch: [x86_64, x86, arm64-v8a]
+        arch: [x86_64, arm64-v8a]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -104,7 +104,10 @@ jobs:
           working-directory: ./android
           arch: ${{ matrix.arch }}
           api-level: ${{ matrix.api-level }}
-          ndk: "26.3.11579264" # matches android/ironoxide-android/build.gradle
+          ndk: "27.3.13750724" # matches android/ironoxide-android/build.gradle
+          force-avd-creation: false
+          emulator-options: -no-snapshot-load -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          disable-animations: true
           script: ./gradlew connectedAndroidTest
 
   # This tests that gradle can build ironoxide-android so we can catch issues before release.
