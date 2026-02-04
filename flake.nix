@@ -1,5 +1,5 @@
 {
-  description = "IronOxide Swig Bindings with Android SDK";
+  description = "IronOxide Swig Bindings with Android SDK + NDK";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -21,13 +21,12 @@
         rusttoolchain =
           pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
-        # Android SDK via android-nixpkgs
-        androidSdk = android-nixpkgs.sdk.${system} (sdkPkgs: with sdkPkgs; [
+        androidSdkWithNdk = android-nixpkgs.sdk.${system} (sdkPkgs: with sdkPkgs; [
           cmdline-tools-latest
           build-tools-36-0-0
           platform-tools
           platforms-android-36
-          emulator
+          ndk-27-3-13750724
         ]);
       in
       {
@@ -38,21 +37,18 @@
             openssl
             openjdk21
             sbt
-
-            # Android tools
-            androidSdk
+            androidSdkWithNdk
           ];
 
-          # Export standard SDK environment variables
           shellHook = ''
-            export ANDROID_SDK_ROOT="${androidSdk}"
-            export ANDROID_HOME="${androidSdk}"
+            export ANDROID_SDK_ROOT="${androidSdkWithNdk}"
+            export ANDROID_HOME="${androidSdkWithNdk}"
+            export ANDROID_NDK_ROOT="${androidSdkWithNdk}/share/android-sdk/ndk"
           '';
         };
 
-        # Optionally expose the SDK as a package
         packages = {
-          android-sdk = androidSdk;
+          android-sdk-with-ndk = androidSdkWithNdk;
         };
       });
 }
