@@ -76,9 +76,7 @@ publishing {
 }
 
 signing {
-    useInMemoryPgpKeys(findProperty("signing.keyId"),
-                       findProperty("signing.secretKeyRingFile"),
-                       findProperty("signing.password"))
+    useGpgCmd()
     sign publishing.publications.release
 }
 
