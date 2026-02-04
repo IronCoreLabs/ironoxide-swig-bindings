@@ -4,6 +4,12 @@ plugins {
     id 'signing'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 android {
     namespace "com.ironcorelabs.sdk"
     compileSdkVersion 36

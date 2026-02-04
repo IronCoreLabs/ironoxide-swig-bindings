@@ -4,14 +4,13 @@ name: Build Android release
 # to Maven Central.
 
 on:
-  # TODO: pull_request:
-  #   types:
-  #     - closed
-  workflow_dispatch:
+  pull_request:
+    types:
+      - closed
 
 jobs:
   android:
-    # TODO: if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -34,8 +33,7 @@ jobs:
       - name: Export PGP signing key
         run: gpg --export-secret-keys > /tmp/signing-key.gpg
       - name: Publish
-        run: ./gradlew publishToSonatype
-        # TODO: After testing, also run `closeAndReleaseSonatypeStagingRepository`
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
         working-directory: android
         env:
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
