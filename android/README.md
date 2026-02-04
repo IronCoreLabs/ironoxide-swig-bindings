@@ -38,12 +38,12 @@ You can then read in a device with the `DeviceContext.fromJsonString()` function
 ### Prerequisites
 
 - Install [Rust toolchain](https://www.rust-lang.org/tools/install).
-- Install Android SDK 29. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only").
+- Install Android SDK 36. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only").
   - Note: **The extracted `tools` folder must follow a specific folder hierarchy. We recommend `AndroidCLI/cmdline-tools/tools`**.
-- Install Android 29 build and platform tools. This can be done with `sdkmanager` (found in `tools/bin`):
+- Install Android 36 build and platform tools. This can be done with `sdkmanager` (found in `tools/bin`):
 
   ```bash
-  ./sdkmanager "build-tools;30.0.3" "platform-tools" "platforms;android-29"
+  ./sdkmanager "build-tools;36.0.0" "platform-tools" "platforms;android-36"
   ```
 
 - Create the file `$HOME/.gradle/gradle.properties` and add the line `sdk.dir=PATH_TO_ANDROID_CLI_FOLDER`.

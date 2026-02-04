@@ -1,19 +1,5 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.13.2'
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.2"
-    }
-}
-
-apply plugin: 'io.codearte.nexus-staging'
-
-nexusStaging {
-    packageGroup = "com.ironcorelabs"
-    numberOfRetries = 150
+plugins {
+    id "io.github.gradle-nexus.publish-plugin" version "2.0.0"
 }
 
 allprojects {
@@ -23,40 +9,15 @@ allprojects {
     }
 }
 
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
-// If the auth info file exists, read it.
-def authPropsFile = "../.github/auth.properties"
-if (file(authPropsFile).exists()) {
-    def props = new Properties()
-    file(authPropsFile).withInputStream { is -> props.load(is) }
-    project.ext.NEXUS_USERNAME = props.getProperty("NEXUS_USERNAME")
-    project.ext.NEXUS_PASSWORD = props.getProperty("NEXUS_PASSWORD")
-    nexusStaging {
-        username = NEXUS_USERNAME
-        password = NEXUS_PASSWORD
-    }
-} else {
-    project.ext.NEXUS_USERNAME = ""
-    project.ext.NEXUS_PASSWORD = ""
-}
-
-// Ensure we know where the Android SDK is.
-// try {
-//     if (System.getenv("GITHUB_WORKFLOW") == null) {
-//         String sdkDir = findProperty("sdk.dir")
-//         if (sdkDir == null) {
-//             sdkDir = System.getenv("ANDROID_HOME")
-//         }
-//         if (!file(sdkDir).isDirectory()) throw new Exception()
-//         // Couldn't find this documented anywhere; see https://android.googlesource.com/platform/tools/build/+/6d7fd0d2eff092abf1aaf44d03756b24570b390c/gradle/src/main/groovy/com/android/build/gradle/internal/Sdk.groovy#187
-//         System.properties["android.home"] = sdkDir
-//     }
-// } catch (Exception e) {
-//     // throw new GradleException("sdk.dir must point to the Android SDK. Set it in \$HOME/.gradle/gradle.properties")
-//     throw e
-// }
-
-defaultTasks = ["build"]

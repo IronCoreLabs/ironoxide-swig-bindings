@@ -4,13 +4,14 @@ name: Build Android release
 # to Maven Central.
 
 on:
-  pull_request:
-    types:
-      - closed
+  # TODO: pull_request:
+  #   types:
+  #     - closed
+  workflow_dispatch:
 
 jobs:
   android:
-    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
+    # TODO: if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -32,8 +33,10 @@ jobs:
         run: gpg --batch --import .github/signing-key.asc
       - name: Export PGP signing key
         run: gpg --export-secret-keys > /tmp/signing-key.gpg
-      - name: Upload AAR to Maven Central
-        run: |
-          ./gradlew uploadArchives
-          ./gradlew closeAndReleaseRepository
+      - name: Publish
+        run: ./gradlew publishToSonatype
+        # TODO: After testing, also run `closeAndReleaseSonatypeStagingRepository`
         working-directory: android
+        env:
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
