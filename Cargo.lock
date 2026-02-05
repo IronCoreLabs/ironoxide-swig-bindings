@@ -13,9 +13,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.100"
+version = "1.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a23eb6b1614318a8071c9b2521f36b424b2c83db5eb3a0fead4a6c0809af6e61"
+checksum = "5f0e0fee31ef5ed1ba1316088939cea399010ed7731dba877ed44aeb407a75ea"
 
 [[package]]
 name = "atomic-waker"
@@ -1005,7 +1005,7 @@ dependencies = [
 [[package]]
 name = "ironoxide"
 version = "4.1.1"
-source = "git+https://github.com/IronCoreLabs/ironoxide.git?branch=fix-ring-issue#37be06d9a6a9ce46bca77d8c85435f6f690324f5"
+source = "git+https://github.com/IronCoreLabs/ironoxide.git?branch=fix-ring-issue#8836105da51e10b90303f33ac5e3e8482d498dcd"
 dependencies = [
  "base64",
  "base64-serde",
