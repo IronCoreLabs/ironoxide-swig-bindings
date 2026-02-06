@@ -37,6 +37,8 @@ You can then read in a device with the `DeviceContext.fromJsonString()` function
 
 ### Prerequisites
 
+> There's a `shell.nix` that can be used via `nix-shell` that'll bootstrap an environment where you can test with a plugged in local Android device.
+
 - Install [Rust toolchain](https://www.rust-lang.org/tools/install).
 - Install Android SDK 36. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only").
   - Note: **The extracted `tools` folder must follow a specific folder hierarchy. We recommend `AndroidCLI/cmdline-tools/tools`**.
@@ -52,8 +54,7 @@ You can then read in a device with the `DeviceContext.fromJsonString()` function
 
 From the repository root, run `android/build.sh`.
 
-This will compile IronOxide-Android for `x86_64` Android phones. If building for a different architecture, you can find the Rust target to compile to
-[here](https://forge.rust-lang.org/release/platform-support.html) and modify the `cargo ndk` command in `build.sh`. The compiled library and generated Java files will be put into `android/ironoxide-android/src/main`.
+This will compile IronOxide-Android for `x86_64`, `arm64-v8a`, and `armeabi-v7a`, covering both emulators and physical devices. The compiled library and generated Java files will be put into `android/ironoxide-android/src/main`.
 
 ## Testing
 
@@ -61,11 +62,20 @@ This will compile IronOxide-Android for `x86_64` Android phones. If building for
 
 - Successfully run `build.sh` by following the steps in [Build from Source](#build-from-source-1).
 - An Android emulator running, or a compatible Android phone connected.
-  - To start an emulator using the command line tools, follow these steps from the folder `AndroidCLI/cmdline-tools/tools/bin`:
-    1. `./sdkmanager "emulator" "system-images;android-29;google_apis;x86_64"`
-    2. `./avdmanager create avd -n pixel_3 -k "system-images;android-29;google_apis;x86_64" -d pixel_3`
-    3. `../../../emulator/emulator -avd pixel_3 -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim`
-  - The emulator may take some time to boot, but the output will include `emulator: INFO: boot completed` when it has completed. You will need to use a different terminal to run the tests.
+
+#### Emulator Testing
+
+To start an emulator using the command line tools, follow these steps from the folder `AndroidCLI/cmdline-tools/tools/bin`:
+
+1. `./sdkmanager "emulator" "system-images;android-36;google_apis;x86_64"`
+2. `./avdmanager create avd -n pixel -k "system-images;android-36;google_apis;x86_64" -d pixel`
+3. `../../../emulator/emulator -avd pixel -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim`
+
+The emulator may take some time to boot, but the output will include `emulator: INFO: boot completed` when it has completed. You will need to use a different terminal to run the tests.
+
+#### Physical Device Testing
+
+You can also run tests on a physical Android device connected via USB or Wi-Fi debugging. The `nix-shell` environment is set up to support connected device testing. Ensure USB debugging is enabled on the device and it appears in `adb devices`.
 
 ### Running the Connected Android Tests
 

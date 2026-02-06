@@ -849,9 +849,11 @@ dependencies = [
  "flapigen",
  "ironoxide",
  "itertools 0.14.0",
+ "jni",
  "jni-sys",
  "log",
  "regex",
+ "rustls-platform-verifier",
  "serde_json",
  "time",
 ]
