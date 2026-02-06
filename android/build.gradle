@@ -10,6 +10,7 @@ allprojects {
         google()
         mavenCentral()
     }
+    version = project.VERSION_NAME
 }
 
 nexusPublishing {
