@@ -56,12 +56,12 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           release_name: Version ${{ steps.version.outputs.tag }}
       - name: Download java release artifacts from ubuntu-latest
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: release-ubuntu-latest
           path: release/ubuntu-latest
       - name: Delete artifact
-        uses: geekyeggo/delete-artifact@v2
+        uses: geekyeggo/delete-artifact@v5
         with:
           name: release-ubuntu-latest
           failOnError: false
@@ -75,12 +75,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download java release artifacts from macos-15-intel
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: release-macos-15-intel
           path: release/macos-15-intel
       - name: Delete artifact
-        uses: geekyeggo/delete-artifact@v2
+        uses: geekyeggo/delete-artifact@v5
         with:
           name: release-macos-15-intel
           failOnError: false
@@ -141,13 +141,13 @@ jobs:
           args: --release
       - name: Upload artifacts for ubuntu-latest
         if: startsWith(matrix.os, 'ubuntu')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-ubuntu-latest
           path: target/release/libironoxide_java.so
       - name: Upload artifacts for macos-15-intel
         if: startsWith(matrix.os, 'macos')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-macos-15-intel
           path: target/release/libironoxide_java.dylib
@@ -176,53 +176,3 @@ jobs:
 #         with:
 #           name: release-iOS
 #           path: ironoxide-homebrew.tar.gz
-
-# See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
-# Creates a PR to update homebrew-ironcore, which depends on releases from this repository.
-#   homebrew-ironcore:
-#     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
-#     runs-on: ubuntu-22.04
-#     needs:
-#       - release
-#     steps:
-#       - uses: actions/checkout@v6
-#         with:
-#           # If we use the default GITHUB_TOKEN, it won't run our CI job once we create a PR. The WORKFLOW_PAT is a personal
-#           # access token with "repo" permissions.
-#           token: ${{ secrets.WORKFLOW_PAT }}
-#           repository: IronCoreLabs/homebrew-ironcore
-#       - name: Configure git
-#         run: |
-#           git config --local user.email ops@ironcorelabs.com
-#           git config --local user.name "Leeroy Travis"
-#       - name: Set variables from version and hash
-#         id: vars
-#         run: |
-#           CURRENT=$(basename ${{ github.head_ref }})
-#           NAME=$(echo ${CURRENT} | sed 's/release-//')
-#           ARTIFACT=https://github.com/IronCoreLabs/ironoxide-swig-bindings/releases/download/${NAME}/ironoxide-homebrew.tar.gz
-#           wget -q ${ARTIFACT}
-#           SHA256=$(sha256sum -b ironoxide-homebrew.tar.gz | awk '{print $1}')
-#           echo "tag=${NAME}" >> "$GITHUB_OUTPUT"
-#           echo "pr_branch=ironoxide-swig-bindings-${NAME}" >> "$GITHUB_OUTPUT"
-#           echo "artifact=${ARTIFACT}" >> "$GITHUB_OUTPUT"
-#           echo "sha256=${SHA256}" >> "$GITHUB_OUTPUT"
-#       - name: Edit files for pending release
-#         run: |
-#           sed -i -e 's,^\( *url "\)[^"]*\("\)$,\1${{ steps.vars.outputs.artifact }}\2,' Formula/ironoxide.rb
-#           sed -i -e 's,^\( *sha256 "\)[0-9a-f]*\("\)$,\1${{ steps.vars.outputs.sha256 }}\2,' Formula/ironoxide.rb
-#       - run: git add Formula/ironoxide.rb
-#       - run: git checkout -b ${{ steps.vars.outputs.pr_branch }}
-#       - run: git commit -m "Use new ironoxide-homebrew ${{ steps.vars.outputs.tag }}"
-#       - run: git push origin ${{ steps.vars.outputs.pr_branch }}
-#       - name: Create PR
-#         run: |
-#           curl --silent --show-error --fail -X POST \
-#             -H "Authorization: token ${{ secrets.WORKFLOW_PAT }}" \
-#             -H "Content-Type: application/json" \
-#             --data '{"title": "Use new ironoxide-swig-bindings ${{ steps.vars.outputs.tag }}",
-#               "head": "${{ steps.vars.outputs.pr_branch }}",
-#               "base": "main",
-#               "body": ""
-#               }' \
-#             https://api.github.com/repos/IronCoreLabs/homebrew-ironcore/pulls

@@ -2,3 +2,8 @@
 profile = "default"
 channel = "1.93.0"
 components = ["rust-src", "rust-analyzer"]
+targets = [
+  "x86_64-linux-android",
+  "aarch64-linux-android",
+  "armv7-linux-androideabi",
+]

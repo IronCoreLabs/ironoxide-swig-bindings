@@ -46,7 +46,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [x86_64-linux-android, aarch64-linux-android, armv7-linux-androideabi]
+        arch:
+          [x86_64-linux-android, aarch64-linux-android, armv7-linux-androideabi]
         # These folder names will be used as the names of artifacts uploaded by this job.
         # In order to delete these artifacts, the same names must go into the list in the `android-delete-artifacts` job.
         include:
@@ -117,7 +118,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Run build script
-        run: ./build.sh
+        run: ./build-aar.sh
         working-directory: android
       # This will test that we're able to build the .aar file required for release.
       # In particular, it will catch if the NDK version we have specified is different than the one installed on the machine.

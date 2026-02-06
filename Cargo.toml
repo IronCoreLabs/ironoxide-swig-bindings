@@ -10,7 +10,7 @@ bindgen = "0.72"
 cfg-if = "1"
 env_logger = { version = "0.11", default-features = false }
 flapigen = { git = "https://github.com/Dushistov/flapigen-rs.git", rev = "49a59f68" }
-ironoxide = { version = "=4.0.1", features = [
+ironoxide = { version = "4.1", features = [
   "blocking",
   "beta",
   "tls-rustls",
