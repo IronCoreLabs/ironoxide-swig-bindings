@@ -122,7 +122,7 @@ fn flapigen_expand(from: &Path, out_dir: &Path) {
         .remove_not_generated_files_from_output_directory(true) //remove outdated *.java or cpp files
         .expand(name, from, out_dir.join("lib.rs"));
 
-    #[cfg(feature = "android")]
+    #[cfg(all(target_os = "android", feature = "android"))]
     {
         // Post-process the generated lib.rs to inject rustls-platform-verifier
         // initialization into JNI_OnLoad (see https://github.com/Dushistov/flapigen-rs/issues/440).

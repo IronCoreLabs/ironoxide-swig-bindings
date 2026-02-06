@@ -17,7 +17,7 @@ include!(concat!(env!("OUT_DIR"), "/lib.rs"));
 
 /// Initialize rustls-platform-verifier for Android TLS certificate verification.
 /// Called from the generated JNI_OnLoad via build.rs post-processing.
-#[cfg(feature = "android")]
+#[cfg(all(target_os = "android", feature = "android"))]
 fn init_rustls_platform_verifier(raw_env: *mut jni_sys::JNIEnv) {
     let env = unsafe { jni::JNIEnv::from_raw(raw_env as *mut jni::sys::JNIEnv) }
         .expect("Failed to wrap JNIEnv");
