@@ -134,7 +134,9 @@ fn flapigen_expand(from: &Path, out_dir: &Path) {
         // and not the GetEnv argument (followed by `,`).
         let re = regex::Regex::new(r"SWIG_JNI_VERSION\s*\}")
             .expect("Failed to compile JNI_OnLoad patch regex");
-        let patched = re.replacen(&generated, 1,
+        let patched = re.replacen(
+            &generated,
+            1,
             "{ crate::init_rustls_platform_verifier(env); SWIG_JNI_VERSION } }",
         );
         assert_ne!(
