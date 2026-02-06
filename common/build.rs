@@ -121,6 +121,30 @@ fn flapigen_expand(from: &Path, out_dir: &Path) {
         .rustfmt_bindings(false)
         .remove_not_generated_files_from_output_directory(true) //remove outdated *.java or cpp files
         .expand(name, from, out_dir.join("lib.rs"));
+
+    #[cfg(feature = "android")]
+    {
+        // Post-process the generated lib.rs to inject rustls-platform-verifier
+        // initialization into JNI_OnLoad (see https://github.com/Dushistov/flapigen-rs/issues/440).
+        let generated = std::fs::read_to_string(out_dir.join("lib.rs"))
+            .expect("Failed to read generated lib.rs");
+        // The generated JNI_OnLoad ends with `SWIG_JNI_VERSION` followed by the
+        // closing brace of the function. Use a regex to handle any whitespace
+        // between them. We match only the return-value occurrence (followed by `}`)
+        // and not the GetEnv argument (followed by `,`).
+        let re = regex::Regex::new(r"SWIG_JNI_VERSION\s*\}")
+            .expect("Failed to compile JNI_OnLoad patch regex");
+        let patched = re.replacen(&generated, 1,
+            "{ crate::init_rustls_platform_verifier(env); SWIG_JNI_VERSION } }",
+        );
+        assert_ne!(
+            *patched, generated,
+            "build.rs: Failed to patch JNI_OnLoad — the SWIG_JNI_VERSION pattern was not found \
+             in the generated lib.rs. The flapigen output format may have changed."
+        );
+        std::fs::write(out_dir.join("lib.rs"), patched.as_ref())
+            .expect("Failed to write patched lib.rs");
+    }
 }
 
 cfg_if::cfg_if! {

@@ -37,6 +37,8 @@ You can then read in a device with the `DeviceContext.fromJsonString()` function
 
 ### Prerequisites
 
+> There's a `shell.nix` that can be used via `nix-shell` that'll bootstrap an environment where you can test with a plugged in local Android device.
+
 - Install [Rust toolchain](https://www.rust-lang.org/tools/install).
 - Install Android SDK 36. You can get the command line SDK [here](https://developer.android.com/studio) (scroll down to "Command line tools only").
   - Note: **The extracted `tools` folder must follow a specific folder hierarchy. We recommend `AndroidCLI/cmdline-tools/tools`**.

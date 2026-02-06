@@ -17,6 +17,8 @@ jni-sys = { workspace = true }
 log = { workspace = true }
 serde_json = { workspace = true }
 time = { workspace = true }
+jni = "0.21"
+rustls-platform-verifier = "0.6"
 
 [build-dependencies]
 bindgen = { workspace = true }
