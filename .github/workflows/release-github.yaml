@@ -127,9 +127,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
-      - uses: olafurpg/setup-scala@v14
+      - uses: coursier/setup-action@v2
         with:
-          java-version: 21
+          jvm: 21
+          apps: sbt
       # Not installing llvm for Mac because https://stackoverflow.com/a/35753922/107357
       - name: Install llvm (ubuntu)
         if: startsWith(matrix.os, 'ubuntu')

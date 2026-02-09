@@ -123,7 +123,7 @@ fn flapigen_expand(from: &Path, out_dir: &Path) {
         .expand(name, from, out_dir.join("lib.rs"));
 
     #[cfg(feature = "android")]
-    if std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("android") {
+    if let Ok("android") = std::env::var("CARGO_CFG_TARGET_OS").as_deref() {
         // Post-process the generated lib.rs to inject rustls-platform-verifier
         // initialization into JNI_OnLoad (see https://github.com/Dushistov/flapigen-rs/issues/440).
         let generated = std::fs::read_to_string(out_dir.join("lib.rs"))
