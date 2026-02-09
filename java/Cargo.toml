@@ -1,6 +1,6 @@
 [package]
 name = "ironoxide-java"
-version = "0.17.0"
+version = "1.0.0"
 authors = ["IronCore Labs <info@ironcorelabs.com>"]
 build = "../common/build.rs"
 edition = "2024"
