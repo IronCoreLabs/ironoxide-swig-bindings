@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.17.0
+## 1.0.0
 
 - Dependency updates
   - Notably, ironoxide now reuses request clients when made by a single IronOxide.
