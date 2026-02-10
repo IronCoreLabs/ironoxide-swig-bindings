@@ -1,26 +1,16 @@
 name: Build Java release
 
-# This is triggered by merging a PR from a branch named release-*. This workflow builds and publishes the Java release artifacts
-# to Maven Central.
+# This is triggered by pushing a tag that begins with a `v`, which is done in our release process by `release-github.yaml`.
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
+    tags: ["v*"]
 
 jobs:
   java:
-    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Decrypt keys
-        uses: IronCoreLabs/ironhide-actions/decrypt@v3
-        with:
-          keys: ${{ secrets.IRONHIDE_KEYS }}
-          input: .github/signing-key.asc.iron .github/sonatype.sbt.iron
-      - name: Import PGP key
-        run: gpg --batch --import .github/signing-key.asc
       - uses: IronCoreLabs/rust-toolchain@v1
       - uses: coursier/setup-action@v2
         with:
@@ -30,10 +20,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y llvm
       - name: Cargo build
         run: cargo build -p ironoxide-java
-      - name: Install sonatype auth
-        run: |
-          mkdir -p ~/.sbt/1.0
-          cp .github/sonatype.sbt ~/.sbt/1.0/sonatype.sbt
-      - name: Java release
-        run: sbt release
-        working-directory: java/tests
+      - run: sbt ci-release
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
