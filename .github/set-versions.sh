@@ -44,9 +44,6 @@ fi
 sed -i"${VERIFY}" -e 's/^VERSION_NAME=.*/VERSION_NAME='"${VERS}"'/' android/gradle.properties
 EDITEDFILES="${EDITEDFILES} android/gradle.properties"
 
-sed -i"${VERIFY}" -e 's/^version in ThisBuild := ".*"$/version in ThisBuild := "'"${VERS}"'"/' java/tests/version.sbt
-EDITEDFILES="${EDITEDFILES} java/tests/version.sbt"
-
 for FILE in ${EDITEDFILES} ; do
     # Add it to git.
     git add "${FILE}"
