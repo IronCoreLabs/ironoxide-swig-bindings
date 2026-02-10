@@ -16,7 +16,6 @@ pomExtra := (
         ("bobwall23", "Bob Wall"),
         ("clintfred", "Clint Frederickson"),
         ("coltfred", "Colt Frederickson"),
-        ("ernieturner", "Ernie Turner"),
         ("giarc3", "Craig Colegrove"),
         ("skeet70", "Murph Murphy"),
       ).map {
