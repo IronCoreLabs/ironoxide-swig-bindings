@@ -21,6 +21,10 @@ String findRustlsPlatformVerifierProject() {
     return new File(manifestPath.parentFile, "maven").path
 }
 
+configurations {
+    rustlsEmbed
+}
+
 repositories {
     maven {
         url = findRustlsPlatformVerifierProject()
@@ -108,10 +112,29 @@ signing {
     sign publishing.publications.release
 }
 
+// Extract classes.jar from the rustls-platform-verifier AAR and place it in libs/ so it gets
+// bundled into our AAR. This avoids requiring consumers to configure the unpublished rustls
+// Maven repository.
+task extractRustlsClasses {
+    doLast {
+        def aar = configurations.rustlsEmbed.singleFile
+        def outputDir = file("libs")
+        outputDir.mkdirs()
+        copy {
+            from zipTree(aar)
+            include 'classes.jar'
+            rename 'classes.jar', 'rustls-platform-verifier.jar'
+            into outputDir
+        }
+    }
+}
+
+preBuild.dependsOn extractRustlsClasses
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'rustls:rustls-platform-verifier:latest.release'
+    rustlsEmbed 'rustls:rustls-platform-verifier:latest.release'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test:runner:1.5.2'

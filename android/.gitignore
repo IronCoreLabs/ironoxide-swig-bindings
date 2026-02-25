@@ -9,3 +9,4 @@ ironoxide-android/.project
 ironoxide-android/.classpath
 ironoxide-android/gradle.properties
 local.properties
+ironoxide-android/libs/rustls-platform-verifier.jar
