@@ -31,4 +31,5 @@ cp -r target/armv7-linux-androideabi/release/libironoxide_android.so android/iro
 
 cd android
 ./gradlew clean 
+# This is a separate command so that the configuration step runs again (needed for rustls classes)
 ./gradlew build
