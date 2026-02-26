@@ -30,4 +30,5 @@ mkdir -p android/ironoxide-android/src/main/jniLibs/armeabi-v7a/
 cp -r target/armv7-linux-androideabi/release/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/armeabi-v7a/
 
 cd android
-./gradlew clean build
+./gradlew clean 
+./gradlew build

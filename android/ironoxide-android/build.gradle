@@ -114,13 +114,7 @@ File findRustlsPlatformVerifierClasses() {
         exclude "R.txt"
     }.getSingleFile()
     assert classesJar.name == "classes.jar"
-
-    // Copy to a stable location — the zipTree expansion is temporary and may be
-    // cleaned up before AGP's JetifyTransform can read it.
-    def stableJar = new File(buildDir, "rustls-platform-verifier/classes.jar")
-    stableJar.parentFile.mkdirs()
-    stableJar.bytes = classesJar.bytes
-    return stableJar
+    return classesJar
 }
 
 dependencies {
