@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- Fix issue with ironoxide-android unable to resolve rustls dependency
+
 ## 1.0.0
 
 - Dependency updates
