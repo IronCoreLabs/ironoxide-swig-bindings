@@ -22,9 +22,17 @@ This application provides a simple UI for encrypting/decrypting data with IronCo
     1. `./avdmanager create avd -n pixel_8 -k "system-images;android-36;google_apis;x86_64" -d pixel_8`
     1. `../../../emulator/emulator -avd pixel_8 -no-snapshot -noaudio -no-boot-anim`
 
-### Directions
+### Running the app
 
 1. From the Example_Application root, run `./gradlew installDebug`.
 1. From the emulator's app drawer, select the `ICL Demo` app.
 1. Fill out the `Name` and `Data` fields and press the `Encrypt` button. A new entry will be added for this data below.
 1. To decrypt an entry, select it from the list. A dialog will display the document's decrypted data as well as relevant metadata.
+
+### Running instrumented tests
+
+This app includes a `connectedAndroidTest` that verifies the `ironoxide-android` AAR correctly bundles its `rustls-platform-verifier` dependency. This dependency isn't published to any public Maven repository, so it must be embedded in the AAR itself. The test confirms the classes are present and the native library loads without error.
+
+```bash
+./gradlew connectedAndroidTest
+```
