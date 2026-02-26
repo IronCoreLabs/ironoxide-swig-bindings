@@ -89,6 +89,7 @@ signing {
 // Locate the rustls-platform-verifier-android classes from the cargo dependency tree and
 // bundle them directly, so consumers don't need to resolve the unpublished rustls Maven repo.
 // Based on https://github.com/signalapp/libsignal/blob/a4a0663/java/android/build.gradle#L84-L113
+// See https://github.com/rustls/rustls-platform-verifier/issues/115
 File findRustlsPlatformVerifierClasses() {
     def dependencyText = providers.exec {
         it.workingDir = new File("../")
