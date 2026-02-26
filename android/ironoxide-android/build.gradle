@@ -6,32 +6,6 @@ plugins {
     id 'signing'
 }
 
-// Locate the rustls-platform-verifier-android Maven repository from the cargo dependency tree.
-// This AAR provides the Java-side certificate verification class needed by rustls on Android.
-String findRustlsPlatformVerifierProject() {
-    def dependencyText = providers.exec {
-        it.workingDir = new File(project.rootDir, "../")
-        commandLine("cargo", "metadata", "--format-version", "1")
-    }.standardOutput.asText.get()
-
-    def dependencyJson = new JsonSlurper().parseText(dependencyText)
-    def manifestPath = file(dependencyJson.packages.find {
-        it.name == "rustls-platform-verifier-android"
-    }.manifest_path)
-    return new File(manifestPath.parentFile, "maven").path
-}
-
-configurations {
-    rustlsEmbed
-}
-
-repositories {
-    maven {
-        url = findRustlsPlatformVerifierProject()
-        metadataSources.artifact()
-    }
-}
-
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -112,29 +86,38 @@ signing {
     sign publishing.publications.release
 }
 
-// Extract classes.jar from the rustls-platform-verifier AAR and place it in libs/ so it gets
-// bundled into our AAR. This avoids requiring consumers to configure the unpublished rustls
-// Maven repository.
-task extractRustlsClasses {
-    doLast {
-        def aar = configurations.rustlsEmbed.singleFile
-        def outputDir = file("libs")
-        outputDir.mkdirs()
-        copy {
-            from zipTree(aar)
-            include 'classes.jar'
-            rename 'classes.jar', 'rustls-platform-verifier.jar'
-            into outputDir
-        }
-    }
-}
+// see https://github.com/rustls/rustls-platform-verifier/issues/115
+File findRustlsPlatformVerifierClasses() {
+    def dependencyText = providers.exec {
+        it.workingDir = new File("../")
+        commandLine("cargo", "metadata", "--format-version", "1")
+    }.standardOutput.asText.get()
 
-preBuild.dependsOn extractRustlsClasses
+    def dependencyJson = new JsonSlurper().parseText(dependencyText)
+    def manifestPath = file(dependencyJson.packages.find { it.name == "rustls-platform-verifier-android" }.manifest_path)
+
+    // Modifications here:
+    // Rather than use the Maven repository in the crates.io source, reference the AAR directly by path.
+    // Then, extract the classes from it so that we have a self-contained library.
+    def aar = fileTree(manifestPath.parentFile).matching {
+        include "maven/rustls/rustls-platform-verifier/*/rustls-platform-verifier-*.aar"
+    }.getSingleFile()
+    def classesJar = zipTree(aar).matching {
+        // Make sure there's nothing in the AAR that we haven't accounted for.
+        // This isn't perfect: there could be something important in AndroidManifest.xml.
+        // But it's likely good enough.
+        exclude "AndroidManifest.xml"
+        exclude "META-INF/com/android/build/gradle/aar-metadata.properties"
+        exclude "R.txt"
+    }.getSingleFile()
+    assert classesJar.name == "classes.jar"
+    return classesJar
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    rustlsEmbed 'rustls:rustls-platform-verifier:latest.release'
+    implementation files(findRustlsPlatformVerifierClasses())
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test:runner:1.5.2'
