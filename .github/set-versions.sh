@@ -66,7 +66,7 @@ done
 
 # Look for files that have been changed, but that we haven't told git about.
 echo "Checking for modified but untracked files:"
-if git status -s | grep -Ev '^M ' ; then
+if git -c color.status=never status -s -uno | grep -Ev '^M ' ; then
     echo "This probably means $0 modified a file but forgot to 'git add' it."
     exit 1
 fi

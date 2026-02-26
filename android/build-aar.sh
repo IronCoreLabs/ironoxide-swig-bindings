@@ -30,4 +30,6 @@ mkdir -p android/ironoxide-android/src/main/jniLibs/armeabi-v7a/
 cp -r target/armv7-linux-androideabi/release/libironoxide_android.so android/ironoxide-android/src/main/jniLibs/armeabi-v7a/
 
 cd android
-./gradlew clean build
+./gradlew clean 
+# This is a separate command so that the configuration step runs again (needed for rustls classes)
+./gradlew build
