@@ -15,6 +15,7 @@ let
     buildToolsVersions = [ "36.0.0" ];
     includeEmulator = false;
     includeSystemImages = false;
+    includeNDK = true;
   };
 in
 pkgs.mkShell {
