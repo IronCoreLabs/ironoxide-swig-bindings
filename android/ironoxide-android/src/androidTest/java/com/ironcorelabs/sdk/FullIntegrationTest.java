@@ -33,12 +33,12 @@ public class FullIntegrationTest {
 	public void roundtripDataUnmanaged() throws Exception {
 		final String data = "Test 123";
 		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());
-		final DocumentEncryptUnmanagedResult encryptResult = io.advancedDocumentEncryptUnmanaged(data.getBytes(),
+		final DocumentEncryptUnmanagedResult encryptResult = io.documentEncryptUnmanaged(data.getBytes(),
 				new DocumentEncryptOpts());
 		assertEquals(encryptResult.getId().getId().length(), 32);
 
 		final DocumentDecryptUnmanagedResult decryptResult = io
-				.advancedDocumentDecryptUnmanaged(encryptResult.getEncryptedData(), encryptResult.getEncryptedDeks());
+				.documentDecryptUnmanaged(encryptResult.getEncryptedData(), encryptResult.getEncryptedDeks());
 		assertEquals(encryptResult.getId(), decryptResult.getId());
 
 		final String decryptedData = new String(decryptResult.getDecryptedData());

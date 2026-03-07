@@ -144,9 +144,9 @@ class DocumentTests extends TestSuite {
     "roundtrip to self" in {
       val bytes = Array(1, 2, 3).map(_.toByte)
       val encryptResult =
-        Try(primarySdk.advancedDocumentEncryptUnmanaged(bytes, new DocumentEncryptOpts)).toEither.value
+        Try(primarySdk.documentEncryptUnmanaged(bytes, new DocumentEncryptOpts)).toEither.value
       val decryptResult = Try(
-        primarySdk.advancedDocumentDecryptUnmanaged(encryptResult.getEncryptedData, encryptResult.getEncryptedDeks)
+        primarySdk.documentDecryptUnmanaged(encryptResult.getEncryptedData, encryptResult.getEncryptedDeks)
       ).toEither.value
       decryptResult.getDecryptedData shouldBe bytes
     }
@@ -154,13 +154,13 @@ class DocumentTests extends TestSuite {
       val bytes = Array(1, 2, 3).map(_.toByte)
       val encryptResult =
         Try(
-          primarySdk.advancedDocumentEncryptUnmanaged(
+          primarySdk.documentEncryptUnmanaged(
             bytes,
             new DocumentEncryptOpts(null, null, false, Array(secondaryUser), Array(), null)
           )
         ).toEither.value
       val decryptResult = Try(
-        secondarySdk.advancedDocumentDecryptUnmanaged(encryptResult.getEncryptedData, encryptResult.getEncryptedDeks)
+        secondarySdk.documentDecryptUnmanaged(encryptResult.getEncryptedData, encryptResult.getEncryptedDeks)
       ).toEither.value
       decryptResult.getDecryptedData shouldBe bytes
     }
@@ -168,7 +168,7 @@ class DocumentTests extends TestSuite {
       val bytes = Array(1, 2, 3).map(_.toByte)
       val encryptResult = Try(
         primarySdk
-          .advancedDocumentEncryptUnmanaged(bytes, new DocumentEncryptOpts(null, null, false, Array(), Array(), null))
+          .documentEncryptUnmanaged(bytes, new DocumentEncryptOpts(null, null, false, Array(), Array(), null))
       )
       encryptResult.isFailure shouldBe true
     }

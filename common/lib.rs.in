@@ -689,6 +689,36 @@ class DocumentDecryptUnmanagedResult{
 });
 
 foreign_class!(
+/// Metadata for an unmanaged document, extracted from its EDEKs.
+class DocumentMetadataUnmanagedResult{
+    self_type DocumentMetadataUnmanagedResult;
+    private constructor = empty;
+    /// Unique (within the segment) id of the document
+    fn document_metadata_unmanaged_result::id(&self) -> DocumentId; alias getId;
+    /// List of users who have access to the document
+    fn document_metadata_unmanaged_result::visible_to_users(&self) -> Vec<VisibleUser>; alias getVisibleToUsers;
+    /// List of groups that have access to the document
+    fn document_metadata_unmanaged_result::visible_to_groups(&self) -> Vec<VisibleGroup>; alias getVisibleToGroups;
+    pre_build_generate_equals_and_hashcode DocumentMetadataUnmanagedResult;
+});
+
+foreign_class!(
+/// Result of granting or revoking access to an unmanaged document. Includes the updated EDEKs.
+class DocumentAccessUnmanagedResult{
+    self_type DocumentAccessUnmanagedResult;
+    private constructor = empty;
+    /// User/Group that granted ability to alter access, or null for offline operations like revoke
+    fn document_access_unmanaged_result::access_via(&self) -> Option<UserOrGroupId>; alias getAccessViaUserOrGroup;
+    /// Updated encrypted document encryption keys (EDEKs) after the access change
+    fn document_access_unmanaged_result::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks;
+    /// Get the users and groups whose access was successfully changed
+    fn DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
+    /// Get the users and groups whose access failed to be modified
+    fn DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
+    pre_build_generate_equals_and_hashcode DocumentAccessUnmanagedResult;
+});
+
+foreign_class!(
 // A successful edit of the access list of a document.
 class SucceededResult {
     self_type SucceededResult;
@@ -993,17 +1023,71 @@ class IronOxide {
     ///
     /// @param documentData  bytes of the document to encrypt
     /// @param encryptOpts   optional document encrypt parameters
-    fn advanced_document_encrypt_unmanaged(&self, documentData: &[i8], encryptOpts: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias advancedDocumentEncryptUnmanaged;
+    fn document_encrypt_unmanaged(&self, documentData: &[i8], encryptOpts: &DocumentEncryptOpts) -> Result<DocumentEncryptUnmanagedResult, String>; alias documentEncryptUnmanaged;
     /// Decrypt the provided encrypted document with the encrypted document encryption keys (EDEKs).
     ///
-    /// @param encryptedData  bytes of encrypted document. Should be the same bytes returned from {@link #advancedDocumentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
-    /// @param encryptedDeks  encrypted document encryption keys. Should be the same edeks returned from {@link #advancedDocumentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
+    /// @param encryptedData  bytes of encrypted document. Should be the same bytes returned from {@link #documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
+    /// @param encryptedDeks  encrypted document encryption keys. Should be the same edeks returned from {@link #documentEncryptUnmanaged(byte[], DocumentEncryptOpts)}
     /// @return {@link DocumentDecryptResult} includes the id of the provided document as well as the decrypted document bytes
-    fn advanced_document_decrypt_unmanaged(&self, encryptedData: &[i8], encryptedDeks: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias advancedDocumentDecryptUnmanaged;
+    fn document_decrypt_unmanaged(&self, encryptedData: &[i8], encryptedDeks: &[i8]) -> Result<DocumentDecryptUnmanagedResult, String>; alias documentDecryptUnmanaged;
     /// Create an index and encrypt it to the provided groupId.
     ///
     /// @param groupId group to encrypt to
     fn create_blind_index(&self, groupId: &GroupId) -> Result<EncryptedBlindIndexSalt, String>; alias createBlindIndex;
     fn encrypted_blind_index_salt::initialize_blind_index_search(&self, encrypted_salt: &EncryptedBlindIndexSalt) -> Result<BlindIndexSearch, String>; alias initializeBlindIndexSearch;
+    /// Get the metadata for an unmanaged document from its encrypted DEKs (EDEKs).
+    ///
+    /// @param edeks encrypted document encryption keys
+    /// @return metadata about the document including its id and visibility
+    fn document_get_metadata_unmanaged(&self, edeks: &[i8]) -> Result<DocumentMetadataUnmanagedResult, String>; alias documentGetMetadataUnmanaged;
+    /// Attempt to parse the document id out of encrypted document bytes (unmanaged).
+    ///
+    /// @param encryptedDocument encrypted document bytes
+    /// @return extracted document id
+    fn document_get_id_from_bytes_unmanaged(&self, encryptedDocument: &[i8]) -> Result<DocumentId, String>; alias documentGetIdFromBytesUnmanaged;
+    /// Attempt to parse the document id out of encrypted DEKs (EDEKs).
+    ///
+    /// @param edeks encrypted document encryption keys
+    /// @return extracted document id
+    fn document_get_id_from_edeks_unmanaged(&self, edeks: &[i8]) -> Result<DocumentId, String>; alias documentGetIdFromEdeksUnmanaged;
+    /// Grant access to an unmanaged document using its EDEKs. Returns updated EDEKs.
+    ///
+    /// @param edeks        encrypted document encryption keys
+    /// @param userGrants   list of user grants
+    /// @param groupGrants  list of group grants
+    /// @return result containing updated EDEKs and per-user/group success/failure
+    fn document_grant_access_unmanaged(&self, edeks: &[i8], userGrants: &[UserId], groupGrants: &[GroupId])
+        -> Result<DocumentAccessUnmanagedResult, String>; alias documentGrantAccessUnmanaged;
+    /// Revoke access from an unmanaged document using its EDEKs. Returns updated EDEKs.
+    ///
+    /// @param edeks         encrypted document encryption keys
+    /// @param userRevokes   list of user revokes
+    /// @param groupRevokes  list of group revokes
+    /// @return result containing updated EDEKs and per-user/group success/failure
+    fn document_revoke_access_unmanaged(&self, edeks: &[i8], userRevokes: &[UserId], groupRevokes: &[GroupId])
+        -> Result<DocumentAccessUnmanagedResult, String>; alias documentRevokeAccessUnmanaged;
+    /// Initialize IronOxide with a device and a pre-populated public key cache.
+    ///
+    /// @param init            device context used to initialize the IronOxide with a set of device keys
+    /// @param config          configuration for policy caching and SDK operation timeouts
+    /// @param publicKeyCache  serialized public key cache bytes from a previous {@link #exportPublicKeyCache()} call
+    /// @return an instance of the IronOxide
+    fn initialize_with_public_keys(init: &DeviceContext, config: &IronOxideConfig, publicKeyCache: &[i8]) -> Result<IronOxide, String>; alias initializeWithPublicKeys;
+    /// Initialize IronOxide with a device and a pre-populated public key cache,
+    /// then check and perform key rotation if needed.
+    ///
+    /// @param init            device context used to initialize the IronOxide with a set of device keys
+    /// @param password        password used to encrypt and escrow the user's private master key
+    /// @param config          configuration for policy caching and SDK operation timeouts
+    /// @param publicKeyCache  serialized public key cache bytes from a previous {@link #exportPublicKeyCache()} call
+    /// @param timeout         timeout used only for the potential call to rotate_all. If `null`, defaults to the SDK operation timeout in `config`.
+    /// @return an instance of the IronOxide
+    fn initialize_with_public_keys_and_rotate(init: &DeviceContext, password: &str, config: &IronOxideConfig, publicKeyCache: &[i8], timeout: Option<&Duration>)
+        -> Result<IronOxide, String>; alias initializeWithPublicKeysAndRotate;
+    /// Export the public key cache as serialized bytes. Can be saved and passed to
+    /// {@link #initializeWithPublicKeys(DeviceContext, IronOxideConfig, byte[])} to speed up future initializations.
+    ///
+    /// @return serialized public key cache bytes
+    fn export_public_key_cache(&self) -> Result<Vec<i8>, String>; alias exportPublicKeyCache;
 
 });
