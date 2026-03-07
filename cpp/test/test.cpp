@@ -199,6 +199,22 @@ void jwt_test_prefixes(void)
     TEST_CHECK_(claims.getExp() == 1591901860, "Wrong jwt exp");
 }
 
+void export_reimport_public_key_cache(void)
+{
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
+    IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
+    auto cache_bytes = unwrap(sdk.exportPublicKeyCache());
+    TEST_CHECK_(cache_bytes.size() > 0, "Cache should be non-empty, but was %zu", cache_bytes.size());
+
+    // Re-initialize with the exported cache
+    DeviceContext d2 = unwrap(DeviceContext::fromJsonString(deviceContextString));
+    IronOxide sdk2 = unwrap(IronOxide::initializeWithPublicKeys(d2, IronOxideConfig(), RustSlice<const int8_t>{&cache_bytes[0], cache_bytes.size()}));
+
+    // Verify the new SDK is functional
+    auto doc_list = unwrap(sdk2.documentList());
+    TEST_CHECK_(doc_list.getResult().as_slice().size() >= 0, "Should be able to list documents after reinit with cache.");
+}
+
 TEST_LIST = {
     {"test_user_id", test_user_id},
     {"test_user_id_error", test_user_id_error},
@@ -210,4 +226,5 @@ TEST_LIST = {
     {"group_list", group_list},
     {"jwt_test", jwt_test_no_prefixes},
     {"jwt_test", jwt_test_prefixes},
+    {"export_reimport_public_key_cache", export_reimport_public_key_cache},
     {NULL, NULL}};

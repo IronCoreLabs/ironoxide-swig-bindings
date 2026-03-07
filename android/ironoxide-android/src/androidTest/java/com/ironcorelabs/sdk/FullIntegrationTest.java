@@ -74,4 +74,27 @@ public class FullIntegrationTest {
 		assertTrue("There should have been some encrypted documents.", result.getResult().length > 0);
 	}
 
+	@Test
+	public void unmanagedMetadataFromEdeks() throws Exception {
+		final String data = "Test unmanaged metadata";
+		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());
+		final DocumentEncryptUnmanagedResult encryptResult = io.documentEncryptUnmanaged(data.getBytes(),
+				new DocumentEncryptOpts());
+		final DocumentMetadataUnmanagedResult metadata = io
+				.documentGetMetadataUnmanaged(encryptResult.getEncryptedDeks());
+		assertEquals(encryptResult.getId(), metadata.getId());
+		assertTrue("Should have at least one visible user", metadata.getVisibleToUsers().length >= 1);
+	}
+
+	@Test
+	public void exportAndReinitWithPublicKeyCache() throws Exception {
+		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());
+		final byte[] cacheBytes = io.exportPublicKeyCache();
+		assertTrue("Cache should be non-empty", cacheBytes.length > 0);
+		final IronOxide io2 = IronOxide.initializeWithPublicKeys(deviceContext, new IronOxideConfig(),
+				cacheBytes);
+		final DocumentListResult result = io2.documentList();
+		assertTrue("Should be able to list documents after reinit with cache", result.getResult().length >= 0);
+	}
+
 }

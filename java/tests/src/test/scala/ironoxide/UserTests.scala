@@ -155,6 +155,66 @@ class UserTests extends TestSuite {
     }
   }
 
+  "Export Public Key Cache" should {
+    "export non-empty cache after operations" in {
+      // ensure the cache is populated by doing an operation
+      val _ = Try(primarySdk.userGetPublicKey(Array(secondaryUser))).toEither.value
+      val cacheBytes = Try(primarySdk.exportPublicKeyCache()).toEither.value
+      cacheBytes.length should be > 0
+    }
+  }
+
+  "Initialize with public keys" should {
+    "initialize with exported cache" in {
+      // warm the cache
+      val _ = Try(primarySdk.userGetPublicKey(Array(secondaryUser))).toEither.value
+      val cacheBytes = Try(primarySdk.exportPublicKeyCache()).toEither.value
+      cacheBytes.length should be > 0
+
+      // initialize a new SDK instance using the cached keys
+      val sdk2 =
+        Try(IronOxide.initializeWithPublicKeys(primaryUserDevice, new IronOxideConfig, cacheBytes)).toEither.value
+      // verify the new SDK is functional
+      val listResult = Try(sdk2.documentList()).toEither.value
+      listResult.getResult.length should be >= 0
+    }
+    "initialize with empty cache" in {
+      val emptyCache = Array.emptyByteArray
+      // empty cache should either succeed (fallback) or fail cleanly
+      val result = Try(IronOxide.initializeWithPublicKeys(primaryUserDevice, new IronOxideConfig, emptyCache))
+      // the SDK accepts an empty cache and initializes normally
+      result.isSuccess shouldBe true
+    }
+  }
+
+  "Initialize with public keys and rotate" should {
+    "init with cache and rotate user" in {
+      val dc = createUserAndDevice()
+      val jwt = generateValidJwt(dc.getAccountId.getId)
+      val verifyResult1 = IronOxide.userVerify(jwt, null).get
+      verifyResult1.getNeedsRotation shouldBe true
+
+      val emptyCache = Array.emptyByteArray
+      IronOxide.initializeWithPublicKeysAndRotate(dc, testUsersPassword, new IronOxideConfig, emptyCache, null)
+      val verifyResult2 = IronOxide.userVerify(jwt, null).get
+      verifyResult2.getNeedsRotation shouldBe false
+    }
+    "init with cache and rotate group" in {
+      val groupCreate = primarySdk.groupCreate(
+        new GroupCreateOpts(null, null, true, true, null, Array(), Array(), true)
+      )
+      val groupGet1 = Try(primarySdk.groupGetMetadata(groupCreate.getId)).toEither.value
+      groupGet1.getNeedsRotation.get.getBoolean shouldBe true
+
+      val emptyCache = Array.emptyByteArray
+      IronOxide.initializeWithPublicKeysAndRotate(
+        primaryUserDevice, testUsersPassword, new IronOxideConfig, emptyCache, null
+      )
+      val groupGet2 = Try(primarySdk.groupGetMetadata(groupCreate.getId)).toEither.value
+      groupGet2.getNeedsRotation.get.getBoolean shouldBe false
+    }
+  }
+
   "Get Public Key" should {
     "get public keys for valid users" in {
       val realUsers = Array(primaryUser, secondaryUser).sortBy(_.getId)
