@@ -178,12 +178,11 @@ class UserTests extends TestSuite {
       val listResult = Try(sdk2.documentList()).toEither.value
       listResult.getResult.length should be >= 0
     }
-    "initialize with empty cache" in {
+    "fail with empty cache" in {
       val emptyCache = Array.emptyByteArray
-      // empty cache should either succeed (fallback) or fail cleanly
+      // empty cache is not valid — the SDK rejects it with a size error
       val result = Try(IronOxide.initializeWithPublicKeys(primaryUserDevice, new IronOxideConfig, emptyCache))
-      // the SDK accepts an empty cache and initializes normally
-      result.isSuccess shouldBe true
+      result.isFailure shouldBe true
     }
   }
 
@@ -194,8 +193,10 @@ class UserTests extends TestSuite {
       val verifyResult1 = IronOxide.userVerify(jwt, null).get
       verifyResult1.getNeedsRotation shouldBe true
 
-      val emptyCache = Array.emptyByteArray
-      IronOxide.initializeWithPublicKeysAndRotate(dc, testUsersPassword, new IronOxideConfig, emptyCache, null)
+      // initialize the new user's SDK to get a cache signed by their device keys
+      val tempSdk = Try(IronOxide.initialize(dc, new IronOxideConfig)).toEither.value
+      val cacheBytes = Try(tempSdk.exportPublicKeyCache()).toEither.value
+      IronOxide.initializeWithPublicKeysAndRotate(dc, testUsersPassword, new IronOxideConfig, cacheBytes, null)
       val verifyResult2 = IronOxide.userVerify(jwt, null).get
       verifyResult2.getNeedsRotation shouldBe false
     }
@@ -206,9 +207,9 @@ class UserTests extends TestSuite {
       val groupGet1 = Try(primarySdk.groupGetMetadata(groupCreate.getId)).toEither.value
       groupGet1.getNeedsRotation.get.getBoolean shouldBe true
 
-      val emptyCache = Array.emptyByteArray
+      val cacheBytes = Try(primarySdk.exportPublicKeyCache()).toEither.value
       IronOxide.initializeWithPublicKeysAndRotate(
-        primaryUserDevice, testUsersPassword, new IronOxideConfig, emptyCache, null
+        primaryUserDevice, testUsersPassword, new IronOxideConfig, cacheBytes, null
       )
       val groupGet2 = Try(primarySdk.groupGetMetadata(groupCreate.getId)).toEither.value
       groupGet2.getNeedsRotation.get.getBoolean shouldBe false

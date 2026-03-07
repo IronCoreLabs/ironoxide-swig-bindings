@@ -75,6 +75,43 @@ public class FullIntegrationTest {
 	}
 
 	@Test
+	public void unmanagedGetIdFromBytesAndEdeks() throws Exception {
+		final String data = "Test ID extraction";
+		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());
+		final DocumentEncryptUnmanagedResult encryptResult = io.documentEncryptUnmanaged(data.getBytes(),
+				new DocumentEncryptOpts());
+
+		final DocumentId idFromBytes = io.documentGetIdFromBytesUnmanaged(encryptResult.getEncryptedData());
+		assertEquals(encryptResult.getId(), idFromBytes);
+
+		final DocumentId idFromEdeks = io.documentGetIdFromEdeksUnmanaged(encryptResult.getEncryptedDeks());
+		assertEquals(encryptResult.getId(), idFromEdeks);
+		assertEquals(idFromBytes, idFromEdeks);
+	}
+
+	@Test
+	public void unmanagedGrantAccessToSelf() throws Exception {
+		final String data = "Test grant access";
+		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());
+		final DocumentEncryptUnmanagedResult encryptResult = io.documentEncryptUnmanaged(data.getBytes(),
+				new DocumentEncryptOpts());
+
+		// Grant access to self (already has access, but exercises the API surface)
+		final DocumentAccessUnmanagedResult grantResult = io.documentGrantAccessUnmanaged(
+				encryptResult.getEncryptedDeks(),
+				new UserId[] { deviceContext.getAccountId() },
+				new GroupId[0]);
+		assertTrue("Updated EDEKs should be non-empty", grantResult.getEncryptedDeks().length > 0);
+		assertTrue("Errors should be empty", grantResult.getErrors().isEmpty());
+		assertTrue("Access via should be present for grant", grantResult.getAccessViaUserOrGroup().isPresent());
+
+		// Verify decryption still works with updated EDEKs
+		final DocumentDecryptUnmanagedResult decryptResult = io.documentDecryptUnmanaged(
+				encryptResult.getEncryptedData(), grantResult.getEncryptedDeks());
+		assertEquals(data, new String(decryptResult.getDecryptedData()));
+	}
+
+	@Test
 	public void unmanagedMetadataFromEdeks() throws Exception {
 		final String data = "Test unmanaged metadata";
 		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());

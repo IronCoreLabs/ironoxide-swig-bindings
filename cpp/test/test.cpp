@@ -199,6 +199,64 @@ void jwt_test_prefixes(void)
     TEST_CHECK_(claims.getExp() == 1591901860, "Wrong jwt exp");
 }
 
+void unmanaged_encrypt_decrypt_roundtrip(void)
+{
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
+    IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
+    auto encrypted = unwrap(sdk.documentEncryptUnmanaged(string_to_slice("unmanaged test"), DocumentEncryptOpts()));
+    TEST_CHECK_(encrypted.getId().getId().to_std_string().length() == 32, "Document ID should be 32 chars.");
+    TEST_CHECK_(encrypted.getEncryptedData().size() > 0, "Encrypted data should be non-empty.");
+    TEST_CHECK_(encrypted.getEncryptedDeks().size() > 0, "Encrypted DEKs should be non-empty.");
+
+    auto decrypted = unwrap(sdk.documentDecryptUnmanaged(vec_to_slice(encrypted.getEncryptedData()), vec_to_slice(encrypted.getEncryptedDeks())));
+    TEST_CHECK_(vec_to_string(decrypted.getDecryptedData()) == "unmanaged test", "Decrypted data should match original.");
+    TEST_CHECK_(decrypted.getId() == encrypted.getId(), "Document IDs should match.");
+}
+
+void unmanaged_metadata_and_id(void)
+{
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
+    IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
+    auto encrypted = unwrap(sdk.documentEncryptUnmanaged(string_to_slice("metadata test"), DocumentEncryptOpts()));
+
+    // get metadata from EDEKs
+    auto metadata = unwrap(sdk.documentGetMetadataUnmanaged(vec_to_slice(encrypted.getEncryptedDeks())));
+    TEST_CHECK_(metadata.getId() == encrypted.getId(), "Metadata ID should match encrypt result ID.");
+    TEST_CHECK_(metadata.getVisibleToUsers().as_slice().size() >= 1, "Should have at least one visible user.");
+
+    // get ID from encrypted bytes
+    auto id_from_bytes = unwrap(sdk.documentGetIdFromBytesUnmanaged(vec_to_slice(encrypted.getEncryptedData())));
+    TEST_CHECK_(id_from_bytes == encrypted.getId(), "ID from bytes should match.");
+
+    // get ID from EDEKs
+    auto id_from_edeks = unwrap(sdk.documentGetIdFromEdeksUnmanaged(vec_to_slice(encrypted.getEncryptedDeks())));
+    TEST_CHECK_(id_from_edeks == encrypted.getId(), "ID from EDEKs should match.");
+}
+
+void unmanaged_grant_access(void)
+{
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
+    IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
+    auto encrypted = unwrap(sdk.documentEncryptUnmanaged(string_to_slice("grant test"), DocumentEncryptOpts()));
+
+    // grant access to self (already has access, but exercises the API)
+    // flapigen's RustForeignSlice::operator[] casts (data + step*i) directly to const CForeignType*,
+    // so data must point to the opaque object itself, not to a pointer-to-pointer.
+    auto self_id = d.getAccountId();
+    CRustObjectSlice user_slice = { static_cast<void *>(static_cast<UserIdOpaque *>(self_id)), 1, 1 };
+    auto grant_result = unwrap(sdk.documentGrantAccessUnmanaged(
+        vec_to_slice(encrypted.getEncryptedDeks()),
+        RustForeignSliceConst<UserIdRef>(user_slice),
+        RustForeignSliceConst<GroupIdRef>()));
+    TEST_CHECK_(grant_result.getEncryptedDeks().size() > 0, "Updated EDEKs should be non-empty.");
+    TEST_CHECK_(grant_result.getErrors().isEmpty(), "There should be no errors.");
+    TEST_CHECK_(grant_result.getAccessViaUserOrGroup().has_value(), "Access via should be present for grant.");
+
+    // verify we can still decrypt with the updated EDEKs
+    auto decrypted = unwrap(sdk.documentDecryptUnmanaged(vec_to_slice(encrypted.getEncryptedData()), vec_to_slice(grant_result.getEncryptedDeks())));
+    TEST_CHECK_(vec_to_string(decrypted.getDecryptedData()) == "grant test", "Decrypted data should match after grant.");
+}
+
 void export_reimport_public_key_cache(void)
 {
     DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
@@ -226,5 +284,8 @@ TEST_LIST = {
     {"group_list", group_list},
     {"jwt_test", jwt_test_no_prefixes},
     {"jwt_test", jwt_test_prefixes},
+    {"unmanaged_encrypt_decrypt_roundtrip", unmanaged_encrypt_decrypt_roundtrip},
+    {"unmanaged_metadata_and_id", unmanaged_metadata_and_id},
+    {"unmanaged_grant_access", unmanaged_grant_access},
     {"export_reimport_public_key_cache", export_reimport_public_key_cache},
     {NULL, NULL}};
