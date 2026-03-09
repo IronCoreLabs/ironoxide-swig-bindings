@@ -18,7 +18,7 @@ jobs:
   java-test:
     strategy:
       matrix:
-        runs-on: ["ubuntu-latest", "macos-15-intel"]
+        runs-on: ["ubuntu-latest", "macos-15"]
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v6
@@ -122,21 +122,6 @@ jobs:
       - name: Run gradle build
         run: ./gradlew build
         working-directory: android
-
-  # Disabled due to an issue with `cargo lipo` and `aws-lc-rs`
-  # cpp-build:
-  #   runs-on: macos-15-intel
-  #   steps:
-  #     - uses: actions/checkout@v6
-  #     - uses: IronCoreLabs/rust-toolchain@v1
-  #       with:
-  #         toolchain: stable
-  #     - name: Setup iOS build
-  #       run: |
-  #         rustup target add x86_64-apple-ios aarch64-apple-ios
-  #         cargo install cargo-lipo
-  #     - name: Build for iOS
-  #       run: cargo lipo -p ironoxide-cpp
 
   cpp-test:
     # Cmake on macos fails to find TargetConditionals.h

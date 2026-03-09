@@ -73,22 +73,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download java release artifacts from macos-15-intel
+      - name: Download java release artifacts from macos-15
         uses: actions/download-artifact@v6
         with:
-          name: release-macos-15-intel
-          path: release/macos-15-intel
+          name: release-macos-15
+          path: release/macos-15
       - name: Delete artifact
         uses: geekyeggo/delete-artifact@v5
         with:
-          name: release-macos-15-intel
+          name: release-macos-15
           failOnError: false
-      - name: Sign java artifact for macos-15-intel
+      - name: Sign java artifact for macos-15
         run: |
-          gpg --batch --detach-sign -a release/macos-15-intel/libironoxide_java.dylib
-          gpg --batch --verify release/macos-15-intel/libironoxide_java.dylib.asc release/macos-15-intel/libironoxide_java.dylib
-      - name: Upload java lib for macos-15-intel
-        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-15-intel/libironoxide_java.dylib release/macos-15-intel/libironoxide_java.dylib.asc --clobber
+          gpg --batch --detach-sign -a release/macos-15/libironoxide_java.dylib
+          gpg --batch --verify release/macos-15/libironoxide_java.dylib.asc release/macos-15/libironoxide_java.dylib
+      - name: Upload java lib for macos-15
+        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-15/libironoxide_java.dylib release/macos-15/libironoxide_java.dylib.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -111,22 +111,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download C++ release artifacts from macos-15-intel
+      - name: Download C++ release artifacts from macos-15
         uses: actions/download-artifact@v6
         with:
-          name: release-cpp-macos-15-intel
-          path: release/cpp-macos-15-intel
+          name: release-cpp-macos-15
+          path: release/cpp-macos-15
       - name: Delete artifact
         uses: geekyeggo/delete-artifact@v5
         with:
-          name: release-cpp-macos-15-intel
+          name: release-cpp-macos-15
           failOnError: false
-      - name: Sign C++ artifact for macos-15-intel
+      - name: Sign C++ artifact for macos-15
         run: |
-          gpg --batch --detach-sign -a release/cpp-macos-15-intel/ironoxide-cpp-macos-x86_64.tar.gz
-          gpg --batch --verify release/cpp-macos-15-intel/ironoxide-cpp-macos-x86_64.tar.gz.asc release/cpp-macos-15-intel/ironoxide-cpp-macos-x86_64.tar.gz
-      - name: Upload C++ lib for macos-15-intel
-        run: gh release upload ${{ steps.version.outputs.tag }} release/cpp-macos-15-intel/ironoxide-cpp-macos-x86_64.tar.gz release/cpp-macos-15-intel/ironoxide-cpp-macos-x86_64.tar.gz.asc --clobber
+          gpg --batch --detach-sign -a release/cpp-macos-15/ironoxide-cpp-macos-aarch64.tar.gz
+          gpg --batch --verify release/cpp-macos-15/ironoxide-cpp-macos-aarch64.tar.gz.asc release/cpp-macos-15/ironoxide-cpp-macos-aarch64.tar.gz
+      - name: Upload C++ lib for macos-15
+        run: gh release upload ${{ steps.version.outputs.tag }} release/cpp-macos-15/ironoxide-cpp-macos-aarch64.tar.gz release/cpp-macos-15/ironoxide-cpp-macos-aarch64.tar.gz.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -141,7 +141,7 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-15-intel]
+        os: [ubuntu-latest, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
@@ -164,11 +164,11 @@ jobs:
         with:
           name: release-ubuntu-latest
           path: target/release/libironoxide_java.so
-      - name: Upload artifacts for macos-15-intel
+      - name: Upload artifacts for macos-15
         if: startsWith(matrix.os, 'macos')
         uses: actions/upload-artifact@v6
         with:
-          name: release-macos-15-intel
+          name: release-macos-15
           path: target/release/libironoxide_java.dylib
   build-cpp:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
@@ -180,11 +180,11 @@ jobs:
             static-lib: libironoxide.a
             artifact-name: release-cpp-ubuntu-latest
             tar-name: ironoxide-cpp-linux-x86_64.tar.gz
-          - os: macos-15-intel
+          - os: macos-15
             shared-lib: libironoxide.dylib
             static-lib: libironoxide.a
-            artifact-name: release-cpp-macos-15-intel
-            tar-name: ironoxide-cpp-macos-x86_64.tar.gz
+            artifact-name: release-cpp-macos-15
+            tar-name: ironoxide-cpp-macos-aarch64.tar.gz
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
