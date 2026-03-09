@@ -197,7 +197,7 @@ jobs:
           cp cpp/generated/sdk/*.hpp cpp/generated/sdk/*.h pkg/include/ironoxide/
           cp target/release/${{ matrix.shared-lib }} pkg/lib/
           cp target/release/${{ matrix.static-lib }} pkg/lib/
-          cp cpp/ironoxide.pc.in pkg/lib/pkgconfig/ironoxide.pc
+          sed 's|%PREFIX%|/usr/local|g' cpp/ironoxide.pc.in > pkg/lib/pkgconfig/ironoxide.pc
           tar -czf ${{ matrix.tar-name }} -C pkg .
       - uses: actions/upload-artifact@v6
         with:
