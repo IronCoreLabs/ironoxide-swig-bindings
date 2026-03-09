@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.0
+
+### Breaking
+
+- renamed `advancedDocumentEncryptUnmanaged -> documentEncryptUnmanaged` and `advanceDocumentDecryptUnmanaged -> documentDecryptUnmanaged` to match the base library and other unmanaged functions.
+
+### Additions
+
+- pulled all the `*_unmanaged` functionality from `DocumentAdvancedOps` on the base library through
+- pulled through automatic public key caching, along with initialization and export, supporting offline unmanaged encryption
+- dependency updates
+
 ## 1.0.2
 
 - Fix issue with ironoxide-android unable to resolve rustls dependency
