@@ -33,12 +33,12 @@ public class FullIntegrationTest {
 	public void roundtripDataUnmanaged() throws Exception {
 		final String data = "Test 123";
 		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());
-		final DocumentEncryptUnmanagedResult encryptResult = io.advancedDocumentEncryptUnmanaged(data.getBytes(),
+		final DocumentEncryptUnmanagedResult encryptResult = io.documentEncryptUnmanaged(data.getBytes(),
 				new DocumentEncryptOpts());
 		assertEquals(encryptResult.getId().getId().length(), 32);
 
 		final DocumentDecryptUnmanagedResult decryptResult = io
-				.advancedDocumentDecryptUnmanaged(encryptResult.getEncryptedData(), encryptResult.getEncryptedDeks());
+				.documentDecryptUnmanaged(encryptResult.getEncryptedData(), encryptResult.getEncryptedDeks());
 		assertEquals(encryptResult.getId(), decryptResult.getId());
 
 		final String decryptedData = new String(decryptResult.getDecryptedData());
@@ -72,6 +72,66 @@ public class FullIntegrationTest {
 		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());
 		final DocumentListResult result = io.documentList();
 		assertTrue("There should have been some encrypted documents.", result.getResult().length > 0);
+	}
+
+	@Test
+	public void unmanagedGetIdFromBytesAndEdeks() throws Exception {
+		final String data = "Test ID extraction";
+		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());
+		final DocumentEncryptUnmanagedResult encryptResult = io.documentEncryptUnmanaged(data.getBytes(),
+				new DocumentEncryptOpts());
+
+		final DocumentId idFromBytes = io.documentGetIdFromBytesUnmanaged(encryptResult.getEncryptedData());
+		assertEquals(encryptResult.getId(), idFromBytes);
+
+		final DocumentId idFromEdeks = io.documentGetIdFromEdeksUnmanaged(encryptResult.getEncryptedDeks());
+		assertEquals(encryptResult.getId(), idFromEdeks);
+		assertEquals(idFromBytes, idFromEdeks);
+	}
+
+	@Test
+	public void unmanagedGrantAccessToSelf() throws Exception {
+		final String data = "Test grant access";
+		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());
+		final DocumentEncryptUnmanagedResult encryptResult = io.documentEncryptUnmanaged(data.getBytes(),
+				new DocumentEncryptOpts());
+
+		// Grant access to self (already has access, but exercises the API surface)
+		final DocumentAccessUnmanagedResult grantResult = io.documentGrantAccessUnmanaged(
+				encryptResult.getEncryptedDeks(),
+				new UserId[] { deviceContext.getAccountId() },
+				new GroupId[0]);
+		assertTrue("Updated EDEKs should be non-empty", grantResult.getEncryptedDeks().length > 0);
+		assertTrue("Errors should be empty", grantResult.getErrors().isEmpty());
+		assertTrue("Access via should be present for grant", grantResult.getAccessViaUserOrGroup().isPresent());
+
+		// Verify decryption still works with updated EDEKs
+		final DocumentDecryptUnmanagedResult decryptResult = io.documentDecryptUnmanaged(
+				encryptResult.getEncryptedData(), grantResult.getEncryptedDeks());
+		assertEquals(data, new String(decryptResult.getDecryptedData()));
+	}
+
+	@Test
+	public void unmanagedMetadataFromEdeks() throws Exception {
+		final String data = "Test unmanaged metadata";
+		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());
+		final DocumentEncryptUnmanagedResult encryptResult = io.documentEncryptUnmanaged(data.getBytes(),
+				new DocumentEncryptOpts());
+		final DocumentMetadataUnmanagedResult metadata = io
+				.documentGetMetadataUnmanaged(encryptResult.getEncryptedDeks());
+		assertEquals(encryptResult.getId(), metadata.getId());
+		assertTrue("Should have at least one visible user", metadata.getVisibleToUsers().length >= 1);
+	}
+
+	@Test
+	public void exportAndReinitWithPublicKeyCache() throws Exception {
+		final IronOxide io = IronOxide.initialize(deviceContext, new IronOxideConfig());
+		final byte[] cacheBytes = io.exportPublicKeyCache();
+		assertTrue("Cache should be non-empty", cacheBytes.length > 0);
+		final IronOxide io2 = IronOxide.initializeWithPublicKeys(deviceContext, new IronOxideConfig(),
+				cacheBytes);
+		final DocumentListResult result = io2.documentList();
+		assertTrue("Should be able to list documents after reinit with cache", result.getResult().length >= 0);
 	}
 
 }

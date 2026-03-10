@@ -144,9 +144,9 @@ class DocumentTests extends TestSuite {
     "roundtrip to self" in {
       val bytes = Array(1, 2, 3).map(_.toByte)
       val encryptResult =
-        Try(primarySdk.advancedDocumentEncryptUnmanaged(bytes, new DocumentEncryptOpts)).toEither.value
+        Try(primarySdk.documentEncryptUnmanaged(bytes, new DocumentEncryptOpts)).toEither.value
       val decryptResult = Try(
-        primarySdk.advancedDocumentDecryptUnmanaged(encryptResult.getEncryptedData, encryptResult.getEncryptedDeks)
+        primarySdk.documentDecryptUnmanaged(encryptResult.getEncryptedData, encryptResult.getEncryptedDeks)
       ).toEither.value
       decryptResult.getDecryptedData shouldBe bytes
     }
@@ -154,13 +154,13 @@ class DocumentTests extends TestSuite {
       val bytes = Array(1, 2, 3).map(_.toByte)
       val encryptResult =
         Try(
-          primarySdk.advancedDocumentEncryptUnmanaged(
+          primarySdk.documentEncryptUnmanaged(
             bytes,
             new DocumentEncryptOpts(null, null, false, Array(secondaryUser), Array(), null)
           )
         ).toEither.value
       val decryptResult = Try(
-        secondarySdk.advancedDocumentDecryptUnmanaged(encryptResult.getEncryptedData, encryptResult.getEncryptedDeks)
+        secondarySdk.documentDecryptUnmanaged(encryptResult.getEncryptedData, encryptResult.getEncryptedDeks)
       ).toEither.value
       decryptResult.getDecryptedData shouldBe bytes
     }
@@ -168,7 +168,7 @@ class DocumentTests extends TestSuite {
       val bytes = Array(1, 2, 3).map(_.toByte)
       val encryptResult = Try(
         primarySdk
-          .advancedDocumentEncryptUnmanaged(bytes, new DocumentEncryptOpts(null, null, false, Array(), Array(), null))
+          .documentEncryptUnmanaged(bytes, new DocumentEncryptOpts(null, null, false, Array(), Array(), null))
       )
       encryptResult.isFailure shouldBe true
     }
@@ -218,6 +218,150 @@ class DocumentTests extends TestSuite {
 
       getResult.getVisibleToGroups.map(_.getId) shouldBe Array(groupCreate.getId)
       getResult.getId shouldBe encryptResult.getId
+    }
+  }
+
+  "Document Get Metadata Unmanaged" should {
+    "return metadata from EDEKs" in {
+      val bytes = Array(1, 2, 3).map(_.toByte)
+      val encryptResult =
+        Try(primarySdk.documentEncryptUnmanaged(bytes, new DocumentEncryptOpts)).toEither.value
+      val metadata =
+        Try(primarySdk.documentGetMetadataUnmanaged(encryptResult.getEncryptedDeks)).toEither.value
+      metadata.getId shouldBe encryptResult.getId
+      metadata.getVisibleToUsers.length should be >= 1
+      metadata.getVisibleToGroups should have length 0
+    }
+    "return group visibility when encrypted to group" in {
+      val groupCreate = primarySdk.groupCreate(new GroupCreateOpts)
+      val bytes = Array(4, 5, 6).map(_.toByte)
+      val encryptResult = Try(
+        primarySdk.documentEncryptUnmanaged(
+          bytes,
+          new DocumentEncryptOpts(null, null, false, Array(), Array(groupCreate.getId), null)
+        )
+      ).toEither.value
+      val metadata =
+        Try(primarySdk.documentGetMetadataUnmanaged(encryptResult.getEncryptedDeks)).toEither.value
+      metadata.getVisibleToGroups.map(_.getId) shouldBe Array(groupCreate.getId)
+    }
+    "fail for invalid EDEKs" in {
+      val garbage = Array(1, 2, 3).map(_.toByte)
+      val result = Try(primarySdk.documentGetMetadataUnmanaged(garbage))
+      result.isFailure shouldBe true
+    }
+  }
+
+  "Document Get Id From Bytes Unmanaged" should {
+    "return document ID from encrypted bytes" in {
+      val bytes = Array(7, 8, 9).map(_.toByte)
+      val encryptResult =
+        Try(primarySdk.documentEncryptUnmanaged(bytes, new DocumentEncryptOpts)).toEither.value
+      val id =
+        Try(primarySdk.documentGetIdFromBytesUnmanaged(encryptResult.getEncryptedData)).toEither.value
+      id shouldBe encryptResult.getId
+    }
+  }
+
+  "Document Get Id From EDEKs Unmanaged" should {
+    "return document ID from EDEKs" in {
+      val bytes = Array(10, 11, 12).map(_.toByte)
+      val encryptResult =
+        Try(primarySdk.documentEncryptUnmanaged(bytes, new DocumentEncryptOpts)).toEither.value
+      val idFromEdeks =
+        Try(primarySdk.documentGetIdFromEdeksUnmanaged(encryptResult.getEncryptedDeks)).toEither.value
+      val idFromBytes =
+        Try(primarySdk.documentGetIdFromBytesUnmanaged(encryptResult.getEncryptedData)).toEither.value
+      idFromEdeks shouldBe encryptResult.getId
+      idFromEdeks shouldBe idFromBytes
+    }
+  }
+
+  "Document Grant Access Unmanaged" should {
+    "grant access and return updated EDEKs" in {
+      val bytes = Array(13, 14, 15).map(_.toByte)
+      val encryptResult =
+        Try(primarySdk.documentEncryptUnmanaged(bytes, new DocumentEncryptOpts)).toEither.value
+      val grantResult = Try(
+        primarySdk.documentGrantAccessUnmanaged(
+          encryptResult.getEncryptedDeks,
+          Array(secondaryUser),
+          Array()
+        )
+      ).toEither.value
+      grantResult.getChanged.getUsers shouldBe Array(secondaryUser)
+      grantResult.getErrors.isEmpty shouldBe true
+      grantResult.getEncryptedDeks.length should be > 0
+      grantResult.getAccessViaUserOrGroup.isPresent shouldBe true
+
+      // secondary user can decrypt with updated EDEKs
+      val decryptResult = Try(
+        secondarySdk.documentDecryptUnmanaged(encryptResult.getEncryptedData, grantResult.getEncryptedDeks)
+      ).toEither.value
+      decryptResult.getDecryptedData shouldBe bytes
+    }
+    "grant access to group" in {
+      val groupOpts = new GroupCreateOpts(null, null, true, true, null, Array(secondaryUser), Array(secondaryUser), false)
+      val groupCreate = primarySdk.groupCreate(groupOpts)
+      val bytes = Array(16, 17, 18).map(_.toByte)
+      val encryptResult =
+        Try(primarySdk.documentEncryptUnmanaged(bytes, new DocumentEncryptOpts)).toEither.value
+      val grantResult = Try(
+        primarySdk.documentGrantAccessUnmanaged(
+          encryptResult.getEncryptedDeks,
+          Array(),
+          Array(groupCreate.getId)
+        )
+      ).toEither.value
+      grantResult.getChanged.getGroups shouldBe Array(groupCreate.getId)
+      grantResult.getErrors.isEmpty shouldBe true
+
+      // secondary user (group member) can decrypt with updated EDEKs
+      val decryptResult = Try(
+        secondarySdk.documentDecryptUnmanaged(encryptResult.getEncryptedData, grantResult.getEncryptedDeks)
+      ).toEither.value
+      decryptResult.getDecryptedData shouldBe bytes
+    }
+  }
+
+  "Document Revoke Access Unmanaged" should {
+    "revoke user access and return updated EDEKs" in {
+      val bytes = Array(19, 20, 21).map(_.toByte)
+      val encryptResult = Try(
+        primarySdk.documentEncryptUnmanaged(
+          bytes,
+          new DocumentEncryptOpts(null, null, true, Array(secondaryUser), Array(), null)
+        )
+      ).toEither.value
+      // secondary user can decrypt with original EDEKs
+      val decryptResult1 = Try(
+        secondarySdk.documentDecryptUnmanaged(encryptResult.getEncryptedData, encryptResult.getEncryptedDeks)
+      ).toEither.value
+      decryptResult1.getDecryptedData shouldBe bytes
+
+      val revokeResult = Try(
+        primarySdk.documentRevokeAccessUnmanaged(
+          encryptResult.getEncryptedDeks,
+          Array(secondaryUser),
+          Array()
+        )
+      ).toEither.value
+      revokeResult.getChanged.getUsers shouldBe Array(secondaryUser)
+      revokeResult.getErrors.isEmpty shouldBe true
+      revokeResult.getEncryptedDeks.length should be > 0
+      // revoke is offline, so accessVia should be absent
+      revokeResult.getAccessViaUserOrGroup.isPresent shouldBe false
+
+      // secondary user cannot decrypt with updated EDEKs
+      val decryptResult2 = Try(
+        secondarySdk.documentDecryptUnmanaged(encryptResult.getEncryptedData, revokeResult.getEncryptedDeks)
+      )
+      decryptResult2.isFailure shouldBe true
+    }
+    "fail for invalid EDEKs" in {
+      val garbage = Array(1, 2, 3).map(_.toByte)
+      val result = Try(primarySdk.documentRevokeAccessUnmanaged(garbage, Array(secondaryUser), Array()))
+      result.isFailure shouldBe true
     }
   }
 

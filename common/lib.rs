@@ -614,6 +614,47 @@ mod document_decrypt_unmanaged_result {
     }
 }
 
+mod document_metadata_unmanaged_result {
+    use super::*;
+    pub fn id(d: &DocumentMetadataUnmanagedResult) -> DocumentId {
+        d.id().clone()
+    }
+    pub fn visible_to_users(d: &DocumentMetadataUnmanagedResult) -> Vec<VisibleUser> {
+        d.visible_to_users().clone()
+    }
+    pub fn visible_to_groups(d: &DocumentMetadataUnmanagedResult) -> Vec<VisibleGroup> {
+        d.visible_to_groups().clone()
+    }
+}
+
+mod document_access_unmanaged_result {
+    use super::*;
+    use crate::document_decrypt_unmanaged_result::UserOrGroupId;
+
+    pub fn access_via(d: &DocumentAccessUnmanagedResult) -> Option<UserOrGroupId> {
+        d.access_via().map(|uog| {
+            let (id, is_user) = match uog {
+                UserOrGroup::User { id } => (id.id().to_string(), true),
+                UserOrGroup::Group { id } => (id.id().to_string(), false),
+            };
+            UserOrGroupId::new(id, is_user)
+        })
+    }
+    pub fn encrypted_deks(d: &DocumentAccessUnmanagedResult) -> Vec<i8> {
+        u8_conv(d.encrypted_deks()).to_vec()
+    }
+}
+
+impl document_access_change_result::DocumentAccessChange for DocumentAccessUnmanagedResult {
+    fn changed(&self) -> document_access_change_result::SucceededResult {
+        document_access_change_result::to_succeeded_result(self.succeeded())
+    }
+
+    fn errors(&self) -> document_access_change_result::FailedResult {
+        document_access_change_result::to_failed_result(self.failed())
+    }
+}
+
 // UserAccessErr and GroupAccessErr are a Java-compatible representation of IronOxide's
 // DocAccessEditErr. They are encoded this this because this seemed like the most
 // straightforward way to represent a error for both a user or group (like UserOrGroup)
@@ -670,6 +711,9 @@ mod document_access_change_result {
     }
 
     impl SucceededResult {
+        pub fn new(users: Vec<UserId>, groups: Vec<GroupId>) -> SucceededResult {
+            SucceededResult { users, groups }
+        }
         pub fn users(&self) -> Vec<UserId> {
             self.users.clone()
         }
@@ -685,6 +729,9 @@ mod document_access_change_result {
     }
 
     impl FailedResult {
+        pub fn new(users: Vec<UserAccessErr>, groups: Vec<GroupAccessErr>) -> FailedResult {
+            FailedResult { users, groups }
+        }
         pub fn is_empty(&self) -> bool {
             self.users.is_empty() && self.groups.is_empty()
         }
@@ -733,16 +780,16 @@ mod document_access_change_result {
         }
     }
 
-    fn to_succeeded_result(successes: &[UserOrGroup]) -> SucceededResult {
+    pub fn to_succeeded_result(successes: &[UserOrGroup]) -> SucceededResult {
         let (users, groups) = successes.iter().cloned().partition_map(|uog| match uog {
             UserOrGroup::User { id } => Either::Left(id),
             UserOrGroup::Group { id } => Either::Right(id),
         });
 
-        SucceededResult { users, groups }
+        SucceededResult::new(users, groups)
     }
 
-    fn to_failed_result(access_errs: &[DocAccessEditErr]) -> FailedResult {
+    pub fn to_failed_result(access_errs: &[DocAccessEditErr]) -> FailedResult {
         let (users, groups) =
             access_errs
                 .iter()
@@ -758,7 +805,7 @@ mod document_access_change_result {
                     } => Either::Right(GroupAccessErr { id, err }),
                 });
 
-        FailedResult { users, groups }
+        FailedResult::new(users, groups)
     }
 }
 
@@ -1172,7 +1219,7 @@ fn group_rotate_private_key(
     Ok(sdk.group_rotate_private_key(group_id)?)
 }
 
-fn advanced_document_encrypt_unmanaged(
+fn document_encrypt_unmanaged(
     sdk: &IronOxide,
     data: &[i8],
     opts: &DocumentEncryptOpts,
@@ -1180,13 +1227,114 @@ fn advanced_document_encrypt_unmanaged(
     Ok(sdk.document_encrypt_unmanaged(i8_conv(data).to_vec(), opts)?)
 }
 
-fn advanced_document_decrypt_unmanaged(
+fn document_decrypt_unmanaged(
     sdk: &IronOxide,
     encrypted_data: &[i8],
     encrypted_deks: &[i8],
 ) -> Result<DocumentDecryptUnmanagedResult, String> {
     Ok(sdk.document_decrypt_unmanaged(i8_conv(encrypted_data), i8_conv(encrypted_deks))?)
 }
+
+fn document_get_metadata_unmanaged(
+    sdk: &IronOxide,
+    edeks: &[i8],
+) -> Result<DocumentMetadataUnmanagedResult, String> {
+    Ok(sdk.document_get_metadata_unmanaged(i8_conv(edeks))?)
+}
+
+fn document_get_id_from_bytes_unmanaged(
+    sdk: &IronOxide,
+    encrypted_document: &[i8],
+) -> Result<DocumentId, String> {
+    Ok(sdk.document_get_id_from_bytes_unmanaged(i8_conv(encrypted_document))?)
+}
+
+fn document_get_id_from_edeks_unmanaged(
+    sdk: &IronOxide,
+    edeks: &[i8],
+) -> Result<DocumentId, String> {
+    Ok(sdk.document_get_id_from_edeks_unmanaged(i8_conv(edeks))?)
+}
+
+fn document_grant_access_unmanaged(
+    sdk: &IronOxide,
+    edeks: &[i8],
+    grant_users: &[UserId],
+    grant_groups: &[GroupId],
+) -> Result<DocumentAccessUnmanagedResult, String> {
+    let users_and_groups: Vec<UserOrGroup> = grant_users
+        .iter()
+        .cloned()
+        .map(|u| UserOrGroup::User { id: u })
+        .chain(
+            grant_groups
+                .iter()
+                .cloned()
+                .map(|g| UserOrGroup::Group { id: g }),
+        )
+        .collect();
+    Ok(sdk.document_grant_access_unmanaged(i8_conv(edeks), &users_and_groups)?)
+}
+
+fn document_revoke_access_unmanaged(
+    sdk: &IronOxide,
+    edeks: &[i8],
+    revoke_users: &[UserId],
+    revoke_groups: &[GroupId],
+) -> Result<DocumentAccessUnmanagedResult, String> {
+    let users_and_groups: Vec<UserOrGroup> = revoke_users
+        .iter()
+        .cloned()
+        .map(|u| UserOrGroup::User { id: u })
+        .chain(
+            revoke_groups
+                .iter()
+                .cloned()
+                .map(|g| UserOrGroup::Group { id: g }),
+        )
+        .collect();
+    Ok(sdk.document_revoke_access_unmanaged(i8_conv(edeks), &users_and_groups)?)
+}
+
+fn initialize_with_public_keys(
+    init: &DeviceContext,
+    config: &IronOxideConfig,
+    public_key_cache: &[i8],
+) -> Result<IronOxide, String> {
+    Ok(ironoxide::blocking::initialize_with_public_keys(
+        init,
+        config,
+        i8_conv(public_key_cache).to_vec(),
+    )?)
+}
+
+fn initialize_with_public_keys_and_rotate(
+    init: &DeviceContext,
+    password: &str,
+    config: &IronOxideConfig,
+    public_key_cache: &[i8],
+    timeout: Option<&Duration>,
+) -> Result<IronOxide, String> {
+    let rotate_timeout = timeout.copied().or(config.sdk_operation_timeout);
+    Ok(
+        match ironoxide::blocking::initialize_with_public_keys_and_check_rotation(
+            init,
+            config,
+            i8_conv(public_key_cache).to_vec(),
+        )? {
+            InitAndRotationCheck::RotationNeeded(ironoxide, rotation) => {
+                ironoxide.rotate_all(&rotation, password, rotate_timeout)?;
+                ironoxide
+            }
+            InitAndRotationCheck::NoRotationNeeded(ironoxide) => ironoxide,
+        },
+    )
+}
+
+fn export_public_key_cache(sdk: &IronOxide) -> Result<Vec<i8>, String> {
+    Ok(u8_conv(&sdk.export_public_key_cache()?).to_vec())
+}
+
 mod group_access_edit_result {
     use super::*;
     pub fn succeeded(result: &GroupAccessEditResult) -> Vec<UserId> {
