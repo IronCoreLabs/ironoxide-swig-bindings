@@ -647,35 +647,11 @@ mod document_access_unmanaged_result {
 
 impl document_access_change_result::DocumentAccessChange for DocumentAccessUnmanagedResult {
     fn changed(&self) -> document_access_change_result::SucceededResult {
-        use itertools::{Either, Itertools};
-        let (users, groups) = self
-            .succeeded()
-            .iter()
-            .cloned()
-            .partition_map(|uog| match uog {
-                UserOrGroup::User { id } => Either::Left(id),
-                UserOrGroup::Group { id } => Either::Right(id),
-            });
-        document_access_change_result::SucceededResult::new(users, groups)
+        document_access_change_result::to_succeeded_result(self.succeeded())
     }
 
     fn errors(&self) -> document_access_change_result::FailedResult {
-        use itertools::{Either, Itertools};
-        let (users, groups) =
-            self.failed()
-                .iter()
-                .cloned()
-                .partition_map(|access_err| match access_err {
-                    DocAccessEditErr {
-                        user_or_group: UserOrGroup::User { id },
-                        err,
-                    } => Either::Left(UserAccessErr { id, err }),
-                    DocAccessEditErr {
-                        user_or_group: UserOrGroup::Group { id },
-                        err,
-                    } => Either::Right(GroupAccessErr { id, err }),
-                });
-        document_access_change_result::FailedResult::new(users, groups)
+        document_access_change_result::to_failed_result(self.failed())
     }
 }
 
@@ -804,7 +780,7 @@ mod document_access_change_result {
         }
     }
 
-    fn to_succeeded_result(successes: &[UserOrGroup]) -> SucceededResult {
+    pub fn to_succeeded_result(successes: &[UserOrGroup]) -> SucceededResult {
         let (users, groups) = successes.iter().cloned().partition_map(|uog| match uog {
             UserOrGroup::User { id } => Either::Left(id),
             UserOrGroup::Group { id } => Either::Right(id),
@@ -813,7 +789,7 @@ mod document_access_change_result {
         SucceededResult::new(users, groups)
     }
 
-    fn to_failed_result(access_errs: &[DocAccessEditErr]) -> FailedResult {
+    pub fn to_failed_result(access_errs: &[DocAccessEditErr]) -> FailedResult {
         let (users, groups) =
             access_errs
                 .iter()
