@@ -14,8 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-java
-    # CPP is current disabled because of an issue with Cmake https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
-    #   - build-cpp
+      - build-cpp
     steps:
       - uses: actions/checkout@v6
         with:
@@ -74,43 +73,62 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download java release artifacts from macos-15-intel
+      - name: Download java release artifacts from macos-15
         uses: actions/download-artifact@v6
         with:
-          name: release-macos-15-intel
-          path: release/macos-15-intel
+          name: release-macos-15
+          path: release/macos-15
       - name: Delete artifact
         uses: geekyeggo/delete-artifact@v5
         with:
-          name: release-macos-15-intel
+          name: release-macos-15
           failOnError: false
-      - name: Sign java artifact for macos-15-intel
+      - name: Sign java artifact for macos-15
         run: |
-          gpg --batch --detach-sign -a release/macos-15-intel/libironoxide_java.dylib
-          gpg --batch --verify release/macos-15-intel/libironoxide_java.dylib.asc release/macos-15-intel/libironoxide_java.dylib
-      - name: Upload java lib for macos-15-intel
-        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-15-intel/libironoxide_java.dylib release/macos-15-intel/libironoxide_java.dylib.asc --clobber
+          gpg --batch --detach-sign -a release/macos-15/libironoxide_java.dylib
+          gpg --batch --verify release/macos-15/libironoxide_java.dylib.asc release/macos-15/libironoxide_java.dylib
+      - name: Upload java lib for macos-15
+        run: gh release upload ${{ steps.version.outputs.tag }} release/macos-15/libironoxide_java.dylib release/macos-15/libironoxide_java.dylib.asc --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      #   - name: Download iOS release artifacts from build-cpp
-      #     uses: actions/download-artifact@v4
-      #     with:
-      #       name: release-iOS
-      #       path: release/release-iOS
-      #   - name: Delete artifact
-      #     uses: geekyeggo/delete-artifact@v1
-      #     with:
-      #       name: release-macos-15-intel
-      #       failOnError: false
-      #   - name: Sign iOS artifact
-      #     run: |
-      #       gpg --batch --detach-sign -a release/release-iOS/ironoxide-homebrew.tar.gz
-      #       gpg --batch --verify release/release-iOS/ironoxide-homebrew.tar.gz.asc release/release-iOS/ironoxide-homebrew.tar.gz
-      #   - name: Upload tar for release-iOS
-      #     run: gh release upload ${{ steps.version.outputs.tag }} release/release-iOS/ironoxide-homebrew.tar.gz release/release-iOS/ironoxide-homebrew.tar.gz.asc --clobber
-      #     env:
-      #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download C++ release artifacts from ubuntu-latest
+        uses: actions/download-artifact@v6
+        with:
+          name: release-cpp-ubuntu-latest
+          path: release/cpp-ubuntu-latest
+      - name: Delete artifact
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: release-cpp-ubuntu-latest
+          failOnError: false
+      - name: Sign C++ artifact for ubuntu-latest
+        run: |
+          gpg --batch --detach-sign -a release/cpp-ubuntu-latest/ironoxide-cpp-linux-x86_64.tar.gz
+          gpg --batch --verify release/cpp-ubuntu-latest/ironoxide-cpp-linux-x86_64.tar.gz.asc release/cpp-ubuntu-latest/ironoxide-cpp-linux-x86_64.tar.gz
+      - name: Upload C++ lib for ubuntu-latest
+        run: gh release upload ${{ steps.version.outputs.tag }} release/cpp-ubuntu-latest/ironoxide-cpp-linux-x86_64.tar.gz release/cpp-ubuntu-latest/ironoxide-cpp-linux-x86_64.tar.gz.asc --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download C++ release artifacts from macos-15
+        uses: actions/download-artifact@v6
+        with:
+          name: release-cpp-macos-15
+          path: release/cpp-macos-15
+      - name: Delete artifact
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: release-cpp-macos-15
+          failOnError: false
+      - name: Sign C++ artifact for macos-15
+        run: |
+          gpg --batch --detach-sign -a release/cpp-macos-15/ironoxide-cpp-macos-aarch64.tar.gz
+          gpg --batch --verify release/cpp-macos-15/ironoxide-cpp-macos-aarch64.tar.gz.asc release/cpp-macos-15/ironoxide-cpp-macos-aarch64.tar.gz
+      - name: Upload C++ lib for macos-15
+        run: gh release upload ${{ steps.version.outputs.tag }} release/cpp-macos-15/ironoxide-cpp-macos-aarch64.tar.gz release/cpp-macos-15/ironoxide-cpp-macos-aarch64.tar.gz.asc --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Increment to next -SNAPSHOT version for Java.
         run: |
@@ -123,7 +141,7 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-15-intel]
+        os: [ubuntu-latest, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
@@ -146,34 +164,42 @@ jobs:
         with:
           name: release-ubuntu-latest
           path: target/release/libironoxide_java.so
-      - name: Upload artifacts for macos-15-intel
+      - name: Upload artifacts for macos-15
         if: startsWith(matrix.os, 'macos')
         uses: actions/upload-artifact@v6
         with:
-          name: release-macos-15-intel
+          name: release-macos-15
           path: target/release/libironoxide_java.dylib
-# See https://github.com/IronCoreLabs/ironoxide-swig-bindings/issues/222
-#   build-cpp:
-#     if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
-#     runs-on: macos-15-intel
-#     steps:
-#       - uses: actions/checkout@v6
-#       - uses: IronCoreLabs/rust-toolchain@v1
-#       - name: Setup iOS build
-#         run: |
-#           rustup target add x86_64-apple-ios aarch64-apple-ios
-#           cargo install cargo-lipo
-#       - name: Build for iOS
-#         run: cargo lipo --release -p ironoxide-cpp
-#       - name: Build iOS tar
-#         run: |
-#           ( cd cpp/generated && mv sdk headers )
-#           tar -c -f ironoxide-homebrew.tar -C cpp/generated headers
-#           tar -r -f ironoxide-homebrew.tar -C cpp ironoxide.pc.in
-#           tar -r -f ironoxide-homebrew.tar -C target/universal/release libironoxide.a
-#           gzip ironoxide-homebrew.tar
-#       - name: Upload iOS artifact
-#         uses: actions/upload-artifact@v4
-#         with:
-#           name: release-iOS
-#           path: ironoxide-homebrew.tar.gz
+  build-cpp:
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'release-')
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            shared-lib: libironoxide.so
+            static-lib: libironoxide.a
+            artifact-name: release-cpp-ubuntu-latest
+            tar-name: ironoxide-cpp-linux-x86_64.tar.gz
+          - os: macos-15
+            shared-lib: libironoxide.dylib
+            static-lib: libironoxide.a
+            artifact-name: release-cpp-macos-15
+            tar-name: ironoxide-cpp-macos-aarch64.tar.gz
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: IronCoreLabs/rust-toolchain@v1
+      - name: Build C++ release
+        run: cargo build --release -p ironoxide-cpp
+      - name: Package C++ release
+        run: |
+          mkdir -p pkg/include/ironoxide pkg/lib/pkgconfig
+          cp cpp/generated/sdk/*.hpp cpp/generated/sdk/*.h pkg/include/ironoxide/
+          cp target/release/${{ matrix.shared-lib }} pkg/lib/
+          cp target/release/${{ matrix.static-lib }} pkg/lib/
+          sed 's|%PREFIX%|/usr/local|g' cpp/ironoxide.pc.in > pkg/lib/pkgconfig/ironoxide.pc
+          tar -czf ${{ matrix.tar-name }} -C pkg .
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: ${{ matrix.tar-name }}
