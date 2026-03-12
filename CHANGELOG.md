@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
+- update ironoxide, fixes a bug that made loading from cached public keys uneccessarily hit the service.
+
 ## 2.0.0
 
 ### Breaking
