@@ -1,5 +1,7 @@
 #include "acutest.h"
 #include <cstdlib>
+#include <cstdio>
+#include <fstream>
 #include <iostream>
 #include <random>
 #include "IronOxide.hpp"
@@ -273,6 +275,46 @@ void export_reimport_public_key_cache(void)
     TEST_CHECK_(doc_list.getResult().as_slice().size() >= 0, "Should be able to list documents after reinit with cache.");
 }
 
+void file_encrypt_decrypt_unmanaged_roundtrip(void)
+{
+    DeviceContext d = unwrap(DeviceContext::fromJsonString(deviceContextString));
+    IronOxide sdk = unwrap(IronOxide::initialize(d, IronOxideConfig()));
+
+    // Create temp file paths
+    std::string source_path = "/tmp/ironoxide_cpp_test_source.txt";
+    std::string encrypted_path = "/tmp/ironoxide_cpp_test_encrypted.iron";
+    std::string decrypted_path = "/tmp/ironoxide_cpp_test_decrypted.txt";
+
+    // Write test data to source file
+    std::string test_data = "Hello, streaming encryption from C++!";
+    {
+        std::ofstream out(source_path, std::ios::binary);
+        out.write(test_data.data(), test_data.size());
+    }
+
+    // Encrypt file
+    auto encrypt_result = unwrap(sdk.documentFileEncryptUnmanaged(source_path.c_str(), encrypted_path.c_str(), DocumentEncryptOpts()));
+    TEST_CHECK_(encrypt_result.getId().getId().to_std_string().length() == 32, "Document ID should be 32 chars.");
+    TEST_CHECK_(encrypt_result.getEncryptedDeks().size() > 0, "Encrypted DEKs should be non-empty.");
+
+    // Decrypt file
+    auto decrypt_result = unwrap(sdk.documentFileDecryptUnmanaged(
+        encrypted_path.c_str(),
+        decrypted_path.c_str(),
+        vec_to_slice(encrypt_result.getEncryptedDeks())));
+    TEST_CHECK_(decrypt_result.getId() == encrypt_result.getId(), "Document IDs should match.");
+
+    // Read decrypted file and verify contents
+    std::ifstream in(decrypted_path, std::ios::binary);
+    std::string decrypted_data((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    TEST_CHECK_(decrypted_data == test_data, "Decrypted file content should match original.");
+
+    // Cleanup temp files
+    std::remove(source_path.c_str());
+    std::remove(encrypted_path.c_str());
+    std::remove(decrypted_path.c_str());
+}
+
 TEST_LIST = {
     {"test_user_id", test_user_id},
     {"test_user_id_error", test_user_id_error},
@@ -288,4 +330,5 @@ TEST_LIST = {
     {"unmanaged_metadata_and_id", unmanaged_metadata_and_id},
     {"unmanaged_grant_access", unmanaged_grant_access},
     {"export_reimport_public_key_cache", export_reimport_public_key_cache},
+    {"file_encrypt_decrypt_unmanaged_roundtrip", file_encrypt_decrypt_unmanaged_roundtrip},
     {NULL, NULL}};

@@ -301,7 +301,8 @@ class DocumentTests extends TestSuite {
       decryptResult.getDecryptedData shouldBe bytes
     }
     "grant access to group" in {
-      val groupOpts = new GroupCreateOpts(null, null, true, true, null, Array(secondaryUser), Array(secondaryUser), false)
+      val groupOpts =
+        new GroupCreateOpts(null, null, true, true, null, Array(secondaryUser), Array(secondaryUser), false)
       val groupCreate = primarySdk.groupCreate(groupOpts)
       val bytes = Array(16, 17, 18).map(_.toByte)
       val encryptResult =
@@ -362,6 +363,52 @@ class DocumentTests extends TestSuite {
       val garbage = Array(1, 2, 3).map(_.toByte)
       val result = Try(primarySdk.documentRevokeAccessUnmanaged(garbage, Array(secondaryUser), Array()))
       result.isFailure shouldBe true
+    }
+  }
+
+  "Document File Encrypt/Decrypt Unmanaged" should {
+    "roundtrip file to self" in {
+      val testData = "Hello, streaming encryption!".getBytes("UTF-8")
+      val sourcePath = java.nio.file.Files.createTempFile("ironoxide-test-source", ".txt")
+      val encryptedPath = java.nio.file.Files.createTempFile("ironoxide-test-encrypted", ".iron")
+      val decryptedPath = java.nio.file.Files.createTempFile("ironoxide-test-decrypted", ".txt")
+
+      try {
+        // Write test data to source file
+        java.nio.file.Files.write(sourcePath, testData)
+
+        // Encrypt file
+        val encryptResult = Try(
+          primarySdk.documentFileEncryptUnmanaged(
+            sourcePath.toString,
+            encryptedPath.toString,
+            new DocumentEncryptOpts
+          )
+        ).toEither.value
+        encryptResult.getId.getId.length should be > 0
+        encryptResult.getEncryptedDeks.length should be > 0
+        encryptResult.getChanged.getUsers.length shouldBe 1
+
+        // Decrypt file
+        val decryptResult = Try(
+          primarySdk.documentFileDecryptUnmanaged(
+            encryptedPath.toString,
+            decryptedPath.toString,
+            encryptResult.getEncryptedDeks
+          )
+        ).toEither.value
+        decryptResult.getId shouldBe encryptResult.getId
+        decryptResult.getAccessViaUserOrGroup.isUser shouldBe true
+
+        // Verify decrypted content matches original
+        val decryptedData = java.nio.file.Files.readAllBytes(decryptedPath)
+        decryptedData shouldBe testData
+      } finally {
+        java.nio.file.Files.deleteIfExists(sourcePath)
+        java.nio.file.Files.deleteIfExists(encryptedPath)
+        java.nio.file.Files.deleteIfExists(decryptedPath)
+        ()
+      }
     }
   }
 

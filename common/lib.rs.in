@@ -758,6 +758,66 @@ class DocumentAccessResult {
 });
 
 foreign_class!(
+/// Result of file encryption (managed). Contains metadata about the encrypted document.
+class DocumentFileEncryptResult {
+    self_type DocumentFileEncryptResult;
+    private constructor = empty;
+    /// Unique (within the segment) id of the document
+    fn document_file_encrypt_result::id(&self) -> DocumentId; alias getId;
+    /// Non-unique document name
+    fn document_file_encrypt_result::name(&self) -> Option<DocumentName>; alias getName;
+    /// When the document was created
+    fn document_file_encrypt_result::created(&self) -> OffsetDateTime; alias getCreated;
+    /// When the document was last updated
+    fn document_file_encrypt_result::last_updated(&self) -> OffsetDateTime; alias getLastUpdated;
+    /// Get the users and groups whose access was successfully granted
+    fn DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
+    /// Get the users and groups whose access failed to be granted
+    fn DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
+    pre_build_generate_equals_and_hashcode DocumentFileEncryptResult;
+});
+
+foreign_class!(
+/// Result of file encryption (unmanaged). Contains the document ID and encrypted DEKs.
+class DocumentFileEncryptUnmanagedResult {
+    self_type DocumentFileEncryptUnmanagedResult;
+    private constructor = empty;
+    /// Unique (within the segment) id of the document
+    fn document_file_encrypt_unmanaged_result::id(&self) -> DocumentId; alias getId;
+    /// Bytes of encrypted document encryption keys (EDEKs)
+    fn document_file_encrypt_unmanaged_result::encrypted_deks(&self) -> Vec<i8>; alias getEncryptedDeks;
+    /// Get the users and groups whose access was successfully granted
+    fn DocumentAccessChange::changed(&self) -> SucceededResult; alias getChanged;
+    /// Get the users and groups whose access failed to be granted
+    fn DocumentAccessChange::errors(&self) -> FailedResult; alias getErrors;
+    pre_build_generate_equals_and_hashcode DocumentFileEncryptUnmanagedResult;
+});
+
+foreign_class!(
+/// Result of file decryption (managed). Contains minimal metadata about the decrypted document.
+class DocumentFileDecryptResult {
+    self_type DocumentFileDecryptResult;
+    private constructor = empty;
+    /// Unique (within the segment) id of the document
+    fn document_file_decrypt_result::id(&self) -> DocumentId; alias getId;
+    /// Non-unique document name
+    fn document_file_decrypt_result::name(&self) -> Option<DocumentName>; alias getName;
+    pre_build_generate_equals_and_hashcode DocumentFileDecryptResult;
+});
+
+foreign_class!(
+/// Result of file decryption (unmanaged). Contains the document ID and access info.
+class DocumentFileDecryptUnmanagedResult {
+    self_type DocumentFileDecryptUnmanagedResult;
+    private constructor = empty;
+    /// Unique (within the segment) id of the document
+    fn document_file_decrypt_unmanaged_result::id(&self) -> DocumentId; alias getId;
+    /// User/Group that granted access to the encrypted data
+    fn document_file_decrypt_unmanaged_result::access_via(&self) -> UserOrGroupId; alias getAccessViaUserOrGroup;
+    pre_build_generate_equals_and_hashcode DocumentFileDecryptUnmanagedResult;
+});
+
+foreign_class!(
 /// Policy evaluation caching config
 ///
 /// Since policies are evaluated by the webservice, caching the result can greatly speed
@@ -1066,6 +1126,41 @@ class IronOxide {
     /// @return result containing updated EDEKs and per-user/group success/failure
     fn document_revoke_access_unmanaged(&self, edeks: &[i8], userRevokes: &[UserId], groupRevokes: &[GroupId])
         -> Result<DocumentAccessUnmanagedResult, String>; alias documentRevokeAccessUnmanaged;
+    /// Encrypt a file from source path to destination path (managed).
+    /// Uses streaming I/O with constant memory usage. The output format is identical to documentEncrypt.
+    ///
+    /// @param sourcePath       path to the plaintext file to encrypt
+    /// @param destinationPath  path where the encrypted file will be written
+    /// @param encryptOpts      optional document encrypt parameters
+    /// @return metadata about the encrypted document including id, name, timestamps, and access grants/errors
+    fn document_file_encrypt(&self, sourcePath: &str, destinationPath: &str, encryptOpts: &DocumentEncryptOpts)
+        -> Result<DocumentFileEncryptResult, String>; alias documentFileEncrypt;
+    /// Decrypt an encrypted file to destination path (managed).
+    /// Uses streaming I/O with constant memory usage.
+    ///
+    /// @param sourcePath       path to the encrypted file to decrypt
+    /// @param destinationPath  path where the decrypted file will be written
+    /// @return metadata about the decrypted document including id and name
+    fn document_file_decrypt(&self, sourcePath: &str, destinationPath: &str)
+        -> Result<DocumentFileDecryptResult, String>; alias documentFileDecrypt;
+    /// Encrypt a file from source path to destination path (unmanaged).
+    /// Uses streaming I/O with constant memory usage. Returns encrypted DEKs instead of storing them on the server.
+    ///
+    /// @param sourcePath       path to the plaintext file to encrypt
+    /// @param destinationPath  path where the encrypted file will be written
+    /// @param encryptOpts      optional document encrypt parameters
+    /// @return document ID, encrypted DEKs, and access grants/errors
+    fn document_file_encrypt_unmanaged(&self, sourcePath: &str, destinationPath: &str, encryptOpts: &DocumentEncryptOpts)
+        -> Result<DocumentFileEncryptUnmanagedResult, String>; alias documentFileEncryptUnmanaged;
+    /// Decrypt an encrypted file to destination path (unmanaged).
+    /// Uses streaming I/O with constant memory usage. Caller provides encrypted DEKs.
+    ///
+    /// @param sourcePath       path to the encrypted file to decrypt
+    /// @param destinationPath  path where the decrypted file will be written
+    /// @param encryptedDeks    encrypted document encryption keys
+    /// @return document ID and the user/group that granted access
+    fn document_file_decrypt_unmanaged(&self, sourcePath: &str, destinationPath: &str, encryptedDeks: &[i8])
+        -> Result<DocumentFileDecryptUnmanagedResult, String>; alias documentFileDecryptUnmanaged;
     /// Initialize IronOxide with a device and a pre-populated public key cache.
     ///
     /// @param init            device context used to initialize the IronOxide with a set of device keys
