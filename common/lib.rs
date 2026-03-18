@@ -1519,5 +1519,9 @@ fn document_file_decrypt_unmanaged(
     destination_path: &str,
     encrypted_deks: &[i8],
 ) -> Result<DocumentFileDecryptUnmanagedResult, String> {
-    Ok(sdk.document_file_decrypt_unmanaged(source_path, destination_path, i8_conv(encrypted_deks))?)
+    Ok(sdk.document_file_decrypt_unmanaged(
+        source_path,
+        destination_path,
+        i8_conv(encrypted_deks),
+    )?)
 }
