@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0
+
+- pulled through `document_file_[encrypt|decrypt]` and `document_file_[encrypt|decrypt]_unmanaged` functionality, allowing for constant memory use encrypts and decrypts.
+
 ## 2.0.1
 
 - update ironoxide, fixing a bug that made loading from cached public keys unnecessarily hit the service.
