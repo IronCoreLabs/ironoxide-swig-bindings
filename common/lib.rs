@@ -1411,3 +1411,117 @@ mod blind_index_search {
             .collect())
     }
 }
+
+mod document_file_encrypt_result {
+    use super::*;
+
+    pub fn id(d: &DocumentFileEncryptResult) -> DocumentId {
+        d.id().clone()
+    }
+    pub fn name(d: &DocumentFileEncryptResult) -> Option<DocumentName> {
+        d.name().cloned()
+    }
+    pub fn created(d: &DocumentFileEncryptResult) -> OffsetDateTime {
+        *d.created()
+    }
+    pub fn last_updated(d: &DocumentFileEncryptResult) -> OffsetDateTime {
+        *d.last_updated()
+    }
+}
+
+impl document_access_change_result::DocumentAccessChange for DocumentFileEncryptResult {
+    fn changed(&self) -> document_access_change_result::SucceededResult {
+        document_access_change_result::to_succeeded_result(self.grants())
+    }
+
+    fn errors(&self) -> document_access_change_result::FailedResult {
+        document_access_change_result::to_failed_result(self.access_errs())
+    }
+}
+
+mod document_file_encrypt_unmanaged_result {
+    use super::*;
+
+    pub fn id(d: &DocumentFileEncryptUnmanagedResult) -> DocumentId {
+        d.id().clone()
+    }
+    pub fn encrypted_deks(d: &DocumentFileEncryptUnmanagedResult) -> Vec<i8> {
+        u8_conv(d.encrypted_deks()).to_vec()
+    }
+}
+
+impl document_access_change_result::DocumentAccessChange for DocumentFileEncryptUnmanagedResult {
+    fn changed(&self) -> document_access_change_result::SucceededResult {
+        document_access_change_result::to_succeeded_result(self.grants())
+    }
+
+    fn errors(&self) -> document_access_change_result::FailedResult {
+        document_access_change_result::to_failed_result(self.access_errs())
+    }
+}
+
+mod document_file_decrypt_result {
+    use super::*;
+
+    pub fn id(d: &DocumentFileDecryptResult) -> DocumentId {
+        d.id().clone()
+    }
+    pub fn name(d: &DocumentFileDecryptResult) -> Option<DocumentName> {
+        d.name().cloned()
+    }
+}
+
+mod document_file_decrypt_unmanaged_result {
+    use super::*;
+    use crate::document_decrypt_unmanaged_result::UserOrGroupId;
+
+    pub fn id(d: &DocumentFileDecryptUnmanagedResult) -> DocumentId {
+        d.id().clone()
+    }
+    pub fn access_via(d: &DocumentFileDecryptUnmanagedResult) -> UserOrGroupId {
+        let (id, is_user) = match d.access_via() {
+            UserOrGroup::User { id } => (id.id().to_string(), true),
+            UserOrGroup::Group { id } => (id.id().to_string(), false),
+        };
+        UserOrGroupId::new(id, is_user)
+    }
+}
+
+fn document_file_encrypt(
+    sdk: &IronOxide,
+    source_path: &str,
+    destination_path: &str,
+    opts: &DocumentEncryptOpts,
+) -> Result<DocumentFileEncryptResult, String> {
+    Ok(sdk.document_file_encrypt(source_path, destination_path, opts)?)
+}
+
+fn document_file_decrypt(
+    sdk: &IronOxide,
+    source_path: &str,
+    destination_path: &str,
+) -> Result<DocumentFileDecryptResult, String> {
+    Ok(sdk.document_file_decrypt(source_path, destination_path)?)
+}
+
+fn document_file_encrypt_unmanaged(
+    sdk: &IronOxide,
+    source_path: &str,
+    destination_path: &str,
+    opts: &DocumentEncryptOpts,
+) -> Result<DocumentFileEncryptUnmanagedResult, String> {
+    Ok(sdk.document_file_encrypt_unmanaged(source_path, destination_path, opts)?)
+}
+
+fn document_file_decrypt_unmanaged(
+    sdk: &IronOxide,
+    source_path: &str,
+    destination_path: &str,
+    encrypted_deks: &[i8],
+) -> Result<DocumentFileDecryptUnmanagedResult, String> {
+    Ok(sdk.document_file_decrypt_unmanaged(
+        source_path,
+        destination_path,
+        i8_conv(encrypted_deks),
+    )?)
+}
