@@ -302,6 +302,17 @@ class DeviceAddResult {
 ///
 
 foreign_class!(
+/// Status of a user. Disabled users cannot call any SDK functions; a user can re-enable a
+/// disabled user with userUpdateStatus.
+class UserStatus {
+    self_type UserStatus;
+    private constructor = empty;
+    fn user_status::enabled() -> UserStatus; alias enabled;
+    fn user_status::disabled() -> UserStatus; alias disabled;
+    pre_build_generate_equals_and_hashcode UserStatus;
+});
+
+foreign_class!(
 /// Keypair for a newly created user.
 class UserCreateResult {
     self_type UserCreateResult;
@@ -309,6 +320,8 @@ class UserCreateResult {
     fn user_create_result::user_public_key(&self) -> PublicKey; alias getUserPublicKey;
     /// True if the private key of the user's keypair needs to be rotated, else false.
     fn user_create_result::needs_rotation(&self) -> bool; alias getNeedsRotation;
+    /// Current status of the user.
+    fn user_create_result::status(&self) -> UserStatus; alias getStatus;
     pre_build_generate_equals_and_hashcode UserCreateResult;
 });
 
@@ -968,6 +981,20 @@ class IronOxide {
     /// @param password password to unlock the current user's master private key
     /// @return The (encrypted) updated private key and associated metadata
     fn user_rotate_private_key(&self, password: &str) -> Result<UserUpdatePrivateKeyResult, String>; alias userRotatePrivateKey;
+    /// Disable the calling user. The user remains a member of any groups, but cannot make
+    /// further authenticated SDK calls. Use {@link #userUpdateStatus(Jwt, UserStatus, Duration)}
+    /// with a JWT to re-enable a disabled user.
+    ///
+    /// @return updated user metadata
+    fn user_disable_self(&self) -> Result<UserCreateResult, String>; alias userDisableSelf;
+    /// Update a user's status (enabled or disabled) via a signed JWT, without requiring an
+    /// initialized SDK instance. This is the only way to re-enable a disabled user.
+    ///
+    /// @param jwt      valid IronCore or Auth0 JWT for the user whose status should change
+    /// @param status   new user status {@link UserStatus}
+    /// @param timeout  timeout for this operation or `null` for no timeout
+    /// @return updated user metadata
+    fn user_update_status(jwt: &Jwt, status: &UserStatus, timeout: Option<&Duration>) -> Result<UserCreateResult, String>; alias userUpdateStatus;
     /// List all of the documents that the current user is able to decrypt.
     ///
     /// @return {@link DocumentListResult} struct with vec of metadata about each document the user can decrypt.

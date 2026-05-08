@@ -1173,9 +1173,9 @@ dependencies = [
 
 [[package]]
 name = "ironoxide"
-version = "4.3.1"
+version = "4.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca2f053fe51aa28bdf6a1a77bdf1e7961a73edd5b829c322c5b8b87867ce53ae"
+checksum = "c4f7b956c62b23ac7b252e0941f68cda485a77bdba6ccd1ebb912aefbd9318a1"
 dependencies = [
  "aws-lc-rs",
  "base64",
