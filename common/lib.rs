@@ -405,6 +405,19 @@ mod user_create_result {
     pub fn needs_rotation(u: &UserCreateResult) -> bool {
         u.needs_rotation()
     }
+    pub fn status(u: &UserCreateResult) -> UserStatus {
+        u.status()
+    }
+}
+
+mod user_status {
+    use super::*;
+    pub fn enabled() -> UserStatus {
+        UserStatus::Enabled
+    }
+    pub fn disabled() -> UserStatus {
+        UserStatus::Disabled
+    }
 }
 
 mod user_result {
@@ -1086,6 +1099,20 @@ fn user_rotate_private_key(
     password: &str,
 ) -> Result<UserUpdatePrivateKeyResult, String> {
     Ok(sdk.user_rotate_private_key(password)?)
+}
+fn user_disable_self(sdk: &IronOxide) -> Result<UserCreateResult, String> {
+    Ok(sdk.user_disable_self()?)
+}
+fn user_update_status(
+    jwt: &Jwt,
+    status: &UserStatus,
+    timeout: Option<&Duration>,
+) -> Result<UserCreateResult, String> {
+    Ok(IronOxide::user_update_status(
+        jwt,
+        *status,
+        timeout.copied(),
+    )?)
 }
 fn document_list(sdk: &IronOxide) -> Result<DocumentListResult, String> {
     Ok(sdk.document_list()?)

@@ -235,6 +235,41 @@ class UserTests extends TestSuite {
     }
   }
 
+  "User Status" should {
+    "expose enabled and disabled factories distinguishable via equality" in {
+      UserStatus.enabled shouldBe UserStatus.enabled
+      UserStatus.disabled shouldBe UserStatus.disabled
+      UserStatus.enabled should not be UserStatus.disabled
+    }
+    "report Enabled on a freshly created user" in {
+      val userId = UserId.validate(java.util.UUID.randomUUID.toString)
+      val jwt = generateValidJwt(userId.getId)
+      val createResult =
+        Try(IronOxide.userCreate(jwt, testUsersPassword, new UserCreateOpts(true), null)).toEither.value
+      createResult.getStatus shouldBe UserStatus.enabled
+    }
+  }
+
+  "User Disable Self and Update Status" should {
+    "disable the calling user and re-enable via JWT" in {
+      val dc = createUserAndDevice()
+      val jwt = generateValidJwt(dc.getAccountId.getId)
+      val sdk = IronOxide.initialize(dc, new IronOxideConfig)
+
+      val disabled = Try(sdk.userDisableSelf()).toEither.value
+      disabled.getStatus shouldBe UserStatus.disabled
+
+      // Disabled users cannot make authenticated SDK calls.
+      val postDisable = Try(sdk.userListDevices)
+      postDisable.isFailure shouldBe true
+
+      // Re-enable via JWT (no SDK instance required).
+      val reenabled =
+        Try(IronOxide.userUpdateStatus(jwt, UserStatus.enabled, null)).toEither.value
+      reenabled.getStatus shouldBe UserStatus.enabled
+    }
+  }
+
   "Device Delete" should {
     "delete a user's device" in {
       val jwt = generateValidJwt()
