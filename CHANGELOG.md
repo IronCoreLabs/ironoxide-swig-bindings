@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0
+
+- pulled through `user_disable_self` and `user_update_status` functionality, allowing for enabling/disabling users.
+
 ## 2.1.0
 
 - pulled through `document_file_[encrypt|decrypt]` and `document_file_[encrypt|decrypt]_unmanaged` functionality, allowing for constant memory use encrypts and decrypts.
