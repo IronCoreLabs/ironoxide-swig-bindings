@@ -7,7 +7,11 @@ bindgen = "0.72"
 cfg-if = "1"
 env_logger = { version = "0.11", default-features = false }
 flapigen = { git = "https://github.com/Dushistov/flapigen-rs.git", rev = "49a59f68" }
-ironoxide = { version = "4.4", features = [
+# DIAGNOSTIC ONLY - DO NOT MERGE. Targets the branch carrying the webpki-roots TLS change so
+# `connectedAndroidTest` exercises it. Restore the `version` requirement once that change is
+# released. Do not add a `version` alongside `git`/`path` here: the branch is `4.4.2-pre.3`, and a
+# pre-release is refused by `^4.4`, which silently left an earlier `[patch.crates-io]` unapplied.
+ironoxide = { git = "https://github.com/IronCoreLabs/ironoxide", branch = "webpki-roots-test", features = [
     "blocking",
     "beta",
     "tls-rustls",
@@ -21,3 +25,4 @@ time = "0.3"
 
 [profile.release]
 lto = true
+

@@ -1200,9 +1200,8 @@ dependencies = [
 
 [[package]]
 name = "ironoxide"
-version = "4.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4f7b956c62b23ac7b252e0941f68cda485a77bdba6ccd1ebb912aefbd9318a1"
+version = "4.4.2-pre.3"
+source = "git+https://github.com/IronCoreLabs/ironoxide?branch=webpki-roots-test#48c28e3c36239ed00e02aa78b9c421e449dc1461"
 dependencies = [
  "aws-lc-rs",
  "base64",
@@ -1226,12 +1225,14 @@ dependencies = [
  "recrypt",
  "regex",
  "reqwest",
+ "rustls",
  "serde",
  "serde_json",
  "time",
  "tokio",
  "url",
  "vec1",
+ "webpki-roots",
 ]
 
 [[package]]
@@ -2977,6 +2978,15 @@ name = "webpki-root-certs"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f31141ce3fc3e300ae89b78c0dd67f9708061d1d2eda54b8209346fd6be9a92c"
+dependencies = [
+ "rustls-pki-types",
+]
+
+[[package]]
+name = "webpki-roots"
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a"
 dependencies = [
  "rustls-pki-types",
 ]
