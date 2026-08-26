@@ -19,6 +19,3 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
-
-# Keep the rustls-platform-verifier Android class (called via JNI from Rust)
--keep, includedescriptorclasses class org.rustls.platformverifier.** { *; }

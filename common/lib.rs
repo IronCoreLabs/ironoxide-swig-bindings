@@ -15,45 +15,6 @@ use time::OffsetDateTime;
 
 include!(concat!(env!("OUT_DIR"), "/lib.rs"));
 
-/// Initialize rustls-platform-verifier for Android TLS certificate verification.
-/// Called from the generated JNI_OnLoad via build.rs post-processing.
-#[cfg(all(target_os = "android", feature = "android"))]
-fn init_rustls_platform_verifier(raw_env: *mut jni_sys::JNIEnv) {
-    // DIAGNOSTIC ONLY - DO NOT MERGE.
-    //
-    // Nothing routes the `log` crate to logcat, so rustls-platform-verifier's rejection reason is
-    // discarded and reqwest reports only an opaque transport error. The verifier logs the
-    // underlying Java exception at warn (`certificate was revoked: <CertPathValidatorException>`),
-    // which distinguishes a revocation-check failure from a chain-building one.
-    android_logger::init_once(
-        android_logger::Config::default()
-            .with_max_level(log::LevelFilter::Debug)
-            .with_tag("ironoxide"),
-    );
-
-    let env = unsafe { jni::JNIEnv::from_raw(raw_env as *mut jni::sys::JNIEnv) }
-        .expect("Failed to wrap JNIEnv");
-    let mut env = env;
-
-    // Get the application context via ActivityThread.currentApplication().
-    let activity_thread = env
-        .find_class("android/app/ActivityThread")
-        .expect("Failed to find ActivityThread class");
-    let context = env
-        .call_static_method(
-            activity_thread,
-            "currentApplication",
-            "()Landroid/app/Application;",
-            &[],
-        )
-        .expect("Failed to call currentApplication")
-        .l()
-        .expect("currentApplication did not return an object");
-
-    rustls_platform_verifier::android::init_with_env(&mut env, context.into())
-        .expect("Failed to initialize rustls-platform-verifier for Android");
-}
-
 pub fn hash<T: Hash>(t: &T) -> i32 {
     let mut s = DefaultHasher::new();
     t.hash(&mut s);

@@ -80,13 +80,11 @@ jobs:
   android-test:
     needs: android-build
     runs-on: ubuntu-latest
-    # DIAGNOSTIC ONLY - DO NOT MERGE. GTS certs covering this host existed from 2026-06-16 while
-    # this job still passed on 2026-07-29, so the served certificate may not be what changed.
-    # `isKnownRoot` is evaluated against the device trust store, so a system-image difference
-    # flips the revocation gate on an unchanged chain. Two API levels separate the two causes.
     strategy:
       fail-fast: false
       matrix:
+        # Android's revocation gate is evaluated against the device trust store, so TLS behaviour
+        # can differ per system image even on an unchanged certificate chain.
         api-level: [33, 36]
     steps:
       - name: Checkout
@@ -115,15 +113,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-load -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           disable-animations: true
-          # DIAGNOSTIC ONLY - DO NOT MERGE. `|| true` keeps the job green so the dump below always
-          # runs; the test result is in the gradle output above it, not in the job status.
-          script: |
-            adb logcat -c
-            ./gradlew connectedAndroidTest || true
-            echo "───── TLS verifier output (api-level ${{ matrix.api-level }}) ─────"
-            adb logcat -d | grep -iE 'rustls|platformverifier|ironoxide|CertPath|OCSP|Revoked' | head -100
-            echo "───── trust anchors on this image ─────"
-            adb shell 'ls /system/etc/security/cacerts | wc -l; ls /apex/com.android.conscrypt/cacerts 2>/dev/null | wc -l'
+          script: ./gradlew connectedAndroidTest
 
   # This tests that gradle can build ironoxide-android so we can catch issues before release.
   android-release-test:

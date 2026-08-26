@@ -17,10 +17,6 @@ jni-sys = { workspace = true }
 log = { workspace = true }
 serde_json = { workspace = true }
 time = { workspace = true }
-jni = "0.21"
-rustls-platform-verifier = "0.6"
-# DIAGNOSTIC ONLY - DO NOT MERGE. See init_rustls_platform_verifier in common/lib.rs.
-android_logger = "0.15"
 
 [build-dependencies]
 bindgen = { workspace = true }

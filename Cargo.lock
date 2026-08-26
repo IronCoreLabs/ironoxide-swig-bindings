@@ -12,23 +12,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "android_log-sys"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84521a3cf562bc62942e294181d9eef17eb38ceb8c68677bc49f144e4c3d4f8d"
-
-[[package]]
-name = "android_logger"
-version = "0.15.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dbb4e440d04be07da1f1bf44fb4495ebd58669372fe0cffa6e48595ac5bd88a3"
-dependencies = [
- "android_log-sys",
- "env_filter 0.1.4",
- "log",
-]
-
-[[package]]
 name = "anyhow"
 version = "1.0.102"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -563,16 +546,6 @@ checksum = "edd0f118536f44f5ccd48bcb8b111bdc3de888b58c74639dfb034a357d0f206d"
 
 [[package]]
 name = "env_filter"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1bf3c259d255ca70051b30e2e95b5446cdb8949ac4cd22c0d7fd634d89f568e2"
-dependencies = [
- "log",
- "regex",
-]
-
-[[package]]
-name = "env_filter"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32e90c2accc4b07a8456ea0debdc2e7587bdd890680d71173a15d4ae604f6eef"
@@ -586,7 +559,7 @@ version = "0.11.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0621c04f2196ac3f488dd583365b9c09be011a4ab8b9f37248ffcc8f6198b56a"
 dependencies = [
- "env_filter 1.0.1",
+ "env_filter",
  "log",
 ]
 
@@ -1201,7 +1174,7 @@ dependencies = [
 [[package]]
 name = "ironoxide"
 version = "4.4.2-pre.3"
-source = "git+https://github.com/IronCoreLabs/ironoxide?branch=webpki-roots-test#48c28e3c36239ed00e02aa78b9c421e449dc1461"
+source = "git+https://github.com/IronCoreLabs/ironoxide?branch=webpki-roots-test#cb75865993f183bfec766892a15af996d152648a"
 dependencies = [
  "aws-lc-rs",
  "base64",
@@ -1239,18 +1212,15 @@ dependencies = [
 name = "ironoxide-android"
 version = "2.2.0"
 dependencies = [
- "android_logger",
  "bindgen",
  "cfg-if",
  "env_logger",
  "flapigen",
  "ironoxide",
  "itertools 0.14.0",
- "jni",
  "jni-sys 0.3.1",
  "log",
  "regex",
- "rustls-platform-verifier",
  "serde_json",
  "time",
 ]
