@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.1
+
+- anchor Android certificate trust to `mozilla/webpki-roots` public CAs. All the certificate stores available to us stopped publishing OCSP responders, which Android's revocation checker treats as revocation. As certs are renewed or those providers shut down their OCSP responders on their side, all existing versions of the library will break, so this is a mandatory upgrade. Custom CAs will no longer work, if that is an issue, reach out to support@ironcorelabs.com.
+
 ## 2.2.0
 
 - pulled through `user_disable_self` and `user_update_status` functionality, allowing for enabling/disabling users.
