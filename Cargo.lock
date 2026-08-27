@@ -1174,7 +1174,7 @@ dependencies = [
 [[package]]
 name = "ironoxide"
 version = "4.4.2-pre.3"
-source = "git+https://github.com/IronCoreLabs/ironoxide?branch=webpki-roots-test#cb75865993f183bfec766892a15af996d152648a"
+source = "git+https://github.com/IronCoreLabs/ironoxide?branch=webpki-roots-test#efeb7346db890598b79fad560183d3eb3673d107"
 dependencies = [
  "aws-lc-rs",
  "base64",
