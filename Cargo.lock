@@ -1173,8 +1173,9 @@ dependencies = [
 
 [[package]]
 name = "ironoxide"
-version = "4.4.2-pre.3"
-source = "git+https://github.com/IronCoreLabs/ironoxide?branch=webpki-roots-test#efeb7346db890598b79fad560183d3eb3673d107"
+version = "4.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2a8be1fe725e20ba62cc4fd0c05878ad26698a77ce82bc8c7a0a4db28c9cb07c"
 dependencies = [
  "aws-lc-rs",
  "base64",
