@@ -134,4 +134,41 @@ public class FullIntegrationTest {
 		assertTrue("Should be able to list documents after reinit with cache", result.getResult().length >= 0);
 	}
 
+	/**
+	 * Pins the failure reported against ironoxide-android 2.1.0, where userVerify failed with
+	 * "HTTP status code 'None' message 'error sending request for url (...)'".
+	 *
+	 * userVerify is the most exposed call in the SDK: it builds a fresh reqwest client per
+	 * invocation, so every call performs a full TLS handshake with no pooled connection or session
+	 * to reuse. The JWT below carries the claims userVerify requires but no real signature, so a
+	 * working transport reaches the server and is rejected there. A rejected certificate never
+	 * reaches the server and reports no HTTP status at all, which is what this asserts against.
+	 */
+	@Test
+	public void userVerifyReachesServerOverTls() throws Exception {
+		final long now = System.currentTimeMillis() / 1000L;
+		final String header = base64Url("{\"alg\":\"ES256\",\"typ\":\"JWT\"}");
+		final String payload = base64Url("{\"pid\":1,\"sid\":\"tls-probe\",\"kid\":1,"
+				+ "\"sub\":\"tls-probe\",\"iat\":" + now + ",\"exp\":" + (now + 120) + "}");
+		final Jwt jwt = Jwt.validate(header + "." + payload + ".bW9ja19zaWduYXR1cmU");
+
+		try {
+			IronOxide.userVerify(jwt, null);
+			// A 4xx is the expected outcome; reaching here means the transport worked too.
+		} catch (final Exception e) {
+			final String message = e.getMessage() == null ? "" : e.getMessage();
+			assertFalse(
+					"TLS/transport failure rather than an HTTP response from the server: " + message,
+					message.contains("error sending request"));
+			assertFalse(
+					"Certificate was rejected by the platform verifier: " + message,
+					message.contains("Revoked") || message.contains("invalid peer certificate"));
+		}
+	}
+
+	private static String base64Url(final String json) {
+		return java.util.Base64.getUrlEncoder().withoutPadding()
+				.encodeToString(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+	}
+
 }

@@ -31,7 +31,7 @@ This application provides a simple UI for encrypting/decrypting data with IronCo
 
 ### Running instrumented tests
 
-This app includes a `connectedAndroidTest` that verifies the `ironoxide-android` AAR correctly bundles its `rustls-platform-verifier` dependency. This dependency isn't published to any public Maven repository, so it must be embedded in the AAR itself. The test confirms the classes are present and the native library loads without error.
+This app depends on the published `ironoxide-android` AAR rather than the local project, so its `connectedAndroidTest` is where a packaging gap in the released artifact shows up. It loads the native library the way a consumer does and fails if anything `JNI_OnLoad` reaches for is missing from the AAR.
 
 ```bash
 ./gradlew connectedAndroidTest

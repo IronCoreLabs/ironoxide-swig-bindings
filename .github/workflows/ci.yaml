@@ -80,6 +80,12 @@ jobs:
   android-test:
     needs: android-build
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Android's revocation gate is evaluated against the device trust store, so TLS behaviour
+        # can differ per system image even on an unchanged certificate chain.
+        api-level: [33, 36]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -102,7 +108,7 @@ jobs:
         with:
           working-directory: ./android
           arch: x86_64
-          api-level: 36
+          api-level: ${{ matrix.api-level }}
           ndk: "27.3.13750724" # matches android/ironoxide-android/build.gradle
           force-avd-creation: false
           emulator-options: -no-snapshot-load -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
