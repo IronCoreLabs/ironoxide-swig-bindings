@@ -95,6 +95,9 @@ jobs:
           name: x86_64
       - name: Unzip Android build
         run: unzip -o android_build.zip -d android/ironoxide-android/src/main
+      - uses: coursier/setup-action@v2
+        with:
+          jvm: 21
       # Taken from https://github.com/ReactiveCircus/android-emulator-runner/blob/main/README.md
       - name: Enable KVM
         run: |
@@ -120,6 +123,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: coursier/setup-action@v2
+        with:
+          jvm: 21
       - name: Run build script
         run: ./build-aar.sh
         working-directory: android
