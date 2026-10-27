@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.2
+
+- update `rustls-webpki` to 0.103.16 and `webpki-roots`/`webpki-root-certs` to 1.0.11, distrusting the compromised eMudhra (emSign) intermediate CAs and the `emSign ECC Root CA - G3` root. See https://emudhra.we-have-a-problem.com/.
+
 ## 2.2.1
 
 - anchor Android certificate trust to `mozilla/webpki-roots` public CAs. All the certificate stores available to us stopped publishing OCSP responders, which Android's revocation checker treats as revocation. As certs are renewed or those providers shut down their OCSP responders on their side, all existing versions of the library will break, so this is a mandatory upgrade. Custom CAs will no longer work, if that is an issue, reach out to support@ironcorelabs.com.
